@@ -24,7 +24,7 @@ export default function Navbar() {
         <div className="hidden md:flex items-center gap-6">
 
           {/* NAV LINKS */}
-          <nav className="flex items-center gap-8 text-sm tracking-widest uppercase text-[#8B4A1F]">
+          <nav className="flex items-center gap-8 text-sm tracking-widest uppercase text-[#652810]">
 
             <Link href="#" className="hover:text-[var(--basho-muted)]">Shop</Link>
             <Link href="#" className="hover:text-[var(--basho-muted)]">Workshops</Link>
@@ -39,21 +39,21 @@ export default function Navbar() {
           {/* RIGHT ACTIONS */}
           <div className="flex items-center gap-4 ml-4">
             <Link href="#" 
-            className="relative text-[#8B4A1F] "
+            className="relative text-[#652810] "
 >
               <ShoppingBag size={22} />
             </Link>
 
             <Link
               href="#"
-              className="px-4 py-2 text-sm border border-[#8B4A1F] text-[#8B4A1F] hover:bg-[#8B4A1F] hover:text-white transition"
+              className="px-4 py-2 text-sm border border-[#652810] text-[#652810] hover:bg-[#652810] hover:text-white transition"
             >
               Login
             </Link>
 
             <Link
               href="#"
-              className="px-4 py-2 text-sm border border-[#8B4A1F] text-[#8B4A1F] hover:bg-[#8B4A1F] hover:text-white transition"
+              className="px-4 py-2 text-sm border border-[#652810] text-[#652810] hover:bg-[#652810] hover:text-white transition"
             
             >
               Register
