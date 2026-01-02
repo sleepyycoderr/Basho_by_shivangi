@@ -269,7 +269,7 @@ export default function WorkshopDetailPage() {
           <>
             <div className="grid md:grid-cols-2 gap-12 mb-16">
               {/* Left: Image */}
-              <div className="relative aspect-[4/3] bg-[#ecd7b5] rounded-sm overflow-hidden">
+              <div className="relative aspect-[4/3] bg-[#F6EFE1] rounded-sm overflow-hidden">
                 <Image
                   src={workshop.images[0]}
                   alt={workshop.name}
@@ -283,7 +283,7 @@ export default function WorkshopDetailPage() {
               <div>
                 {/* Badges */}
                 <div className="flex gap-3 mb-4">
-                  <span className="bg-[#ecd7b5] px-4 py-1.5 text-sm font-medium uppercase tracking-wide text-[#666] rounded-full">
+                  <span className="bg-[#F6EFE1] px-4 py-1.5 text-sm font-medium uppercase tracking-wide text-[#666] rounded-full">
                     {workshop.type}
                   </span>
                   <span className="bg-[#4A7C59] px-4 py-1.5 text-sm font-medium uppercase tracking-wide text-white rounded-full">
@@ -303,14 +303,14 @@ export default function WorkshopDetailPage() {
 
                 {/* Quick Info */}
                 <div className="grid grid-cols-3 gap-6 mb-8">
-                  <div className="text-center p-4 bg-[#ecd7b5] rounded-sm">
+                  <div className="text-center p-4 bg-[#f6efe1] rounded-sm">
                     <svg className="w-8 h-8 mx-auto mb-2 text-[#8B6F47]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <p className="text-sm font-medium text-[#2C2C2C]">{workshop.duration}</p>
                   </div>
 
-                  <div className="text-center p-4 bg-[#ecd7b5] rounded-sm">
+                  <div className="text-center p-4 bg-[#f6EFE1] rounded-sm">
                     <svg className="w-8 h-8 mx-auto mb-2 text-[#8B6F47]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
@@ -319,7 +319,7 @@ export default function WorkshopDetailPage() {
                     </p>
                   </div>
 
-                  <div className="text-center p-4 bg-[#ecd7b5] rounded-sm">
+                  <div className="text-center p-4 bg-[#F6EFE1] rounded-sm">
                     <svg className="w-8 h-8 mx-auto mb-2 text-[#8B6F47]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -329,7 +329,7 @@ export default function WorkshopDetailPage() {
                 </div>
 
                 {/* Price */}
-                <div className="bg-[#ecd7b5] p-6 rounded-sm mb-8">
+                <div className="bg-[#F6EFE1] p-6 rounded-sm mb-8">
                   <p className="text-3xl font-semibold text-[#8B6F47] mb-1">
                     {formatPrice(workshop.price)}
                   </p>
@@ -343,7 +343,7 @@ export default function WorkshopDetailPage() {
               <h2 className="text-2xl md:text-3xl font-serif text-[#2C2C2C] mb-8">What's Included</h2>
               <div className="grid md:grid-cols-3 gap-6">
                 {workshop.includes.map((item, index) => (
-                  <div key={index} className="bg-[#ecd7b5] p-6 rounded-sm">
+                  <div key={index} className="bg-[#F6EFE1] p-6 rounded-sm">
                     <div className="flex items-start gap-3">
                       <svg className="w-6 h-6 text-[#4A7C59] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -384,7 +384,7 @@ export default function WorkshopDetailPage() {
                 <div className="flex items-center justify-between mb-6">
                   <button
                     onClick={previousMonth}
-                    className="p-2 hover:bg-[#ecd7b5] rounded-full transition-colors"
+                    className="p-2 hover:bg-[#F6EFE1] rounded-full transition-colors"
                   >
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -395,7 +395,7 @@ export default function WorkshopDetailPage() {
                   </h3>
                   <button
                     onClick={nextMonth}
-                    className="p-2 hover:bg-[#ecd7b5] rounded-full transition-colors"
+                    className="p-2 hover:bg-[#F6EFE1] rounded-full transition-colors"
                   >
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -584,7 +584,8 @@ export default function WorkshopDetailPage() {
                     value={formData.fullName}
                     onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                     placeholder="Enter your full name"
-                    className="w-full px-4 py-3 border-2 border-[#E5E5E5] rounded-sm focus:border-[#8B6F47] focus:outline-none transition-colors"
+                    className="w-full px-4 py-3 border-2 border-[#E5E5E5] rounded-sm focus:border-[#8B6F47] focus:outline-none transition-colors placeholder:text-[#333]"
+
                   />
                 </div>
 
@@ -597,7 +598,8 @@ export default function WorkshopDetailPage() {
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     placeholder="your@email.com"
-                    className="w-full px-4 py-3 border-2 border-[#E5E5E5] rounded-sm focus:border-[#8B6F47] focus:outline-none transition-colors"
+                    className="w-full px-4 py-3 border-2 border-[#E5E5E5] rounded-sm focus:border-[#8B6F47] focus:outline-none transition-colors placeholder:text-[#333]"
+
                   />
                 </div>
 
@@ -609,8 +611,9 @@ export default function WorkshopDetailPage() {
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    placeholder="+91 98765 43210"
-                    className="w-full px-4 py-3 border-2 border-[#E5E5E5] rounded-sm focus:border-[#8B6F47] focus:outline-none transition-colors"
+                    placeholder="+91 xxxxxxxxxx"
+                    className="w-full px-4 py-3 border-2 border-[#E5E5E5] rounded-sm focus:border-[#8B6F47] focus:outline-none transition-colors placeholder:text-[#333]"
+
                   />
                 </div>
               </div>
@@ -738,7 +741,8 @@ export default function WorkshopDetailPage() {
           }
           rows={4}
           placeholder="Any dietary requirements, accessibility needs, or special requests..."
-          className="w-full px-4 py-3 border-2 border-[#E5E5E5] rounded-sm focus:border-[#8B6F47] focus:outline-none resize-none"
+          className="w-full px-4 py-3 border-2 border-[#E5E5E5] rounded-sm focus:border-[#8B6F47] focus:outline-none resize-none placeholder:text-[#333]"
+
            />
           </div>
           </div>
@@ -848,7 +852,7 @@ export default function WorkshopDetailPage() {
               </div>
 
               {/* Payment Summary */}
-              <div className="bg-[#ecd7b5] p-6 rounded-sm">
+              <div className="bg-[#F6EFE1] p-6 rounded-sm">
                 <h3 className="text-lg font-medium text-[#2C2C2C] mb-4">Payment Summary</h3>
                 <div className="space-y-3">
                   <div className="flex justify-between">

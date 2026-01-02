@@ -1,6 +1,8 @@
 // Individual Product Detail Page
 
 'use client';
+import { useCart } from '@/context/CartContext';
+import { useEffect } from 'react';
 
 import React, { useState } from 'react';
 import { useParams } from 'next/navigation';
@@ -15,10 +17,11 @@ export default function ProductDetailPage() {
   const params = useParams();
   const productId = params.id as string;
   const product = getProductById(productId);
-
+  const { addToCart } = useCart();
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedColor, setSelectedColor] = useState<GlazeColor | null>(null);
   const [quantity, setQuantity] = useState(1);
+  const [showAddedMessage, setShowAddedMessage] = useState(false);
   const [openSections, setOpenSections] = useState({
     dimensions: true,
     care: false,
@@ -39,10 +42,22 @@ export default function ProductDetailPage() {
   }
 
   // Set default selected color
+  useEffect(() => {
   if (!selectedColor && product.availableColors.length > 0) {
     setSelectedColor(product.availableColors[0]);
   }
-
+}, [product, selectedColor]);
+   const handleAddToCart = () => {
+    if (!product || !selectedColor) return;
+    
+    addToCart(product, quantity, selectedColor);
+    setShowAddedMessage(true);
+    
+    // Hide message after 3 seconds
+    setTimeout(() => {
+      setShowAddedMessage(false);
+    }, 3000);
+  };
   // Get related products
   const relatedProducts = getProductsByCategory(product.category)
     .filter(p => p.id !== product.id)
@@ -212,11 +227,17 @@ export default function ProductDetailPage() {
             {/* Action Buttons */}
             <div className="space-y-4 mb-8">
               <button
-                className="w-full bg-[#8B6F47] text-white py-4 rounded-sm font-medium hover:bg-[#6D5836] transition-colors uppercase tracking-wide"
-                disabled={product.stock === 0}
-              >
-                {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
-              </button>
+                    onClick={handleAddToCart}
+                   className="w-full bg-[#8B6F47] text-white py-4 rounded-sm font-medium hover:bg-[#6D5836] transition-colors uppercase tracking-wide"
+                    disabled={product.stock === 0}
+>                   {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+        </button>
+                {showAddedMessage && (
+                <div className="text-green-700 bg-green-100 border border-green-300 px-4 py-3 rounded-sm text-center">
+            ✅ Item added to cart successfully
+              </div>
+            )}
+
               {product.isCustomizable && (
                 <button className="w-full border-2 border-[#8B6F47] text-[#8B6F47] py-4 rounded-sm font-medium hover:bg-[#FAF8F5] transition-colors uppercase tracking-wide">
                   Customize This Piece

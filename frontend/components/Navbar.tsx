@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ShoppingBag } from "lucide-react";
+import { CartIcon } from "@/components/shared/CartIcon";
 
 export default function Navbar() {
   return (
@@ -10,7 +10,7 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-8 h-20 flex items-center justify-between">
 
         {/* LOGO */}
-        <Link href="#" className="flex items-center">
+        <Link href="/" className="flex items-center">
           <Image
             src="/image_aish/basho_logo.jpg"
             alt="Basho by Shivangi"
@@ -20,12 +20,11 @@ export default function Navbar() {
           />
         </Link>
 
-        {/* NAV + ACTIONS WRAPPER */}
+        {/* NAV + ACTIONS */}
         <div className="hidden md:flex items-center gap-6">
 
           {/* NAV LINKS */}
           <nav className="flex items-center gap-8 text-sm tracking-widest uppercase text-[#652810]">
-
             <Link href="/shop" className="hover:text-[var(--basho-muted)]">Shop</Link>
             <Link href="/workshops" className="hover:text-[var(--basho-muted)]">Workshops</Link>
             <Link href="#" className="hover:text-[var(--basho-muted)]">Experiences</Link>
@@ -33,28 +32,26 @@ export default function Navbar() {
             <Link href="#" className="hover:text-[var(--basho-muted)]">Gallery</Link>
             <Link href="#" className="hover:text-[var(--basho-muted)]">Custom Orders</Link>
             <Link href="#" className="hover:text-[var(--basho-muted)]">Corporate</Link>
-            </nav>
-
+          </nav>
 
           {/* RIGHT ACTIONS */}
           <div className="flex items-center gap-4 ml-4">
-            <Link href="#" 
-            className="relative text-[#652810] "
->
-              <ShoppingBag size={22} />
-            </Link>
+
+            {/* ✅ CART ICON WITH COUNT */}
+            <CartIcon />
 
             <Link
               href="#"
-              className="px-4 py-2 text-sm border border-[#652810] text-[#652810] hover:bg-[#652810] hover:text-white transition"
+              className="px-4 py-2 text-sm border border-[#652810] text-[#652810]
+              hover:bg-[#652810] hover:text-white transition"
             >
               Login
             </Link>
 
             <Link
               href="#"
-              className="px-4 py-2 text-sm border border-[#652810] text-[#652810] hover:bg-[#652810] hover:text-white transition"
-            
+              className="px-4 py-2 text-sm border border-[#652810] text-[#652810]
+              hover:bg-[#652810] hover:text-white transition"
             >
               Register
             </Link>

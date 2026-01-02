@@ -1,6 +1,7 @@
 // Workshops Page - Main Workshop Listing
 
 'use client';
+import { motion } from 'framer-motion';
 
 import React, { useState, useMemo } from 'react';
 import { workshops } from '@/data/workshops';
@@ -38,26 +39,58 @@ export default function WorkshopsPage() {
   return (
     <main className="min-h-screen">
       {/* Hero Section */}
-      <Section className="relative py-20 md:py-28 bg-[url('/images/products/12.png')] bg-cover bg-center">
-    
-    {/* Overlay */}
-    <div className="absolute inset-0 bg-[#3b3415]/70"></div>
+      <Section className="relative overflow-hidden py-24 md:py-32 bg-[url('/images/products/12.png')] bg-cover bg-center">
+  
+  {/* Dark Overlay */}
+  <div className="absolute inset-0 bg-[#3b3415]/70" />
 
-    {/* Content */}
-    <div className="relative text-center max-w-4xl mx-auto px-4">
-      <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif text-white mb-6">
-        Pottery Workshops
-      </h1>
+  {/* Subtle animated gradient overlay */}
+  <motion.div
+    className="absolute inset-0 bg-gradient-to-b from-transparent via-black/10 to-black/30"
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    transition={{ duration: 1.2 }}
+  />
 
-      <p className="text-lg md:text-xl text-[#ffffff] leading-relaxed mb-8">
-        Whether you're a complete beginner or looking to deepen your practice,
-        our workshops offer a meditative escape into the world of clay. All
-        sessions are led by Shivangi and include everything you need to create
-        and take home your pieces.
-      </p>
-    </div>
+  {/* Content */}
+  <motion.div
+    initial={{ opacity: 0, y: 40 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 1, ease: 'easeOut' }}
+    className="relative text-center max-w-4xl mx-auto px-4"
+  >
+    <motion.h1
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.2, duration: 0.9 }}
+      className="text-4xl md:text-5xl lg:text-6xl font-serif text-white mb-6"
+    >
+      Pottery Workshops
+    </motion.h1>
 
-  </Section>
+    <motion.p
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.4, duration: 0.9 }}
+      className="text-lg md:text-xl text-white/90 leading-relaxed mb-10"
+    >
+      Whether you're a complete beginner or looking to deepen your practice,
+      our workshops offer a meditative escape into the world of clay. All
+      sessions are led by Shivangi and include everything you need to create
+      and take home your pieces.
+    </motion.p>
+
+    {/* CTA Button */}
+    <motion.button
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.96 }}
+      className="inline-block bg-white text-[#3b3415] px-8 py-3 rounded-sm font-medium tracking-wide shadow-lg hover:bg-[#FAF8F5] transition"
+    >
+      Explore Workshops
+    </motion.button>
+  </motion.div>
+</Section>
+
 
       {/* Workshops Section */}
       <Section>

@@ -18,7 +18,7 @@ export const workshops: Workshop[] = [
       'All materials',
       'Apron provided',
       'Lunch included',
-      'Take home 2 pieces',
+      'Take home pieces you made',
       'Certificate',
     ],
     requirements: ['No prior experience needed', 'Wear comfortable clothes'],
