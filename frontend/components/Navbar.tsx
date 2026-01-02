@@ -28,8 +28,8 @@ export default function Navbar() {
 
             <Link href="#" className="hover:text-[var(--basho-muted)]">Shop</Link>
             <Link href="#" className="hover:text-[var(--basho-muted)]">Workshops</Link>
-            <Link href="#" className="hover:text-[var(--basho-muted)]">Experiences</Link>
-            <Link href="#" className="hover:text-[var(--basho-muted)]">Studio</Link>
+            <Link href="/experiences" className="hover:text-[var(--basho-muted)]">Experiences</Link>
+            <Link href="/studio" className="hover:text-[var(--basho-muted)]">Studio</Link>
             <Link href="#" className="hover:text-[var(--basho-muted)]">Gallery</Link>
             <Link href="#" className="hover:text-[var(--basho-muted)]">Custom Orders</Link>
             <Link href="#" className="hover:text-[var(--basho-muted)]">Corporate</Link>

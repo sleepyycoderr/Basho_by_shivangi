@@ -3,6 +3,16 @@
   padding: 6rem 2rem;
 }
 
+.hero {
+  position: relative;
+  padding: 7rem 2rem;
+  text-align: center;
+
+  background-image: url("/Images/products/29.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
 .heroTitle {
   font-size: clamp(3rem, 6vw, 4.5rem); /* replaces text-5xl → text-6xl */
   font-weight: 500;                   /* font-medium */
