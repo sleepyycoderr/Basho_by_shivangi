@@ -10,6 +10,8 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-[var(--basho-divider)]">
 
+    <header className="sticky top-0 z-50 bg-white border-b border-[var(--basho-divider)]">
+
       <div className="max-w-7xl mx-auto px-8 h-20 flex items-center justify-between">
 
         {/* LOGO */}
@@ -41,6 +43,16 @@ export default function Navbar() {
             <Link href="/about" className="hover:text-[var(--basho-muted)]">ABOUT US</Link>
             <Link href="/corporate" className="hover:text-[var(--basho-muted)]">CORPORATE</Link>
 
+
+            
+            <Link href="/shop" className="hover:text-[var(--basho-muted)]">SHOP</Link>
+            <Link href="/workshops" className="hover:text-[var(--basho-muted)]">WORKSHOPS</Link>
+            <Link href="/experiences" className="hover:text-[var(--basho-muted)]">EXPERIENCES</Link>
+            <Link href="/studio" className="hover:text-[var(--basho-muted)]">STUDIO</Link>
+            <Link href="/gallery" className="hover:text-[var(--basho-muted)]">GALLERY</Link>
+            <Link href="/about" className="hover:text-[var(--basho-muted)]">ABOUT US</Link>
+            <Link href="/corporate" className="hover:text-[var(--basho-muted)]">CORPORATE</Link>
+
             </nav>
 
 
@@ -52,12 +64,14 @@ export default function Navbar() {
 
             <Link
               href="/login"
+              href="/login"
               className="px-4 py-2 text-sm border border-[#652810] text-[#652810] hover:bg-[#652810] hover:text-white transition"
             >
               Login
             </Link>
 
             <Link
+              href="/register"
               href="/register"
               className="px-4 py-2 text-sm border border-[#652810] text-[#652810] hover:bg-[#652810] hover:text-white transition"
             

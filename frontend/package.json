@@ -9,6 +9,10 @@
     "lint": "eslint"
   },
   "dependencies": {
+<<<<<<< HEAD
+=======
+    "clsx": "^2.1.1",
+>>>>>>> b21efcf2e99edac61b1ab301da212c9e3b7b2ba6
     "framer-motion": "^12.23.26",
     "lucide-react": "^0.562.0",
     "next": "16.1.1",
