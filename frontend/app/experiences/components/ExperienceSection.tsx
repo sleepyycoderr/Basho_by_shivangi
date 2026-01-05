@@ -3,6 +3,66 @@
 import { useState } from "react";
 import styles from "./ExperienceSection.module.css";
 
+const experienceDetails: Record<string, {
+  about: string;
+  idealFor: string;
+  highlights: string[];
+  level: string;
+  location: string;
+}> = {
+  "Couple’s Pottery Date": {
+    about:
+      "A slow, intimate pottery experience designed for couples to create together, laugh together, and take home meaningful handmade pieces.",
+    idealFor: "Couples, anniversaries, proposals, quiet celebrations",
+    highlights: [
+      "Private guided pottery session",
+      "Create matching or complementary pieces",
+      "Relaxed, romantic studio atmosphere",
+    ],
+    level: "Beginner-friendly",
+    location: "Studio-based",
+  },
+
+  "Birthday Celebrations": {
+    about:
+      "A joyful, hands-on pottery celebration where creativity meets fun. Designed to make birthdays memorable and meaningful.",
+    idealFor: "Birthdays for adults, teens & creative groups",
+    highlights: [
+      "Decorated studio space",
+      "Group pottery activities",
+      "Celebratory keepsakes",
+    ],
+    level: "No experience needed",
+    location: "Studio-based",
+  },
+
+  "Farm & Garden Mini Parties": {
+    about:
+      "An earthy pottery experience set in nature. Clay, open air, and connection—perfect for relaxed celebrations.",
+    idealFor: "Friends, families, small outdoor gatherings",
+    highlights: [
+      "Nature-inspired pottery session",
+      "Outdoor farm or garden setup",
+      "Calm, slow-paced creative time",
+    ],
+    level: "Beginner-friendly",
+    location: "Outdoor (Farm/Garden)",
+  },
+
+  "Studio-Based Experiences": {
+    about:
+      "Focused pottery workshops for individuals or small groups looking to explore skills and techniques in depth.",
+    idealFor: "Solo creators, learners, small groups",
+    highlights: [
+      "Skill-based guidance",
+      "Hands-on wheel or hand-building",
+      "Take-home finished piece",
+    ],
+    level: "Beginner to intermediate",
+    location: "Studio-based",
+  },
+};
+
 interface Props {
   title: string;
   tagline: string;
@@ -67,38 +127,73 @@ export default function ExperienceSection({
 
       {/* BOOKING MODAL */}
       {open && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modal}>
-            <button
-              className={styles.close}
-              onClick={() => setOpen(false)}
-            >
-              ✕
-            </button>
+  <div className={styles.modalOverlay}>
+    <div className={styles.modal}>
+      <button
+        className={styles.close}
+        onClick={() => setOpen(false)}
+      >
+        ✕
+      </button>
 
-            <h3 className={styles.modalTitle}>Book Your Experience</h3>
+      {/* EXPERIENCE DETAILS */}
+      <div className={styles.experienceInfo}>
+        <h3>{title}</h3>
+        <p className={styles.about}>
+          {experienceDetails[title].about}
+        </p>
 
-            <form className={styles.form}>
-              <input type="text" placeholder="Full Name" required />
-              <input type="tel" placeholder="Phone Number" required />
-              <input type="email" placeholder="Email Address" required />
+        <div className={styles.infoGrid}>
+          <div>
+            <strong>Ideal For</strong>
+            <p>{experienceDetails[title].idealFor}</p>
+          </div>
 
-              <input type="date" required />
+          <div>
+            <strong>Level</strong>
+            <p>{experienceDetails[title].level}</p>
+          </div>
 
-              <select defaultValue={title}>
-                <option>Couple’s Pottery Date</option>
-                <option>Birthday Celebrations</option>
-                <option>Farm & Garden Mini Parties</option>
-                <option>Studio-Based Experiences</option>
-              </select>
-
-              <button type="submit" className={styles.submit}>
-                Confirm Booking
-              </button>
-            </form>
+          <div>
+            <strong>Location</strong>
+            <p>{experienceDetails[title].location}</p>
           </div>
         </div>
-      )}
+
+        <ul className={styles.highlights}>
+          {experienceDetails[title].highlights.map((h, i) => (
+            <li key={i}>• {h}</li>
+          ))}
+        </ul>
+
+        <div className={styles.quickMeta}>
+          <span>{duration}</span>
+          <span>{people}</span>
+          <span className={styles.price}>{price}</span>
+        </div>
+      </div>
+
+      {/* BOOKING FORM */}
+      <form className={styles.form}>
+        <h4 className={styles.formTitle}>Book Your Slot</h4>
+
+        <input type="text" placeholder="Full Name" required />
+        <input type="tel" placeholder="Phone Number" required />
+        <input type="email" placeholder="Email Address" required />
+        <input type="date" required />
+
+        <select value={title} disabled>
+          <option>{title}</option>
+        </select>
+
+        <button type="submit" className={styles.submit}>
+          Confirm Booking
+        </button>
+      </form>
+    </div>
+  </div>
+)}
+
     </>
   );
 }
