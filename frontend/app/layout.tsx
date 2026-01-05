@@ -5,6 +5,7 @@ import "./globals.css";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 
+import { CartProvider } from '@/context/CartContext';
 
 /* ---------- Fonts ---------- */
 
@@ -39,12 +40,13 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={`${cinzel.variable} ${sourceSerif.variable} antialiased min-h-screen flex flex-col`}
-      >
+      ><CartProvider>
         <Navbar /> 
 
-        <main className="flex-grow">{children}</main>
+        <main className="grow">{children}</main>
         
         <Footer />
+        </CartProvider>
       </body>
     </html>
   );
