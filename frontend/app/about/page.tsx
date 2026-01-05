@@ -133,7 +133,7 @@ export default function AboutPage() {
                 <div className="bg-white p-4 shadow-xl border border-[var(--basho-divider)]">
                   <div className="aspect-[3/4] overflow-hidden relative">
                     <Image
-                      src="/Images/products/15.png"
+                      src="/image_aish/home/shivaangi_mam.png"
                       alt="Shivangi working on pottery"
                       fill
                       className="object-cover"
@@ -157,27 +157,7 @@ export default function AboutPage() {
                   MEET THE FOUNDER
                 </h3>
 
-                {/* <svg
-                width="260"
-                height="18"
-                viewBox="0 0 260 18"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                >
-                <path
-                    d="
-                    M10 9
-                    C30 2, 50 16, 70 9
-                    C90 2, 110 16, 130 9
-                    C150 2, 170 16, 190 9
-                    C210 2, 230 16, 250 9
-                    "
-                    stroke="var(--basho-terracotta)"
-                    strokeWidth="2"
-                    fill="none"
-                    strokeLinecap="round"
-                />
-                </svg> */}
+                 
               </motion.div>
 
               {/* Heading */}
