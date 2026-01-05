@@ -10,8 +10,6 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-[var(--basho-divider)]">
 
-    <header className="sticky top-0 z-50 bg-white border-b border-[var(--basho-divider)]">
-
       <div className="max-w-7xl mx-auto px-8 h-20 flex items-center justify-between">
 
         {/* LOGO */}
@@ -64,14 +62,12 @@ export default function Navbar() {
 
             <Link
               href="/login"
-              href="/login"
               className="px-4 py-2 text-sm border border-[#652810] text-[#652810] hover:bg-[#652810] hover:text-white transition"
             >
               Login
             </Link>
 
             <Link
-              href="/register"
               href="/register"
               className="px-4 py-2 text-sm border border-[#652810] text-[#652810] hover:bg-[#652810] hover:text-white transition"
             
