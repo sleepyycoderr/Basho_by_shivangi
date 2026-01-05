@@ -27,16 +27,16 @@ export default function Footer() {
   };
 
   return (
-    <footer className="bg-[var(--basho-teal)] text-[var(--basho-sand)]">
-      <div className="max-w-7xl mx-auto px-8 py-16 grid grid-cols-1 md:grid-cols-4 gap-12">
+    <footer className="bg-[var(--basho-teal)] text-[var(--basho-sand)]/90">
+      <div className="max-w-7xl mx-auto px-10 py-5 mt-10 grid grid-cols-1 md:grid-cols-4 gap-12">
 
         {/* Brand */}
-        <div>
-          <h2 className="text-2xl tracking-widest mb-4">
+        <div className="mb-0">
+          <h2 className="text-2xl tracking-widest  mb-4">
             芭蕉 <span className="ml-2">BASHO</span>
           </h2>
 
-          <p className="text-sm leading-relaxed text-[var(--basho-muted)]">
+          <p className="text-0.5xl leading-relaxed text-white/70">
             Japanese-inspired handcrafted pottery, celebrating the beauty of
             imperfection from our studio in Surat, Gujarat.
           </p>
@@ -46,13 +46,13 @@ export default function Footer() {
               href="https://www.instagram.com/bashobyyshivangi/"
               target="_blank"
               rel="noopener noreferrer"
-              className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition"
+              className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-[var(--basho-sand)]/20 transition"
             >
               <InstagramIcon size={20} />
             </a>
             <a
               href="mailto:hello@bashobyshivangi.com"
-              className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition"
+              className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-[var(--basho-sand)]/20 transition"
             >
               <MailIcon size={20} />
             </a>
@@ -69,7 +69,7 @@ export default function Footer() {
           <FooterLink href="/">Shop Collection</FooterLink>
           <FooterLink href="/">Workshops</FooterLink>
           <FooterLink href="/">Our Philosophy</FooterLink>
-          <FooterLink href="/">Custom Orders</FooterLink>
+          <FooterLink href="/custom-orders">Custom Orders</FooterLink>
         </FooterSection>
 
         {/* Support */}
@@ -92,24 +92,24 @@ export default function Footer() {
           open={open === "studio"}
           onClick={() => toggle("studio")}
         >
-          <p className="flex gap-3 items-start">
-            <MapPinIcon size={16} className="mt-1" />
+          <p className="flex gap-3 items-start text-white/70">
+            <MapPinIcon size={30} className="mt-1 text-[var(--basho-sand)]/80" />
             Basho Studio, City Light Road, Surat, Gujarat 395007
           </p>
-          <p className="flex gap-3 items-center">
-            <PhoneIcon size={16} />
+          <p className="flex gap-3 items-center text-white/70">
+            <PhoneIcon size={20} className="mt-1 text-[var(--basho-sand)]/80" />
             +91 99999 88888
           </p>
-          <p className="flex gap-3 items-center">
-            <MailIcon size={16} />
+          <p className="flex gap-3 items-center text-white/70">
+            <MailIcon size={20} className="mt-1 text-[var(--basho-sand)]/80" />
             hello@bashobyshivangi.com
           </p>
         </FooterSection>
       </div>
 
       {/* Bottom Bar */}
-      <div className="border-t border-[var(--basho-divider)]">
-        <div className="max-w-7xl mx-auto px-8 py-6 flex flex-col md:flex-row justify-between text-xs text-[var(--basho-muted)]">
+      <div className="mt-16  pb-10 border-t border-white/10" >
+        <div className="font-serif max-w-7xl mx-auto px-8 py-4 flex flex-col md:flex-row justify-between text-sm text-white/60 items-center gap-4">
           <span>© 2024 Basho by Shivangi. All rights reserved.</span>
           <span className="italic">"Beauty in imperfection"</span>
         </div>
@@ -167,7 +167,7 @@ function FooterLink({
   children: React.ReactNode;
 }) {
   return (
-    <Link href={href} className="hover:text-white block">
+    <Link href={href} className="text-white/70 hover:text-[var(--basho-sand)] block ">
       {children}
     </Link>
   );
