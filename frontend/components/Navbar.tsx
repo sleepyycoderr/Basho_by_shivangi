@@ -4,8 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 
 
-import { CartIcon } from "@/components/shared/CartIcon";
-
 export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-[var(--basho-divider)]">
@@ -31,20 +29,22 @@ export default function Navbar() {
           {/* NAV LINKS */}
           <nav className="flex items-center gap-8 text-sm tracking-widest uppercase text-[#652810]">
 
+
             
-            <Link href="/shop" className="hover:text-[var(--basho-muted)]">Shop</Link>
-            <Link href="/workshops" className="hover:text-[var(--basho-muted)]">Workshops</Link>
-            <Link href="/experiences" className="hover:text-[var(--basho-muted)]">Experiences</Link>
-            <Link href="/studio" className="hover:text-[var(--basho-muted)]">Studio</Link>
-            <Link href="/gallery" className="hover:text-[var(--basho-muted)]">Gallery</Link>
-            <Link href="/about" className="hover:text-[var(--basho-muted)]">About</Link>
-            <Link href="/corporate" className="hover:text-[var(--basho-muted)]">Corporate</Link>
+            <Link href="/shop" className="hover:text-[var(--basho-muted)]">SHOP</Link>
+            <Link href="/workshops" className="hover:text-[var(--basho-muted)]">WORKSHOPS</Link>
+            <Link href="/experiences" className="hover:text-[var(--basho-muted)]">EXPERIENCES</Link>
+            <Link href="/studio" className="hover:text-[var(--basho-muted)]">STUDIO</Link>
+            <Link href="/gallery" className="hover:text-[var(--basho-muted)]">GALLERY</Link>
+            <Link href="/about" className="hover:text-[var(--basho-muted)]">ABOUT US</Link>
+            <Link href="/corporate" className="hover:text-[var(--basho-muted)]">CORPORATE</Link>
+
             </nav>
 
 
           {/* RIGHT ACTIONS */}
           <div className="flex items-center gap-4 ml-4">
-            <CartIcon />
+            
 
 
 
