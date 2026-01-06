@@ -52,7 +52,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
               Your Cart ({cartCount})
             </h2>
           </div>
-
+        
           <button
             onClick={onClose}
             className="p-2 hover:bg-[#E5E5E5] rounded-full"
@@ -63,6 +63,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
 
         {/* Cart Items */}
         <div className="flex-1 overflow-y-auto p-6">
+          
           {cartItems.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center">
               <p className="text-lg text-[#666] mb-6">
@@ -159,24 +160,34 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
         </div>
 
         {/* Footer */}
-        {cartItems.length > 0 && (
-          <div className="border-t border-[#E5E5E5] p-6 bg-white">
-            <div className="flex text-[#666] justify-between mb-4">
-              <span>Subtotal</span>
-              <span className="font-semibold">
-                {formatPrice(getCartTotal())}
-              </span>
-            </div>
+{cartItems.length > 0 && (
+  <div className="border-t border-[#E5E5E5] p-6 bg-white space-y-3">
+    {/* Subtotal */}
+    <div className="flex text-[#666] justify-between mb-4">
+      <span>Subtotal</span>
+      <span className="font-semibold">{formatPrice(getCartTotal())}</span>
+    </div>
 
-            <Link
-              href="/checkout"
-              onClick={onClose}
-              className="block w-full bg-[#8B6F47] text-white py-4 text-center uppercase"
-            >
-              Proceed to Checkout
-            </Link>
-          </div>
-        )}
+    {/* View Full Cart Button */}
+    <Link
+      href="/cart"   // assuming your full cart page is /cart
+      onClick={onClose}
+      className="block w-full bg-[#8B6F47] text-white py-3 text-center uppercase rounded-sm hover:bg-[#cbb48b]"
+    >
+      View Full Cart
+    </Link>
+
+    {/* Proceed to Checkout */}
+    <Link
+      href="/checkout"
+      onClick={onClose}
+      className="block w-full bg-[#8B6F47] text-white py-4 text-center uppercase rounded-sm hover:bg-[#76603e]"
+    >
+      Proceed to Checkout
+    </Link>
+  </div>
+)}
+
       </div>
     </>
   );

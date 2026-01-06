@@ -16,19 +16,16 @@ const [formError, setFormError] = useState('');
 
   // Form state
   const [formData, setFormData] = useState({
-    // Contact Information
     email: '',
     phone: '',
-    
-    // Shipping Address
     fullName: '',
-    addressLine: '',
+    addressLine: '', // Street/Area
+    apartment: '',   // NEW: Flat/House/Building
+    landmark: '',    // NEW: Near which famous spot?
     city: '',
     state: '',
     pincode: '',
     country: 'India',
-    
-    // Shipping Method
     shippingMethod: 'standard',
   });
 
@@ -43,28 +40,35 @@ const [formError, setFormError] = useState('');
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-     const requiredFields = [
-    'email',
-    'phone',
-    'fullName',
-    'addressLine',
-    'city',
-    'state',
-    'pincode',
-  ] as const;
-
+const handleSubmit = (e: React.FormEvent) => {
+  e.preventDefault();
+  
+  // 1. Check for basic empty fields
+  const requiredFields = ['email', 'phone', 'fullName', 'addressLine', 'city', 'state', 'pincode'] as const;
   for (const field of requiredFields) {
     if (!formData[field]) {
-      setFormError('Please complete all required delivery details before proceeding.');
+      setFormError(`Please provide your ${field.replace(/([A-Z])/g, ' $1').toLowerCase()}.`);
       return;
     }
   }
 
+  // 2. Indian Phone Validation (10 digits starting with 6-9)
+  const phoneRegex = /^[6-9]\d{9}$/;
+  if (!phoneRegex.test(formData.phone)) {
+    setFormError('Please enter a valid 10-digit Indian phone number.');
+    return;
+  }
+
+  // 3. Indian Pincode Validation (Exactly 6 digits)
+  const pincodeRegex = /^\d{6}$/;
+  if (!pincodeRegex.test(formData.pincode)) {
+    setFormError('Please enter a valid 6-digit Pincode.');
+    return;
+  }
+
   setFormError('');
-    alert('Order placed successfully! (Razorpay integration pending)');
-  };
+  // Proceed to Razorpay...
+};
 
   // Redirect if cart is empty
   if (cartItems.length === 0) {
@@ -223,7 +227,35 @@ const [formError, setFormError] = useState('');
                              focus:outline-none focus:border-[#563a13] transition-colors"
                   />
                 </div>
-
+                {/* New Apartment/House Field */}
+              <div>
+              <label htmlFor="apartment" className="block text-sm text-[#4A5F55] mb-2">
+              Flat, House no., Building, Company, Apartment
+              </label>
+              <input
+              type="text"
+              id="apartment"
+              name="apartment"
+              value={formData.apartment}
+              onChange={handleInputChange}
+              placeholder="e.g. 402, Lotus Residency"
+              className="w-full px-4 py-3 bg-white border border-[#A8A29E]/30 rounded-sm text-[#563a13]"
+                  />
+                </div>
+                <div>
+              <label htmlFor="landmark" className="block text-sm text-[#4A5F55] mb-2">
+                Landmark (Optional)
+              </label>
+              <input
+              type="text"
+              id="landmark"
+              name="landmark"
+              value={formData.landmark}
+              onChange={handleInputChange}
+              placeholder="e.g. Near City Light Petrol Pump"
+              className="w-full px-4 py-3 bg-white border border-[#A8A29E]/30 rounded-sm text-[#563a13]"
+                />
+              </div>
                 <div className="grid md:grid-cols-2 gap-5">
                   <div>
                     <label 

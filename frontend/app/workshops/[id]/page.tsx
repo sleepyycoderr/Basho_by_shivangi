@@ -21,7 +21,8 @@ export default function WorkshopDetailPage() {
   const [bookingStep, setBookingStep] = useState<'details' | 'calendar' | 'form'|'experience' | 'review'>('details');
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
-  const [currentMonth, setCurrentMonth] = useState(new Date('2026-01-01'));
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+
   
   // Form state
   const [formData, setFormData] = useState({
@@ -92,6 +93,7 @@ export default function WorkshopDetailPage() {
         date: null,
       });
     }
+    const stepOrder = ['calendar', 'form', 'experience', 'review'] as const;
 
     // Current month days
     const availableDates = getAvailableDatesForMonth();
@@ -165,11 +167,13 @@ export default function WorkshopDetailPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleBack = () => {
-    if (bookingStep === 'review') setBookingStep('form');
-    else if (bookingStep === 'form') setBookingStep('calendar');
-    else if (bookingStep === 'calendar') setBookingStep('details');
-  };
+const handleBack = () => {
+  if (bookingStep === 'review') setBookingStep('experience');
+  else if (bookingStep === 'experience') setBookingStep('form');
+  else if (bookingStep === 'form') setBookingStep('calendar');
+  else if (bookingStep === 'calendar') setBookingStep('details');
+};
+
 
   const handleConfirmBooking = () => {
     // This will be connected to backend later
@@ -189,79 +193,85 @@ export default function WorkshopDetailPage() {
         </nav>
       </div>
 
-      {/* Progress Steps (only show during booking) */}
       {bookingStep !== 'details' && (
-        <div className="bg-white border-b border-[#E5E5E5]">
-          <div className="container mx-auto px-4 md:px-6 lg:px-8 py-6">
-            <div className="flex items-center justify-center gap-8">
-              {/* Step 1 */}
-              <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-medium ${
-                  bookingStep === 'form' || bookingStep === 'review' ? 'bg-[#8B6F47]' : 'bg-[#8B6F47]'
-                }`}>
-                  {bookingStep === 'form' || bookingStep === 'review' ? (
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  ) : '1'}
-                </div>
-                <span className="text-sm font-medium text-[#2C2C2C]">Slot Booking</span>
-                <svg className="w-5 h-5 text-[#666]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
+  <div className="bg-white border-b border-[#E5E5E5]">
+    <div className="container mx-auto px-4 md:px-6 lg:px-8 py-6">
+      <div className="flex items-center justify-center gap-8">
 
-              {/* Step 2 */}
-              <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-medium ${
-                  bookingStep === 'review' ? 'bg-[#8B6F47]' : bookingStep === 'form' ? 'bg-[#8B6F47]' : 'bg-[#D4C5B0]'
-                }`}>
-                  {bookingStep === 'review' ? (
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  ) : '2'}
-                </div>
-                <span className={`text-sm font-medium ${bookingStep === 'form' || bookingStep === 'review' ? 'text-[#2C2C2C]' : 'text-[#666]'}`}>
-                  Your Details
-                </span>
-                <svg className="w-5 h-5 text-[#666]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
-              {/* Step 3 */}
-              <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-medium ${
-                  bookingStep === 'review' ? 'bg-[#8B6F47]' : bookingStep === 'form' ? 'bg-[#8B6F47]' : 'bg-[#D4C5B0]'
-                }`}>
-                  {bookingStep === 'review' ? (
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  ) : '3'}
-                </div>
-                <span className={`text-sm font-medium ${bookingStep === 'form' || bookingStep === 'review' ? 'text-[#2C2C2C]' : 'text-[#666]'}`}>
-                  Experience Level
-                </span>
-                <svg className="w-5 h-5 text-[#666]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
-              {/* Step 4 */}
-              <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-medium ${
-                  bookingStep === 'review' ? 'bg-[#8B6F47]' : 'bg-[#D4C5B0]'
-                }`}>
-                  4
-                </div>
-                <span className={`text-sm font-medium ${bookingStep === 'review' ? 'text-[#2C2C2C]' : 'text-[#666]'}`}>
-                  Review & Pay
-                </span>
-              </div>
-            </div>
+        {/* Step 1 */}
+        <div className="flex items-center gap-3">
+          <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-medium ${
+            ['calendar','form','experience','review'].includes(bookingStep)
+              ? 'bg-[#8B6F47]' : 'bg-[#D4C5B0]'
+          }`}>
+            1
           </div>
+          <span className="text-sm font-medium text-[#2C2C2C]">
+            Slot Booking
+          </span>
+          <svg className="w-5 h-5 text-[#666]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
         </div>
-      )}
+
+        {/* Step 2 */}
+        <div className="flex items-center gap-3">
+          <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-medium ${
+            ['form','experience','review'].includes(bookingStep)
+              ? 'bg-[#8B6F47]' : 'bg-[#D4C5B0]'
+          }`}>
+            2
+          </div>
+          <span className={`text-sm font-medium ${
+            ['form','experience','review'].includes(bookingStep)
+              ? 'text-[#2C2C2C]' : 'text-[#666]'
+          }`}>
+            Your Details
+          </span>
+          <svg className="w-5 h-5 text-[#666]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </div>
+
+        {/* Step 3 */}
+        <div className="flex items-center gap-3">
+          <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-medium ${
+            ['experience','review'].includes(bookingStep)
+              ? 'bg-[#8B6F47]' : 'bg-[#D4C5B0]'
+          }`}>
+            3
+          </div>
+          <span className={`text-sm font-medium ${
+            ['experience','review'].includes(bookingStep)
+              ? 'text-[#2C2C2C]' : 'text-[#666]'
+          }`}>
+            Experience Level
+          </span>
+          <svg className="w-5 h-5 text-[#666]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </div>
+
+        {/* Step 4 */}
+        <div className="flex items-center gap-3">
+          <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-medium ${
+            bookingStep === 'review'
+              ? 'bg-[#8B6F47]' : 'bg-[#D4C5B0]'
+          }`}>
+            4
+          </div>
+          <span className={`text-sm font-medium ${
+            bookingStep === 'review'
+              ? 'text-[#2C2C2C]' : 'text-[#666]'
+          }`}>
+            Review & Pay
+          </span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+)}
 
       <div className="container mx-auto px-4 md:px-6 lg:px-8 pb-16">
         {/* Workshop Details View */}
@@ -513,6 +523,7 @@ export default function WorkshopDetailPage() {
 
                         <button
                           onClick={handleContinueToForm}
+                          disabled={!selectedDate || !selectedTime}
                           className="w-full bg-[#8B6F47] text-white py-4 rounded-sm font-medium hover:bg-[#6D5836] transition-colors uppercase tracking-wide"
                         >
                           Continue to Book
@@ -534,6 +545,7 @@ export default function WorkshopDetailPage() {
         )}
 
         {/* Form View - Step 1 */}
+
         {bookingStep === 'form' && (
           <div className="max-w-2xl mx-auto">
             {/* Workshop Summary Card */}
@@ -582,6 +594,7 @@ export default function WorkshopDetailPage() {
                   <input
                     type="text"
                     value={formData.fullName}
+                    required
                     onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                     placeholder="Enter your full name"
                     className="w-full px-4 py-3 border-2 text-[#666] border-[#E5E5E5] rounded-sm focus:border-[#8B6F47] focus:outline-none transition-colors placeholder:text-[#333]"
@@ -595,6 +608,7 @@ export default function WorkshopDetailPage() {
                   </label>
                   <input
                     type="email"
+                    required
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     placeholder="your@email.com"
@@ -609,6 +623,7 @@ export default function WorkshopDetailPage() {
                   </label>
                   <input
                     type="tel"
+                    required
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     placeholder="+91 xxxxxxxxxx"
@@ -693,9 +708,8 @@ export default function WorkshopDetailPage() {
           className="w-full px-4 text-[#666] py-3 border-2 border-[#E5E5E5] rounded-sm focus:border-[#8B6F47] focus:outline-none"
         >
           {Array.from(
-            { length: workshop.participants.max },
-            (_, i) => i + 1
-          ).map((num) => (
+  { length: workshop.participants.max - workshop.participants.min + 1 },
+  (_, i) => workshop.participants.min + i).map((num) => (
             <option key={num} value={num}>
               {num} person{num > 1 ? 's' : ''}
             </option>

@@ -2,8 +2,8 @@
 
 'use client';
 import { motion } from 'framer-motion';
-
-import React, { useState, useMemo } from 'react';
+import Image from 'next/image';
+import React, { useState, useMemo ,useRef} from 'react';
 import { workshops } from '@/data/workshops';
 import { WorkshopGrid } from '@/components/workshops/WorkshopGrid';
 import { WorkshopFilter } from '@/components/workshops/WorkshopFilter';
@@ -11,7 +11,13 @@ import { Section } from '@/components/shared/Section';
 
 export default function WorkshopsPage() {
   const [activeFilter, setActiveFilter] = useState('all');
-
+  const workshopsSectionRef = useRef<HTMLDivElement>(null);
+  const scrollToWorkshops = () => {
+    workshopsSectionRef.current?.scrollIntoView({ 
+      behavior: 'smooth',
+      block: 'start' 
+    });
+  };
   // Filter workshops based on selected type/level
   const filteredWorkshops = useMemo(() => {
     if (activeFilter === 'all') {
@@ -38,60 +44,63 @@ export default function WorkshopsPage() {
 
   return (
     <main className="min-h-screen">
-      {/* Hero Section */}
-      <Section className="relative overflow-hidden py-24 md:py-32 bg-[url('/images/products/12.png')] bg-cover bg-center">
-  
-  {/* Dark Overlay */}
-  <div className="absolute inset-0 bg-[#3b3415]/70" />
+      {/* Hero */}
+      <section className="relative h-[62vh] -mt-10 flex items-center justify-center text-center overflow-hidden">
+        {/* Background Image Motion */}
+        <motion.div
+          initial={{ scale: 1.15, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 1.2, ease: "easeOut" }}
+          className="absolute inset-0"
+        >
+          <Image
+            src="/images/workshop-pieces/7.png"
+            alt="Corporate pottery"
+            fill
+            priority
+            className="object-cover"
+          />
+        </motion.div>
 
-  {/* Subtle animated gradient overlay */}
-  <motion.div
-    className="absolute inset-0 bg-gradient-to-b from-transparent via-black/10 to-black/30"
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
-    transition={{ duration: 1.2 }}
-  />
+        {/* Dark Overlay */}
+        <div className="absolute inset-0 bg-black/40" />
 
-  {/* Content */}
-  <motion.div
-    initial={{ opacity: 0, y: 40 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 1, ease: 'easeOut' }}
-    className="relative text-center max-w-4xl mx-auto px-4"
-  >
-    <motion.h1
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.2, duration: 0.9 }}
-      className="text-4xl md:text-5xl lg:text-6xl font-serif text-white mb-6"
-    >
-      Pottery Workshops
-    </motion.h1>
+        {/* Text Content */}
+        <div className="relative z-10 text-white px-6">
+          {/* Heading */}
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="text-4xl md:text-5xl font-semibold mb-4"
+          >
+           Pottery Workshops
+          </motion.h1>
 
-    <motion.p
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.4, duration: 0.9 }}
-      className="text-lg md:text-xl text-white/90 leading-relaxed mb-10"
-    >
-      Whether you're a complete beginner or looking to deepen your practice,
+          {/* Subtitle */}
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.5 }}
+            className="max-w-xl mx-auto text-white/80"
+          >
+            Whether you're a complete beginner or looking to deepen your practice,
       our workshops offer a meditative escape into the world of clay. All
       sessions are led by Shivangi and include everything you need to create
       and take home your pieces.
-    </motion.p>
-
-    {/* CTA Button */}
-    <motion.button
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.96 }}
-      className="inline-block bg-white text-[#3b3415] px-8 py-3 rounded-sm font-medium tracking-wide shadow-lg hover:bg-[#FAF8F5] transition"
-    >
-      Explore Workshops
-    </motion.button>
-  </motion.div>
-</Section>
-
-
+          </motion.p>
+ <motion.button
+  whileHover={{ scale: 1.05 }}
+  whileTap={{ scale: 0.96 }}
+  onClick={scrollToWorkshops} // Add this line
+  className="mt-8 inline-block bg-white text-[#3b3415] px-8 py-3 rounded-sm font-medium tracking-wide shadow-lg hover:bg-[#FAF8F5] transition"
+>
+  Explore Workshops
+</motion.button>
+        </div>
+      </section>
+     
+<div ref={workshopsSectionRef} className="scroll-mt-20">
       {/* Workshops Section */}
       <Section>
         {/* Filter Tabs */}
@@ -107,6 +116,7 @@ export default function WorkshopsPage() {
           emptyMessage="No workshops available for the selected filter."
         />
       </Section>
+      </div>
 
       {/* Private Experience Highlight */}
       <Section bgColor="bg-[#3D5A54]" className="text-white">
@@ -186,6 +196,7 @@ export default function WorkshopsPage() {
           </div>
         </div>
       </Section>
+
     </main>
   );
 }

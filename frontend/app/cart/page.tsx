@@ -19,9 +19,9 @@ export default function CartPage() {
   return (
     <main className="min-h-screen bg-[#FAF8F5]">
       {/* Header */}
-      <div className="bg-white border-b border-[#E5E5E5]">
+      <div className="bg-[#87582d] border-b border-[#E5E5E5]">
         <div className="max-w-7xl mx-auto px-4 md:px-8 py-8">
-          <h1 className="text-3xl md:text-4xl font-serif text-[#2C2C2C]">
+          <h1 className="text-3xl md:text-4xl font-serif text-[#F5E6D3]">
             Shopping Cart ({cartCount})
           </h1>
         </div>
@@ -239,22 +239,27 @@ export default function CartPage() {
         )}
       </div>
 
-      {/* You May Also Like Section */}
-      {cartItems.length > 0 && (
-        <div className="bg-[#3D5A54] py-16">
-          <div className="max-w-7xl mx-auto px-4 md:px-8">
-            <h2 className="text-3xl font-serif text-white mb-2">Complete Your Collection</h2>
-            <p className="text-[#E5E5E5] mb-8">Hand-picked pieces that complement your selections</p>
-            {/* Add product recommendations here */}
-            <Link
-              href="/shop"
-              className="inline-block bg-[#C9B896] text-[#2C2C2C] px-8 py-3 rounded-sm font-medium hover:bg-[#B8A785] transition-colors uppercase tracking-wide"
-            >
-              Browse More
-            </Link>
-          </div>
-        </div>
-      )}
+     {/* You May Also Like Section */}
+{cartItems.length > 0 && (
+  <div className="bg-[#4B3621] py-16">
+    <div className="max-w-7xl mx-auto px-4 md:px-8 text-center">
+      <h2 className="text-3xl font-serif text-white mb-2">
+        Complete Your Collection
+      </h2>
+      <p className="text-[#E5E5E5] mb-8">
+        Hand-picked pieces that complement your selections
+      </p>
+      {/* Add product recommendations here */}
+      <Link
+        href="/shop"
+        className="inline-block bg-[#C9B896] text-[#2C2C2C] px-8 py-3 rounded-sm font-medium hover:bg-[#B8A785] transition-colors uppercase tracking-wide"
+      >
+        Browse More
+      </Link>
+    </div>
+  </div>
+)}
+
     </main>
   );
 }

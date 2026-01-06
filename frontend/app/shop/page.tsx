@@ -3,7 +3,7 @@
 'use client';
 import { motion } from "framer-motion";
 import Link from "next/link";
-
+import Image from "next/image";
 import React, { useState, useMemo } from 'react';
 import { products } from '@/data/products';
 import { ProductGrid } from '@/components/shop/ProductGrid';
@@ -47,44 +47,52 @@ export default function ShopPage() {
 
   return (
     <main className="min-h-screen">
-      {/* Hero Section */}
-     {/* Hero Section */}
-<Section className="relative overflow-hidden py-24 md:py-32 bg-[url('/Images/products/19.png')] bg-cover bg-center">
+      {/* Hero Section */}{/* Hero */}
+      <section className="relative h-[60vh] -mt-20 flex items-center justify-center text-center overflow-hidden">
+        {/* Background Image Motion */}
+        <motion.div
+          initial={{ scale: 1.15, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 1.2, ease: "easeOut" }}
+          className="absolute inset-0"
+        >
+          <Image
+            src="/Images/products/15.png"
+            alt="Corporate pottery"
+            fill
+            priority
+            className="object-cover"
+          />
+        </motion.div>
 
-  {/* Dark Overlay */}
-  <div className="absolute inset-0 bg-[#3b3415]/65" />
+        {/* Dark Overlay */}
+        <div className="absolute inset-0 bg-black/40" />
 
-  {/* Subtle gradient depth */}
-  <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/20 to-black/40" />
+        {/* Text Content */}
+        <div className="relative z-10 text-white px-6">
+          {/* Heading */}
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="text-4xl md:text-5xl font-semibold mb-4"
+          >
+            SHOP COLLECTION
+          </motion.h1>
 
-  {/* Content */}
-  <motion.div
-    initial={{ opacity: 0, y: 40 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 1, ease: "easeOut" }}
-    className="relative text-center max-w-3xl mx-auto px-4"
-  >
-    <motion.h1
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.2, duration: 0.9 }}
-      className="text-4xl md:text-5xl lg:text-6xl font-serif tracking-wide text-white mb-6"
-    >
-      SHOP COLLECTION
-    </motion.h1>
-
-    <motion.p
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.4, duration: 0.9 }}
-      className="text-lg md:text-xl text-white/90 leading-relaxed"
-    >
-      Handcrafted pieces for mindful living. Each item is thoughtfully created
+          {/* Subtitle */}
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.5 }}
+            className="max-w-xl mx-auto text-white/80"
+          >
+            Handcrafted pieces for mindful living. Each item is thoughtfully created
       in our studio, inspired by Japanese aesthetics and the philosophy of
       wabi-sabi.
-    </motion.p>
-  </motion.div>
-</Section>
+          </motion.p>
+        </div>
+      </section>
 
 
 
