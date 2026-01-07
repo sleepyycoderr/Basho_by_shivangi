@@ -68,7 +68,7 @@ export default function AboutPage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="relative h-[70vh] flex items-center justify-center overflow-hidden">
+      <section className="relative h-[50vh] flex items-center justify-center overflow-hidden">
         {/* Background Image Motion */}
         <motion.div
           initial={{ scale: 1.15, opacity: 0 }}
@@ -114,7 +114,7 @@ export default function AboutPage() {
         {/* Our Story / Founder Section */}
         <section
           id="our-story"
-          className="w-full bg-[var(--basho-sand)]/50 py-24"
+          className="w-full bg-[#efe9dd] py-24"
         >
           <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             {/* LEFT : IMAGE */}
@@ -159,11 +159,11 @@ export default function AboutPage() {
 
                  
               </motion.div>
-
+            
               {/* Heading */}
               <motion.h2
                 variants={textItem}
-                className="font-[var(--font-display)] text-[38px] leading-[1.25] mb-6"
+                className="font-[var(--font-display)] text-[38px] leading-[1.25] mb-6 text-black"
               >
                 <strong className="font-semibold">Hi, I’m Shivangi — </strong>
                 <span className="italic font-normal">
@@ -174,7 +174,7 @@ export default function AboutPage() {
               {/* Paragraphs */}
               <motion.p
                 variants={textItem}
-                className="text-lg leading-relaxed italic space-y-4"
+                className="text-lg leading-relaxed italic space-y-4 text-black"
               >
                 <span className="block">
                   Basho, a Japanese word that means{" "}
@@ -199,6 +199,7 @@ export default function AboutPage() {
                   So come, discover Basho and create your own poetry.
                 </span>
               </motion.p>
+
               <motion.div variants={textItem} className="mt-10 flex">
                 <Link
                   href="/studio"
@@ -224,7 +225,7 @@ export default function AboutPage() {
         </section>
 
         {/* Journey Timeline */}
-        <section className="section-padding bg-[var(--basho-divider)]/50 relative pt-32 pb-32">
+        <section className="section-padding bg-white relative pt-32 pb-32">
           <div className="container-basho">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -232,7 +233,7 @@ export default function AboutPage() {
               viewport={{ once: true }}
               className="text-center mb-16"
             >
-              <span className="font-display text-sm tracking-widest text-primary uppercase mt-5">
+              <span className="font-display text-sm text-black tracking-widest text-primary uppercase mt-5">
                 The Journey
               </span>
               <h2 className="font-display text-[var(--basho-teal)] text-3xl md:text-4xl mt-4">
@@ -304,7 +305,7 @@ export default function AboutPage() {
                             {item.title}
                           </h3>
 
-                          <p className="font-serif text-muted-foreground leading-relaxed">
+                          <p className="font-serif text-black text-muted-foreground leading-relaxed">
                             {item.description}
                           </p>
                         </div>
@@ -437,7 +438,7 @@ export default function AboutPage() {
                 EXPERIENCE THE ART OF CLAY
               </h2>
               
-                 <p className="font-serif text-muted-foreground leading-relaxed">
+                 <p className="font-serif text-muted-foreground text-black leading-relaxed">
                 Whether you're looking for a unique piece for your table, a meaningful gift, 
                 or wish to try your hand at pottery—we'd love to welcome you.
                

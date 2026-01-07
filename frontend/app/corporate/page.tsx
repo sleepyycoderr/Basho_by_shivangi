@@ -387,7 +387,7 @@ export default function CorporateClient() {
                 "
               />
 
-              <h3 className="text-xl font-semibold mb-2 transition-colors duration-300 group-hover:text-[var(--basho-teal)]">
+              <h3 className="text-xl text-[var(--basho-teal)] font-semibold mb-2 transition-colors duration-300 group-hover:text-[var(--basho-teal)]">
                 {service.title}
               </h3>
 
@@ -406,8 +406,8 @@ export default function CorporateClient() {
       </section>
       {/* Gifting Sets */}
       <section
-        className="py-24"
-        style={{ backgroundColor: "hsl(34 30% 88% / 0.5)" }}
+        className="py-24 bg-[#efe9dd]"
+         
       >
         {" "}
         <div className="max-w-6xl mx-auto px-6">
@@ -584,8 +584,8 @@ export default function CorporateClient() {
       </section>
       {/* Inquiry Form */}
       <section
-        className="py-25"
-        style={{ backgroundColor: "hsl(34 30% 88% / 0.5)" }}
+        className="py-25 bg-[#efe9dd] text-gray-800"
+         
       >
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid lg:grid-cols-[1fr_1.4fr] gap-16">
