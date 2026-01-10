@@ -5,17 +5,21 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 
+export type CategoryFilter = 'all' | 'tableware' | 'decor' | 'custom';
+
+
 interface FilterOption {
   label: string;
-  value: string;
+  value: CategoryFilter;
   count?: number;
 }
 
 interface ProductFilterProps {
-  activeFilter: string;
-  onFilterChange: (filter: string) => void;
+  activeFilter: CategoryFilter;
+  onFilterChange: (filter: CategoryFilter) => void;
   filters: FilterOption[];
 }
+
 
 export const ProductFilter: React.FC<ProductFilterProps> = ({
   activeFilter,
