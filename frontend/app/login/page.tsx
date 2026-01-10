@@ -3,6 +3,13 @@
 import { useState } from "react";
 import Image from "next/image";
 import { User, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { GoogleLogin } from "@react-oauth/google";
+import { jwtDecode } from "jwt-decode";
+
+
+
+
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -10,26 +17,92 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleLogin = () => {
-    // TEMP demo credentials (replace later with backend)
-    const correctUsername = "justaishwaryx";
-    const correctPassword = "123";
+  const router = useRouter();
+ 
+ console.log("CLIENT ID >>>", process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID);
+   
 
-    if (username !== correctUsername || password !== correctPassword) {
-      setError("Incorrect credentials!");
+const handleLogin = async () => {
+  setError("");
+
+  if (!username || !password) {
+    setError("Username and password are required");
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      "http://127.0.0.1:8000/api/accounts/login/",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: username,
+          password: password,
+        }),
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      // backend error (400)
+      setError(data.error || "Login failed");
       return;
     }
 
-    // success
-    setError("");
-    window.location.href = "/";
+    // ✅ SUCCESS
+     localStorage.setItem("accessToken", data.access);
+      localStorage.setItem("refreshToken", data.refresh);
+      localStorage.setItem("username", data.username);
+
+      // ✅ REDIRECT AFTER SAVING
+      router.replace("/");
+    } catch {
+      setError("Server error. Please try again later.");
+    }
   };
+
+  const handleGoogleLogin = async (credentialResponse: any) => {
+  try {
+    const decoded: any = jwtDecode(credentialResponse.credential);
+    const email = decoded.email;
+
+    const res = await fetch(
+      "http://127.0.0.1:8000/api/accounts/google-login/",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      }
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      setError(data.error || "Google login failed");
+      return;
+    }
+
+    // ✅ Save auth (THIS IS CRITICAL)
+    localStorage.setItem("accessToken", data.access);
+    localStorage.setItem("refreshToken", data.refresh);
+    localStorage.setItem("username", data.username);
+
+    router.replace("/"); // ✅ auto login
+  } catch (err) {
+    setError("Google login failed");
+  }
+};
+
 
   return (
     <div className="flex items-center justify-center px-6 py-24 bg-[linear-gradient(rgba(255,250,243,0.3),rgba(255,250,243,0.3)),url('/image_aish/home/bg.jpg')] bg-cover bg-center bg-no-repeat backdrop-blur-2xl">
 
       <div className="w-full max-w-md text-center">
-        <div className="bg-white rounded-3xl px-10 py-12 shadow-sm border border-[var(--basho-divider)]">
+        <div className="bg-white rounded-3xl px-10 py-12 shadow-sm border border-[var(--basho-divider)] h-225">
 
           {/* Logo */}
           <div className="flex justify-center mb-8">
@@ -119,30 +192,45 @@ export default function LoginPage() {
           {/* Divider */}
           <div className="flex items-center gap-4 my-10">
             <div className="flex-1 h-px bg-[var(--basho-divider)]" />
-            <span className="text-sm text-[#a49a8a]">or</span>
+            <span className="text-sm text-[#a49a8a]">Or login with</span>
             <div className="flex-1 h-px bg-[var(--basho-divider)]" />
           </div>
 
-          {/* Create Account */}
-          <p className="text-[#7c7468] mb-4">Don't have an account?</p>
+        {/* Sign in with Google */}
+<div className="flex justify-center mb-6">
+  <GoogleLogin
+    onSuccess={handleGoogleLogin}
+    onError={() => setError("Google login failed")}
+  />
+</div>
 
-          <a
-            href="/register"
-            className="inline-flex items-center justify-center gap-2 px-10 py-3 rounded-full
-                       border border-[var(--basho-terracotta)] text-[var(--basho-terracotta)]
-                       hover:bg-[var(--basho-terracotta)] hover:text-white
-                       transition-all duration-300 text-lg"
-          >
-            Create Account
-            <ArrowRight size={18} />
-          </a>
-        </div>
 
+{/* Create Account */}
+<p className="text-[#7c7468] mb-4">Don't have an account?</p>
+
+<a
+  href="/register"
+  className="inline-flex items-center justify-center gap-2 px-10 py-3 rounded-full
+             border border-[var(--basho-terracotta)] text-[var(--basho-terracotta)]
+             hover:bg-[var(--basho-terracotta)] hover:text-white
+             transition-all duration-300 text-lg"
+>
+  Create Account
+  <ArrowRight size={18} />
+</a>
+  
+
+
+
+
+        
         {/* Footer */}
         <p className="mt-10 text-sm text-[#c2b29b]">
           Handcrafted with care
         </p>
       </div>
-    </div>
+      </div>
+      </div>
+   
   );
 }

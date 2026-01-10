@@ -3,12 +3,35 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { User, Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
-import Link from "next/link";
+
+
+
+import { GoogleLogin } from "@react-oauth/google";
+import { jwtDecode } from "jwt-decode";
+import { useRouter } from "next/navigation";
+
+
 
 export default function RegisterPage() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
+  
+  const [showUsernameModal, setShowUsernameModal] = useState(false);
+const [googleEmail, setGoogleEmail] = useState("");
+const [googleUsername, setGoogleUsername] = useState("");
+
+
+
+  
+const [otpLoading, setOtpLoading] = useState(false);
+
+
+  const router = useRouter();
+const [error, setError] = useState("");
+
+const [success, setSuccess] = useState("");
+
 
   const [password1, setPassword1] = useState("");
   const [password2, setPassword2] = useState("");
@@ -21,8 +44,141 @@ export default function RegisterPage() {
 
   /* ✅ OTP STATE */
   const [otp, setOtp] = useState("");
+  const [otpError, setOtpError] = useState("");
+
+
+ const handleSendOtp = async () => {
+
+
+
+
+  setError("");
+  setSuccess("");
+  setOtpLoading(true);
+
+  if (!username.trim()) {
+  setError("Username is required");
+  setOtpLoading(false);
+  return;
+}
+
+
+  if (!validateEmail(email)) {
+    setError("Invalid email id entered");
+    setOtpLoading(false);
+    return;
+  }
+
+  const res = await fetch("http://127.0.0.1:8000/api/accounts/send-otp/", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, username }),
+  });
+
+  
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    setError(data.error);
+    setOtpLoading(false);
+    return;
+  }
+
+  setSuccess("OTP sent successfully");
+
+  setOtpLoading(false);
+};
+
+<GoogleLogin
+  onSuccess={(credentialResponse) => {
+    const decoded: any = jwtDecode(credentialResponse.credential);
+    const email = decoded.email;
+
+    setGoogleEmail(email);
+
+    // 🔍 Check if user already exists
+    fetch("http://127.0.0.1:8000/api/accounts/google-login/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    })
+      .then(async (res) => {
+        if (res.ok) {
+          // ✅ EXISTING USER → LOGIN
+          const data = await res.json();
+          localStorage.setItem("accessToken", data.access);
+          localStorage.setItem("refreshToken", data.refresh);
+          localStorage.setItem("username", data.username);
+          router.replace("/");
+        } else {
+          // 🆕 NEW USER → ASK USERNAME
+          setShowUsernameModal(true);
+        }
+      });
+  }}
+  onError={() => setError("Google authentication failed")}
+/>
+
+
+{showUsernameModal && (
+  <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+    <div className="bg-white rounded-xl p-6 w-[90%] max-w-sm">
+      <h2 className="text-xl font-semibold mb-4">Choose a username</h2>
+
+      <input
+        type="text"
+        value={googleUsername}
+        onChange={(e) => setGoogleUsername(e.target.value)}
+        placeholder="Username"
+        className="w-full border rounded-lg px-4 py-2 mb-4"
+      />
+
+      {error && <p className="text-red-600 mb-2">{error}</p>}
+
+      <button
+        className="w-full bg-[var(--basho-terracotta)] text-white py-2 rounded-lg"
+        onClick={async () => {
+          const res = await fetch(
+            "http://127.0.0.1:8000/api/accounts/google-register/",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                email: googleEmail,
+                username: googleUsername,
+              }),
+            }
+          );
+
+          const data = await res.json();
+
+          if (!res.ok) {
+            setError(data.error);
+            return;
+          }
+
+          localStorage.setItem("accessToken", data.access);
+          localStorage.setItem("refreshToken", data.refresh);
+          localStorage.setItem("username", data.username);
+
+          router.replace("/");
+        }}
+      >
+        Continue
+      </button>
+    </div>
+  </div>
+)}
+
 
   /* ================= EMAIL VALIDATION ================= */
+
+  const validateEmail = (email: string) => {
+  const regex = /^[^\s@]+@[^\s@]+\.(com|in|org|net)$/;
+  return regex.test(email);
+};
+  
   useEffect(() => {
     if (!email) {
       setEmailError("");
@@ -36,6 +192,11 @@ export default function RegisterPage() {
       setEmailError("");
     }
   }, [email]);
+
+
+
+   
+
 
   /* ================= PASSWORD STRENGTH ================= */
   const checkStrength = (password: string) => {
@@ -71,6 +232,38 @@ export default function RegisterPage() {
 
   const showPasswordRules = password1.length === 0;
 
+
+
+ const handleRegister = async () => {
+  setError("");
+
+  const res = await fetch("http://127.0.0.1:8000/api/accounts/register/", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      username,
+      email,
+      password: password1,
+      otp,
+    }),
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    setError(data.error || "Invalid credentials - incorrect OTP");
+    return;
+  }
+
+  localStorage.setItem("accessToken", data.access);
+  localStorage.setItem("refreshToken", data.refresh);
+  localStorage.setItem("username", data.username);
+
+  router.replace("/");
+};
+
+
+
   return (
     /* 🔒 FIXED BACKGROUND — NO RESIZE */
     <div className="min-h-screen flex items-center justify-center px-6
@@ -78,7 +271,7 @@ export default function RegisterPage() {
       bg-cover bg-center bg-no-repeat pb-24 pt-24">
 
       <div className="w-full max-w-md text-center">
-        <div className="bg-white rounded-3xl px-10 py-12 shadow-sm border border-[var(--basho-divider)]">
+        <div className="bg-white rounded-3xl px-10 py-12 shadow-sm border border-[var(--basho-divider)] h-240">
 
           {/* Logo */}
           <div className="flex justify-center mb-8">
@@ -135,28 +328,66 @@ export default function RegisterPage() {
 
           {/* Send Verification */}
           <button
-            type="button"
-            className="w-full h-12 mb-6 rounded-full flex items-center justify-center gap-2
-            border border-[var(--basho-terracotta)]
-            text-[var(--basho-terracotta)]
-            hover:bg-[var(--basho-terracotta)] hover:text-white
-            transition-all duration-300"
-          >
-            Send Verification Code
-          </button>
+  type="button"
+  onClick={handleSendOtp}
+  disabled={otpLoading}
+  className="w-full h-12 mb-2 rounded-full flex items-center justify-center gap-2
+  border border-[var(--basho-terracotta)]
+  text-[var(--basho-terracotta)]
+  hover:bg-[var(--basho-terracotta)] hover:text-white
+  transition-all duration-300 disabled:opacity-60"
+>
+  {otpLoading ? "Sending..." : "Send Verification Code"}
+</button>
 
-          {/* ✅ OTP INPUT */}
-          <div className="relative mb-6">
-            <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#c2b29b]" />
-            <input
-              type="text"
-              placeholder="Enter OTP"
-              value={otp}
-              onChange={(e) => setOtp(e.target.value)}
-              className="w-full h-12 pl-11 pr-4 rounded-full bg-transparent border border-[var(--basho-divider)]
-              text-black placeholder:text-[#c2b29b] focus:outline-none focus:border-[var(--basho-clay)]"
-            />
-          </div>
+{success && <p className="text-green-600 text-sm">{success}</p>}
+{error && <p className="text-red-600 text-sm">{error}</p>}
+
+
+
+
+
+{/* OTP INPUT */}
+<div className="relative mb-2">
+  <Lock
+    size={18}
+    className="absolute left-4 top-1/2 -translate-y-1/2 text-[#c2b29b]"
+  />
+
+  <input
+    type="text"
+    inputMode="numeric"
+    pattern="[0-9]*"
+    placeholder="Enter OTP"
+    value={otp}
+    maxLength={6}
+    onChange={(e) => {
+      const value = e.target.value.replace(/\D/g, ""); // only digits
+
+      if (value.length < 6) {
+        setOtp(value);
+        setOtpError("OTP must be of 6 digits");
+      } else if (value.length === 6) {
+        setOtp(value);
+        setOtpError(""); // valid
+      } else {
+        // length > 6 → block typing
+        setOtpError("OTP must be of 6 digits");
+      }
+    }}
+    className="w-full h-12 pl-11 pr-4 rounded-full bg-transparent border
+      border-[var(--basho-divider)] text-black placeholder:text-[#c2b29b]
+      focus:outline-none focus:border-[var(--basho-clay)]"
+  />
+</div>
+
+{otpError && (
+  <p className="text-left text-sm text-red-600 pl-2 mb-4">
+    {otpError}
+  </p>
+)}
+
+
 
           {/* Password */}
           <div className="relative mb-2">
@@ -213,26 +444,29 @@ export default function RegisterPage() {
             </button>
           </div>
 
+       
+
+
           {/* Register Button */}
-          <Link href="/">
+          
             <button
-              type="button"
-              disabled={!passwordsMatch || !!emailError}
-              onClick={() =>
-                sessionStorage.setItem("accountCreated", "true")
-              }
-              className={`w-full h-12 rounded-full text-white flex items-center justify-center gap-2 text-lg
-              transition-colors
-              ${
-                passwordsMatch && !emailError
-                  ? "bg-[var(--basho-terracotta)] hover:bg-[var(--basho-clay)]"
-                  : "bg-gray-300 cursor-not-allowed"
-              }`}
-            >
-              Create Account
-              <ArrowRight size={18} />
-            </button>
-          </Link>
+  type="button"
+  disabled={!passwordsMatch || !!emailError || !otp}
+
+  onClick={handleRegister}
+  className={`w-full h-12 rounded-full text-white flex items-center justify-center gap-2 text-lg
+  transition-colors
+  ${
+    passwordsMatch && !emailError
+      ? "bg-[var(--basho-terracotta)] hover:bg-[var(--basho-clay)]"
+      : "bg-gray-300 cursor-not-allowed"
+  }`}
+>
+  Create Account
+  <ArrowRight size={18} />
+</button>
+
+          
 
           <p className="mt-10 text-sm text-[#c2b29b]">
             Handcrafted with care

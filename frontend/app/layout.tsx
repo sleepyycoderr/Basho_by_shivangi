@@ -5,7 +5,8 @@ import "./globals.css";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 
-import { CartProvider } from '@/context/CartContext';
+import { GoogleOAuthProvider } from "@react-oauth/google";
+import { CartProvider } from "@/context/CartContext";
 
 /* ---------- Fonts ---------- */
 
@@ -40,13 +41,16 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={`${cinzel.variable} ${sourceSerif.variable} antialiased min-h-screen flex flex-col`}
-      ><CartProvider>
-        <Navbar /> 
-
-        <main className="grow">{children}</main>
-        
-        <Footer />
-        </CartProvider>
+      >
+        <GoogleOAuthProvider
+          clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}
+        >
+          <CartProvider>
+            <Navbar />
+            <main className="grow">{children}</main>
+            <Footer />
+          </CartProvider>
+        </GoogleOAuthProvider>
       </body>
     </html>
   );

@@ -18,6 +18,31 @@ import {
 import heroPottery from "@/public/Images/products/10.png";
 import productVase from "@/public/Images/products/12.png";
 import productPlate from "@/public/Images/products/11.png";
+type InputProps = {
+  label: string;
+  name: string;
+  required?: boolean;
+  type?: string;
+  value: string; // Add this
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; // Add this
+};
+
+type SelectProps = {
+  label: string;
+  name: string;
+  options: string[];
+  required?: boolean;
+  value: string; // Add this
+  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void; // Add this
+};
+
+type TextareaProps = {
+  label: string;
+  name: string;
+  placeholder?: string;
+  value: string; // Add this
+  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void; // Add this
+};
 
 /* ---------- Data ---------- */
 
@@ -99,7 +124,50 @@ const pastClients = [
   "Zomato",
   "Nykaa",
 ];
+const Input = ({ label, name, required = false, type = "text", value, onChange }: InputProps) => (
+  <div className="space-y-1">
+    <label className="text-sm font-medium text-gray-700">{label}</label>
+    <input
+      name={name}
+      type={type}
+      required={required}
+      value={value}
+      onChange={onChange}
+      className="w-full border border-[var(--basho-brown)]/30 p-2 mt-2 rounded bg-white"
+    />
+  </div>
+);
 
+const Select = ({ label, name, options, required = false, value, onChange }: SelectProps) => (
+  <div className="space-y-1">
+    <label className="text-sm font-medium text-gray-700">{label}</label>
+    <select
+      name={name}
+      required={required}
+      value={value}
+      onChange={onChange}
+      className="w-full border border-[var(--basho-brown)]/30 p-2 mt-2 rounded bg-white"
+    >
+      <option value="">Select</option>
+      {options.map((o) => (
+        <option key={o} value={o}>{o}</option>
+      ))}
+    </select>
+  </div>
+);
+
+const Textarea = ({ label, name, placeholder, value, onChange }: TextareaProps) => (
+  <div className="space-y-1">
+    <label className="text-sm font-medium text-gray-700">{label}</label>
+    <textarea
+      name={name}
+      value={value}
+      onChange={onChange}
+      placeholder={placeholder}
+      className="w-full border border-[var(--basho-brown)]/30 p-2 mt-2 rounded bg-white h-28 resize-none"
+    />
+  </div>
+);
 export default function CorporateClient() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -168,7 +236,8 @@ export default function CorporateClient() {
     setIsSubmitting(true);
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/corporate-inquiry/", {
+      const res = await fetch("http://127.0.0.1:8000/api/corporate/corporate-inquiry/", {
+
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -217,79 +286,7 @@ export default function CorporateClient() {
     }
   };
 
-  type InputProps = {
-    label: string;
-    name: string;
-    required?: boolean;
-    type?: string;
-  };
-
-  type SelectProps = {
-    label: string;
-    name: string;
-    options: string[];
-    required?: boolean;
-  };
-
-  type TextareaProps = {
-    label: string;
-    name: string;
-    placeholder?: string;
-  };
-
-  const Input = ({
-    label,
-    name,
-    required = false,
-    type = "text",
-  }: InputProps) => (
-    <div className="space-y-1">
-      <label className="text-sm font-medium text-gray-700">{label}</label>
-      <input
-        name={name}
-        type={type}
-        required={required}
-        value={(formData as any)[name] || ""}
-        onChange={handleChange}
-        className="w-full border border-[var(--basho-brown)]/30 p-2 mt-2 rounded bg-white"
-      />
-    </div>
-  );
-
-  const Select = ({ label, name, options, required = false }: SelectProps) => (
-    <div className="space-y-1">
-      <label className="text-sm font-medium text-gray-700">{label}</label>
-      <select
-        name={name}
-        required={required}
-        value={(formData as any)[name] || ""}
-        onChange={handleChange}
-        className="w-full border border-[var(--basho-brown)]/30 p-2 mt-2 rounded bg-white"
-      >
-        <option value="">Select</option>
-        {options.map((o) => (
-          <option key={o} value={o}>
-            {o}
-          </option>
-        ))}
-      </select>
-    </div>
-  );
-
-  const Textarea = ({ label, name, placeholder }: TextareaProps) => (
-    <div className="space-y-1">
-      <label className="text-sm font-medium text-gray-700">{label}</label>
-      <textarea
-        name={name}
-        value={(formData as any)[name] || ""}
-        onChange={handleChange}
-        placeholder={placeholder}
-        className="w-full border border-[var(--basho-brown)]/30 p-2 mt-2 rounded bg-white h-28 resize-none"
-      />
-    </div>
-  );
-
-  const service = formData.serviceType;
+ const service = formData.serviceType;
 
   return (
     <main>
@@ -584,7 +581,7 @@ export default function CorporateClient() {
       </section>
       {/* Inquiry Form */}
       <section
-        className="py-25 bg-[#efe9dd] text-gray-800"
+        className="py-25 bg-[#f5efe4] text-gray-800"
          
       >
         <div className="max-w-7xl mx-auto px-6">
@@ -630,248 +627,244 @@ export default function CorporateClient() {
               className="bg-white/70 backdrop-blur rounded-xl p-8 border border-[var(--basho-brown)]/25 shadow-sm"
             >
               <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Company Info */}
-                <div className="grid md:grid-cols-2 gap-4">
-                  <Input label="Company Name *" name="companyName" required />
-                  <Input label="Company Website" name="companyWebsite" />
-                </div>
+  {/* Company Info */}
+  <div className="grid md:grid-cols-2 gap-4">
+    <Input 
+      label="Company Name *" 
+      name="companyName" 
+      required 
+      value={formData.companyName} 
+      onChange={handleChange} 
+    />
+    <Input 
+      label="Company Website" 
+      name="companyWebsite" 
+      value={formData.companyWebsite} 
+      onChange={handleChange} 
+    />
+  </div>
 
-                <div className="grid md:grid-cols-2 gap-4">
-                  <Input label="Contact Person *" name="contactName" required />
-                  <Input
-                    label="Work Email *"
-                    name="email"
-                    type="email"
-                    required
-                  />
-                </div>
+  <div className="grid md:grid-cols-2 gap-4">
+    <Input 
+      label="Contact Person *" 
+      name="contactName" 
+      required 
+      value={formData.contactName} 
+      onChange={handleChange} 
+    />
+    <Input
+      label="Work Email *"
+      name="email"
+      type="email"
+      required
+      value={formData.email} 
+      onChange={handleChange}
+    />
+  </div>
 
-                <Input label="Phone Number" name="phone" type="tel" />
+  <Input 
+    label="Phone Number" 
+    name="phone" 
+    type="tel" 
+    value={formData.phone} 
+    onChange={handleChange} 
+  />
 
-                {/* Service Type */}
-                <Select
-                  label="Service Type *"
-                  name="serviceType"
-                  required
-                  options={[
-                    "Corporate Gifting",
-                    "Team Workshop",
-                    "Brand Collaboration",
-                    "Hospitality / Retail",
-                    "Multiple Services",
-                  ]}
-                />
+  {/* Service Type */}
+  <Select
+    label="Service Type *"
+    name="serviceType"
+    required
+    options={[
+      "Corporate Gifting",
+      "Team Workshop",
+      "Brand Collaboration",
+      
+    ]}
+    value={formData.serviceType}
+    onChange={handleChange}
+  />
 
-                {service === "Corporate Gifting" && (
-                  <div className="space-y-6 border-t pt-6">
-                    <h3 className="font-semibold text-lg text-[var(--basho-teal)]">
-                      Corporate Gifting Details
-                    </h3>
+  {/* Corporate Gifting Section */}
+  {service === "Corporate Gifting" && (
+    <div className="space-y-6 border-t pt-6">
+      <h3 className="font-semibold text-lg text-[var(--basho-teal)]">
+        Corporate Gifting Details
+      </h3>
 
-                    <Select
-                      label="Occasion / Purpose"
-                      name="giftingOccasion"
-                      options={[
-                        "Festival",
-                        "Employee appreciation",
-                        "Client gifting",
-                        "Event / Conference",
-                        "Other",
-                      ]}
-                    />
+      <Select
+        label="Occasion / Purpose"
+        name="giftingOccasion"
+        options={["Festival", "Employee appreciation", "Client gifting", "Event / Conference", "Other"]}
+        value={formData.giftingOccasion}
+        onChange={handleChange}
+      />
 
-                    <Input label="Estimated Quantity" name="giftingQuantity" />
+      <Input 
+        label="Estimated Quantity" 
+        name="giftingQuantity" 
+        value={formData.giftingQuantity} 
+        onChange={handleChange} 
+      />
 
-                    <Input
-                      label="Preferred Budget Range (per item)"
-                      name="giftingBudgetPerItem"
-                    />
+      <Input
+        label="Preferred Budget Range (per item)"
+        name="giftingBudgetPerItem"
+        value={formData.giftingBudgetPerItem}
+        onChange={handleChange}
+      />
 
-                    <Input
-                      label="Required Delivery Date"
-                      name="deliveryDate"
-                      type="date"
-                    />
+      <Input
+        label="Required Delivery Date"
+        name="deliveryDate"
+        type="date"
+        value={formData.deliveryDate}
+        onChange={handleChange}
+      />
 
-                    {/* Customization */}
-                    <div>
-                      <label className="text-sm font-medium text-gray-700">
-                        Customization Needed
-                      </label>
-                      <div className="mt-2 space-y-2">
-                        {[
-                          "Logo",
-                          "Custom colors",
-                          "Packaging",
-                          "Personalized note",
-                        ].map((item) => (
-                          <label
-                            key={item}
-                            className="flex gap-2 items-center text-sm"
-                          >
-                            <input
-                              type="checkbox"
-                              checked={formData.customization.includes(item)}
-                              onChange={() =>
-                                handleCheckboxArray("customization", item)
-                              }
-                              className="mt-1 mt-1 cursor-pointer"
-                            />
-                            {item}
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
+      {/* Customization Checkboxes remain the same as they use handleCheckboxArray directly */}
+      <div>
+        <label className="text-sm font-medium text-gray-700">Customization Needed</label>
+        <div className="mt-2 space-y-2">
+          {["Logo", "Custom colors", "Packaging", "Personalized note"].map((item) => (
+            <label key={item} className="flex gap-2 items-center text-sm">
+              <input
+                type="checkbox"
+                checked={formData.customization.includes(item)}
+                onChange={() => handleCheckboxArray("customization", item)}
+                className="mt-1 cursor-pointer"
+              />
+              {item}
+            </label>
+          ))}
+        </div>
+      </div>
+    </div>
+  )}
 
-                {service === "Team Workshop" && (
-                  <div className="space-y-6 border-t pt-6">
-                    <h3 className="font-semibold text-lg text-[var(--basho-teal)]">
-                      Workshop Details
-                    </h3>
+  {/* Team Workshop Section */}
+  {service === "Team Workshop" && (
+    <div className="space-y-6 border-t pt-6">
+      <h3 className="font-semibold text-lg text-[var(--basho-teal)]">Workshop Details</h3>
+      <Input 
+        label="Team Size" 
+        name="teamSize" 
+        value={formData.teamSize} 
+        onChange={handleChange} 
+      />
+      <Select
+        label="Workshop Type"
+        name="workshopType"
+        options={["Pottery basics", "Hand-building", "Custom experience"]}
+        value={formData.workshopType}
+        onChange={handleChange}
+      />
+      <Select
+        label="Preferred Location"
+        name="workshopLocationType"
+        options={["Basho Studio", "Client Location", "Off-site venue"]}
+        value={formData.workshopLocationType}
+        onChange={handleChange}
+      />
+      <Input 
+        label="Preferred Date / Time Range" 
+        name="workshopDate" 
+        value={formData.workshopDate} 
+        onChange={handleChange} 
+      />
+      <Select
+        label="Duration Preference"
+        name="durationPreference"
+        options={["2 hours", "Half day", "Full day"]}
+        value={formData.durationPreference}
+        onChange={handleChange}
+      />
+    </div>
+  )}
 
-                    <Input label="Team Size" name="teamSize" />
+  {/* Brand Collaboration Section */}
+  {service === "Brand Collaboration" && (
+    <div className="space-y-6 border-t pt-6">
+      <h3 className="font-semibold text-lg text-[var(--basho-teal)]">Collaboration Details</h3>
+      <Select
+        label="Brand Type"
+        name="brandType"
+        options={["Lifestyle", "Hospitality", "Fashion", "Interior", "Other"]}
+        value={formData.brandType}
+        onChange={handleChange}
+      />
+      <Textarea
+        label="Collaboration Idea / Concept"
+        name="collaborationIdea"
+        value={formData.collaborationIdea}
+        onChange={handleChange}
+      />
+      <Select
+        label="Timeline"
+        name="collaborationTimeline"
+        options={["Immediate", "1–3 months", "3–6 months", "Flexible"]}
+        value={formData.collaborationTimeline}
+        onChange={handleChange}
+      />
+      <Select
+        label="Expected Scope"
+        name="collaborationScope"
+        options={["Limited edition products", "Co-branding", "Event collaboration", "Content collaboration"]}
+        value={formData.collaborationScope}
+        onChange={handleChange}
+      />
+    </div>
+  )}
 
-                    <Select
-                      label="Workshop Type"
-                      name="workshopType"
-                      options={[
-                        "Pottery basics",
-                        "Hand-building",
-                        "Custom experience",
-                      ]}
-                    />
+  {/* Global Budget & Timeline */}
+  <div className="grid md:grid-cols-2 gap-4">
+    <Select
+      label="Budget Range"
+      name="budget"
+      options={["Under ₹50,000", "₹50,000 – ₹1,00,000", "₹1,00,000 – ₹5,00,000", "Above ₹5,00,000"]}
+      value={formData.budget}
+      onChange={handleChange}
+    />
+    <Select
+      label="Timeline"
+      name="timeline"
+      options={["Within 2 weeks", "1 month", "2–3 months", "Flexible"]}
+      value={formData.timeline}
+      onChange={handleChange}
+    />
+  </div>
 
-                    <Select
-                      label="Preferred Location"
-                      name="workshopLocationType"
-                      options={[
-                        "Basho Studio",
-                        "Client Location",
-                        "Off-site venue",
-                      ]}
-                    />
+  <Textarea
+    label="Additional Details"
+    name="message"
+    placeholder="Customisation, delivery city, deadlines, expectations..."
+    value={formData.message}
+    onChange={handleChange}
+  />
 
-                    <Input
-                      label="Preferred Date / Time Range"
-                      name="workshopDate"
-                    />
+  {/* Consent */}
+  <div className="flex items-start gap-3 text-sm">
+    <input
+      type="checkbox"
+      name="consent"
+      checked={formData.consent}
+      onChange={handleChange}
+      required
+      className="mt-1"
+    />
+    <span>I agree to be contacted regarding this inquiry.</span>
+  </div>
 
-                    <Select
-                      label="Duration Preference"
-                      name="durationPreference"
-                      options={["2 hours", "Half day", "Full day"]}
-                    />
-                  </div>
-                )}
-
-                {service === "Brand Collaboration" && (
-                  <div className="space-y-6 border-t pt-6">
-                    <h3 className="font-semibold text-lg text-[var(--basho-teal)]">
-                      Collaboration Details
-                    </h3>
-
-                    <Select
-                      label="Brand Type"
-                      name="brandType"
-                      options={[
-                        "Lifestyle",
-                        "Hospitality",
-                        "Fashion",
-                        "Interior",
-                        "Other",
-                      ]}
-                    />
-
-                    <Textarea
-                      label="Collaboration Idea / Concept"
-                      name="collaborationIdea"
-                    />
-
-                    <Select
-                      label="Timeline"
-                      name="collaborationTimeline"
-                      options={[
-                        "Immediate",
-                        "1–3 months",
-                        "3–6 months",
-                        "Flexible",
-                      ]}
-                    />
-
-                    <Select
-                      label="Expected Scope"
-                      name="collaborationScope"
-                      options={[
-                        "Limited edition products",
-                        "Co-branding",
-                        "Event collaboration",
-                        "Content collaboration",
-                      ]}
-                    />
-                  </div>
-                )}
-
-                {/* Budget & Timeline */}
-                <div className="grid md:grid-cols-2 gap-4">
-                  <Select
-                    label="Budget Range"
-                    name="budget"
-                    options={[
-                      "Under ₹50,000",
-                      "₹50,000 – ₹1,00,000",
-                      "₹1,00,000 – ₹5,00,000",
-                      "Above ₹5,00,000",
-                    ]}
-                  />
-                  <Select
-                    label="Timeline"
-                    name="timeline"
-                    options={[
-                      "Within 2 weeks",
-                      "1 month",
-                      "2–3 months",
-                      "Flexible",
-                    ]}
-                  />
-                </div>
-
-                {/* Message */}
-                <Textarea
-                  label="Additional Details"
-                  name="message"
-                  placeholder="Customisation, delivery city, deadlines, expectations..."
-                />
-
-                {/* Consent */}
-                <div className="flex items-start gap-3 text-sm">
-                  <input
-                    type="checkbox"
-                    name="consent"
-                    checked={formData.consent}
-                    onChange={handleChange}
-                    required
-                    className="mt-1"
-                  />
-
-                  <span>I agree to be contacted regarding this inquiry.</span>
-                </div>
-
-                {/* Submit */}
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="
-      w-full bg-[var(--basho-clay)] text-white py-3 rounded
-      hover:bg-[var(--basho-terracotta)]
-      transition flex items-center justify-center gap-2
-    "
-                >
-                  <Send className="w-4 h-4" />
-                  {isSubmitting ? "SUBMITTING..." : "SUBMIT INQUIRY"}
-                </button>
-              </form>
+  {/* Submit Button */}
+  <button
+    type="submit"
+    disabled={isSubmitting}
+    className="w-full bg-[var(--basho-clay)] text-white py-3 rounded hover:bg-[var(--basho-terracotta)] transition flex items-center justify-center gap-2"
+  >
+    <Send className="w-4 h-4" />
+    {isSubmitting ? "SUBMITTING..." : "SUBMIT INQUIRY"}
+  </button>
+</form>
             </motion.div>
           </div>
         </div>

@@ -1,5 +1,6 @@
 "use client";
 
+
 import { useRef, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 
@@ -34,11 +35,12 @@ const philosophy = [
 
 
 export default function HomePage() {
+
+  
+
   const segment2Ref = useRef<HTMLDivElement>(null);
   const segment3Ref = useRef<HTMLDivElement>(null);
 
-
-/* ================= SUCCESS POPUP STATE ================= */
   const [showSuccess, setShowSuccess] = useState(false);
 
   useEffect(() => {
@@ -65,30 +67,26 @@ export default function HomePage() {
   };
 
   return (
-    <div className="w-full overflow-x-hidden">
+    <main>
+    
+      <div className="w-full overflow-x-hidden">
 
-      {/* ================= SUCCESS POPUP ================= */}
-{showSuccess && (
-  <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 group">
-    <div className="relative px-6 py-3 rounded-full bg-green-600 text-white text-sm font-medium shadow-lg flex items-center gap-3">
-
-      {/* MESSAGE */}
-      <span>Account Created Successfully!</span>
-
-      {/* CLOSE BUTTON — shows only on hover */}
-      <button
-        onClick={() => setShowSuccess(false)}
-        className="opacity-0 group-hover:opacity-100 transition-opacity
-                   absolute right-3 top-1/2 -translate-y-1/2
-                   text-white text-sm hover:text-gray-200"
-        aria-label="Close"
-      >
-        ✕
-      </button>
-
-    </div>
-  </div>
-)}
+        {/* ================= SUCCESS POPUP ================= */}
+        {showSuccess && (
+          <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 group">
+            <div className="relative px-6 py-3 rounded-full bg-green-600 text-white text-sm font-medium shadow-lg flex items-center gap-3">
+              <span>Account Created Successfully!</span>
+              <button
+                onClick={() => setShowSuccess(false)}
+                className="opacity-0 group-hover:opacity-100 transition-opacity
+                           absolute right-3 top-1/2 -translate-y-1/2
+                           text-white text-sm hover:text-gray-200"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        )}
 
 
 
@@ -147,7 +145,7 @@ export default function HomePage() {
       {/* ================= SEGMENT 2 : FEATURED PIECES ================= */}
       <section
         ref={segment2Ref}
-        className="bg-[var(--basho-sand)] py-24 px-6"
+        className="bg-[#FAF8F2] py-24 px-6"
       >
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-between items-center mb-12">
@@ -209,6 +207,7 @@ export default function HomePage() {
         </p>
       </div>
     </div>
+   
   ))}
 </div>
 
@@ -354,12 +353,12 @@ export default function HomePage() {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.6, delay: index * 0.1 }}
-      className="bg-white/10 border border-[var(--basho-divider)]
+      className="bg-white/50 border border-[var(--basho-divider)]
                  rounded-2xl p-8 text-center shadow-sm hover:shadow-md
                  transition-shadow"
     >
  {/* Kanji */}
-<div className="text-5xl  mb-6 text-[var(--basho-terracotta)]/30">
+<div className="text-5xl  mb-6 text-[var(--basho-terracotta)]/80">
   {item.kanji}
 </div>
 
@@ -403,5 +402,7 @@ export default function HomePage() {
 
 
     </div>
+    
+     </main>
   );
 }
