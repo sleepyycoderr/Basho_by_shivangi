@@ -14,11 +14,9 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
+
 #aish impoorts:
 from datetime import timedelta
-
-
-
 
 from pathlib import Path
 
@@ -48,6 +46,9 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
 
+    'rest_framework',
+    'corsheaders',
+
     'apps.experiences',
     'apps.products',
     'apps.orders',
@@ -73,9 +74,12 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 
-    #aish added 
-    "corsheaders.middleware.CorsMiddleware",
+
+    'corsheaders.middleware.CorsMiddleware',
+
 ]
+
+CORS_ALLOW_ALL_ORIGINS = True
 
 ROOT_URLCONF = "basho_backend.urls"
 
@@ -149,6 +153,7 @@ STATIC_URL = "static/"
 
 
 
+
 #aishwarya changes: 
 AUTH_USER_MODEL = "accounts.User"
 
@@ -169,6 +174,10 @@ REST_FRAMEWORK = {
     ),
 }
 
+# Upload limits (10 MB per file)
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
+
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
@@ -177,3 +186,8 @@ SIMPLE_JWT = {
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+
+TIME_ZONE = 'Asia/Kolkata'
+USE_TZ = True
+
+DEFAULT_FROM_EMAIL = "Basho by Shivangi <bashobyshivangi123@gmail.com>"
