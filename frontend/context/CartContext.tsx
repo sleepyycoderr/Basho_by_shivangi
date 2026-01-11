@@ -1,3 +1,5 @@
+// context/CartContext.tsx  (or /app/context depending on your structure)
+
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
@@ -12,9 +14,17 @@ interface CartItem {
 interface CartContextType {
   cartItems: CartItem[];
   cartCount: number;
-  addToCart: (product: Product, quantity: number, selectedColor: GlazeColor) => void;
+  addToCart: (
+    product: Product,
+    quantity: number,
+    selectedColor: GlazeColor
+  ) => void;
   removeFromCart: (productId: string, colorCode: string) => void;
-  updateQuantity: (productId: string, colorCode: string, newQuantity: number) => void;
+  updateQuantity: (
+    productId: string,
+    colorCode: string,
+    newQuantity: number
+  ) => void;
   clearCart: () => void;
   getCartTotal: () => number;
   isInCart: (productId: string, colorCode: string) => boolean;
@@ -22,10 +32,12 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
-  /* ------------------ Local Storage Sync ------------------ */
+  // LocalStorage sync
   useEffect(() => {
     const savedCart = localStorage.getItem('basho-cart');
     if (savedCart) {
@@ -37,8 +49,12 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem('basho-cart', JSON.stringify(cartItems));
   }, [cartItems]);
 
-  /* ------------------ Cart Logic ------------------ */
-  const addToCart = (product: Product, quantity: number, selectedColor: GlazeColor) => {
+  // Cart logic
+  const addToCart = (
+    product: Product,
+    quantity: number,
+    selectedColor: GlazeColor
+  ) => {
     setCartItems(prev => {
       const existingItem = prev.find(
         item =>
@@ -66,13 +82,19 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setCartItems(prev =>
       prev.filter(
         item =>
-          !(item.product.id === productId &&
-            item.selectedColor.code === colorCode)
+          !(
+            item.product.id === productId &&
+            item.selectedColor.code === colorCode
+          )
       )
     );
   };
 
-  const updateQuantity = (productId: string, colorCode: string, newQuantity: number) => {
+  const updateQuantity = (
+    productId: string,
+    colorCode: string,
+    newQuantity: number
+  ) => {
     if (newQuantity <= 0) {
       removeFromCart(productId, colorCode);
       return;
@@ -90,11 +112,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const clearCart = () => setCartItems([]);
 
-  /* ------------------ Derived Values ------------------ */
-  const cartCount = cartItems.reduce(
-    (count, item) => count + item.quantity,
-    0
-  );
+  // Derived values
+  const cartCount = cartItems.reduce((count, item) => count + item.quantity, 0);
 
   const getCartTotal = () =>
     cartItems.reduce(

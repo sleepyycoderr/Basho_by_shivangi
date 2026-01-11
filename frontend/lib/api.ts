@@ -1,6 +1,25 @@
+// -------vrunda------------------
+import axios from "axios";
+
+const api = axios.create({
+  baseURL: "http://127.0.0.1:8000", // change when deployed
+  withCredentials: true,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+export default api;
+
+// -------------------------------
+
 import { Product } from '@/types/product';
 
-const API_BASE = 'http://127.0.0.1:8000/api';
+export const API_BASE = 'http://127.0.0.1:8000/api';
+// lib/api.ts
+export const VAPI_BASE = "http://localhost:8000";
+
+
 
 export async function fetchProducts(): Promise<Product[]> {
  const res = await fetch(`${API_BASE}/products/`, {

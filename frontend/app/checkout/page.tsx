@@ -1,6 +1,3 @@
-// Checkout Page - Thoughtful Purchase Ritual
-// Inspired by Wabi-Sabi: embracing simplicity, imperfection, and mindfulness
-
 'use client';
 
 import React, { useState } from 'react';
@@ -8,20 +5,25 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
 import { formatPrice } from '@/lib/utils';
+import { useRouter } from "next/navigation";
+import { VAPI_BASE } from "@/lib/api";
+import { loadRazorpay } from "@/lib/loadRazopay";
+
+
+
 
 export default function CheckoutPage() {
+  const router = useRouter();
   const { cartItems, getCartTotal } = useCart();
-  // Validation state for required delivery fields
-const [formError, setFormError] = useState('');
+  const [formError, setFormError] = useState('');
 
-  // Form state
   const [formData, setFormData] = useState({
     email: '',
     phone: '',
     fullName: '',
-    addressLine: '', // Street/Area
-    apartment: '',   // NEW: Flat/House/Building
-    landmark: '',    // NEW: Near which famous spot?
+    addressLine: '',
+    apartment: '',
+    landmark: '',
     city: '',
     state: '',
     pincode: '',
@@ -29,66 +31,116 @@ const [formError, setFormError] = useState('');
     shippingMethod: 'standard',
   });
 
-  // Calculate pricing
   const subtotal = getCartTotal();
   const shipping = subtotal >= 3000 ? 0 : 100;
   const gst = Math.round((subtotal + shipping) * 0.18);
   const total = subtotal + shipping + gst;
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
-
-const handleSubmit = (e: React.FormEvent) => {
+const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
-  
-  // 1. Check for basic empty fields
-  const requiredFields = ['email', 'phone', 'fullName', 'addressLine', 'city', 'state', 'pincode'] as const;
-  for (const field of requiredFields) {
-    if (!formData[field]) {
-      setFormError(`Please provide your ${field.replace(/([A-Z])/g, ' $1').toLowerCase()}.`);
+
+  try {
+    const response = await fetch(
+      `${VAPI_BASE}/api/orders/checkout/product/`,
+      {
+        method: "POST",
+        credentials: "include", // 🔥 REQUIRED
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          customer: {
+            fullName: formData.fullName,
+            email: formData.email,
+            phone: formData.phone,
+            address: `${formData.addressLine}, ${formData.apartment || ""}, ${formData.landmark || ""}`,
+            city: formData.city,
+            pincode: formData.pincode,
+          },
+          items: cartItems.map((item) => ({
+            id: item.product.id,
+            qty: item.quantity,
+          })),
+        }),
+      }
+    );
+
+    let data;
+try {
+  data = await response.json();
+} catch {
+  throw new Error("Backend did not return JSON");
+}
+
+
+    if (!response.ok) {
+      alert(data.error || "Order creation failed");
       return;
     }
-  }
+ const razorpayLoaded = await loadRazorpay();
 
-  // 2. Indian Phone Validation (10 digits starting with 6-9)
-  const phoneRegex = /^[6-9]\d{9}$/;
-  if (!phoneRegex.test(formData.phone)) {
-    setFormError('Please enter a valid 10-digit Indian phone number.');
-    return;
-  }
+    if (!razorpayLoaded) {
+      alert("Razorpay SDK failed to load");
+      return;
+    }
+    // Razorpay
+    const options = {
+      key: data.key,
+      amount: data.amount,
+      currency: data.currency,
+      name: "Basho by Shivangi",
+      order_id: data.razorpay_order_id,
+      handler: async function (response: any) {
+        await fetch(`${VAPI_BASE}/api/orders/payment/verify/`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(response),
+        });
 
-  // 3. Indian Pincode Validation (Exactly 6 digits)
-  const pincodeRegex = /^\d{6}$/;
-  if (!pincodeRegex.test(formData.pincode)) {
-    setFormError('Please enter a valid 6-digit Pincode.');
-    return;
-  }
+        await fetch(`${VAPI_BASE}/api/orders/cart/clear/`, {
+          method: "POST",
+          credentials: "include",
+        });
 
-  setFormError('');
-  // Proceed to Razorpay...
+        router.push("/order-success");
+      },
+    };
+
+    const rzp = new (window as any).Razorpay(options);
+    rzp.open();
+
+  } catch (err) {
+    console.error(err);
+    alert("Checkout failed");
+  }
 };
 
-  // Redirect if cart is empty
   if (cartItems.length === 0) {
     return (
       <main className="min-h-screen bg-[#FAF8F5] flex items-center justify-center">
         <div className="text-center max-w-md mx-auto px-4">
-          <svg 
-            className="w-24 h-24 mx-auto mb-6 text-[#A8A29E]" 
-            fill="none" 
-            stroke="currentColor" 
+          <svg
+            className="w-24 h-24 mx-auto mb-6 text-[#A8A29E]"
+            fill="none"
+            stroke="currentColor"
             viewBox="0 0 24 24"
           >
-            <path 
-              strokeLinecap="round" 
-              strokeLinejoin="round" 
-              strokeWidth={1.5} 
-              d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" 
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={1.5}
+              d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
             />
           </svg>
-          <h2 className="text-2xl font-serif text-[#563a13] mb-3">Your cart is empty</h2>
+          <h2 className="text-2xl font-serif text-[#563a13] mb-3">
+            Your cart is empty
+          </h2>
           <p className="text-[#4A5F55] mb-8 leading-relaxed">
             Begin your journey by exploring our collection of handcrafted pottery.
           </p>
@@ -117,26 +169,23 @@ const handleSubmit = (e: React.FormEvent) => {
 
       <form onSubmit={handleSubmit} className="max-w-7xl mx-auto px-4 md:px-8">
         {formError && (
-  <div className="mb-6 bg-[#FFF1F1] border border-[#E5B4B4] text-[#7A1F1F] px-4 py-3 rounded-sm text-sm">
-    {formError}
-  </div>
-)}
+          <div className="mb-6 bg-[#FFF1F1] border border-[#E5B4B4] text-[#7A1F1F] px-4 py-3 rounded-sm text-sm">
+            {formError}
+          </div>
+        )}
 
         <div className="grid lg:grid-cols-5 gap-8 lg:gap-12">
-          
-          {/* LEFT SECTION - Customer Details (3 columns width) */}
+          {/* Left section */}
           <div className="lg:col-span-3 space-y-8">
-            
-            {/* 1. Contact Information */}
+            {/* Contact info */}
             <section>
               <h2 className="text-xl font-serif text-[#563a13] mb-5 pb-3 border-b border-[#A8A29E]/20">
                 Contact Information
               </h2>
-              
               <div className="space-y-5">
                 <div>
-                  <label 
-                    htmlFor="email" 
+                  <label
+                    htmlFor="email"
                     className="block text-sm text-[#4A5F55] mb-2 tracking-wide"
                   >
                     Email address
@@ -149,15 +198,13 @@ const handleSubmit = (e: React.FormEvent) => {
                     onChange={handleInputChange}
                     required
                     placeholder="you@example.com"
-                    className="w-full px-4 py-3 bg-white border border-[#A8A29E]/30 rounded-sm 
-                             text-[#563a13] placeholder:text-[#A8A29E] 
-                             focus:outline-none focus:border-[#563a13] transition-colors"
+                    className="w-full px-4 py-3 bg-white border border-[#A8A29E]/30 rounded-sm text-[#563a13] placeholder:text-[#A8A29E] focus:outline-none focus:border-[#563a13] transition-colors"
                   />
                 </div>
 
                 <div>
-                  <label 
-                    htmlFor="phone" 
+                  <label
+                    htmlFor="phone"
                     className="block text-sm text-[#4A5F55] mb-2 tracking-wide"
                   >
                     Phone number
@@ -171,24 +218,21 @@ const handleSubmit = (e: React.FormEvent) => {
                     onChange={handleInputChange}
                     required
                     placeholder="+91 xxxxxxxxxx"
-                    className="w-full px-4 py-3 bg-white border border-[#A8A29E]/30 rounded-sm 
-                             text-[#563a13] placeholder:text-[#A8A29E] 
-                             focus:outline-none focus:border-[#563a13] transition-colors"
+                    className="w-full px-4 py-3 bg-white border border-[#A8A29E]/30 rounded-sm text-[#563a13] placeholder:text-[#A8A29E] focus:outline-none focus:border-[#563a13] transition-colors"
                   />
                 </div>
               </div>
             </section>
 
-            {/* 2. Shipping Address */}
+            {/* Shipping address */}
             <section>
               <h2 className="text-xl font-serif text-[#563a13] mb-5 pb-3 border-b border-[#A8A29E]/20">
                 Shipping Address
               </h2>
-              
               <div className="space-y-5">
                 <div>
-                  <label 
-                    htmlFor="fullName" 
+                  <label
+                    htmlFor="fullName"
                     className="block text-sm text-[#4A5F55] mb-2 tracking-wide"
                   >
                     Full name
@@ -201,15 +245,13 @@ const handleSubmit = (e: React.FormEvent) => {
                     onChange={handleInputChange}
                     required
                     placeholder="Your full name"
-                    className="w-full px-4 py-3 bg-white border border-[#A8A29E]/30 rounded-sm 
-                             text-[#563a13] placeholder:text-[#A8A29E] 
-                             focus:outline-none focus:border-[#563a13] transition-colors"
+                    className="w-full px-4 py-3 bg-white border border-[#A8A29E]/30 rounded-sm text-[#563a13] placeholder:text-[#A8A29E] focus:outline-none focus:border-[#563a13] transition-colors"
                   />
                 </div>
 
                 <div>
-                  <label 
-                    htmlFor="addressLine" 
+                  <label
+                    htmlFor="addressLine"
                     className="block text-sm text-[#4A5F55] mb-2 tracking-wide"
                   >
                     Address
@@ -222,44 +264,50 @@ const handleSubmit = (e: React.FormEvent) => {
                     onChange={handleInputChange}
                     required
                     placeholder="Street address, apartment number"
-                    className="w-full px-4 py-3 bg-white border border-[#A8A29E]/30 rounded-sm 
-                             text-[#563a13] placeholder:text-[#A8A29E] 
-                             focus:outline-none focus:border-[#563a13] transition-colors"
+                    className="w-full px-4 py-3 bg-white border border-[#A8A29E]/30 rounded-sm text-[#563a13] placeholder:text-[#A8A29E] focus:outline-none focus:border-[#563a13] transition-colors"
                   />
                 </div>
-                {/* New Apartment/House Field */}
-              <div>
-              <label htmlFor="apartment" className="block text-sm text-[#4A5F55] mb-2">
-              Flat, House no., Building, Company, Apartment
-              </label>
-              <input
-              type="text"
-              id="apartment"
-              name="apartment"
-              value={formData.apartment}
-              onChange={handleInputChange}
-              placeholder="e.g. 402, Lotus Residency"
-              className="w-full px-4 py-3 bg-white border border-[#A8A29E]/30 rounded-sm text-[#563a13]"
-                  />
-                </div>
+
                 <div>
-              <label htmlFor="landmark" className="block text-sm text-[#4A5F55] mb-2">
-                Landmark (Optional)
-              </label>
-              <input
-              type="text"
-              id="landmark"
-              name="landmark"
-              value={formData.landmark}
-              onChange={handleInputChange}
-              placeholder="e.g. Near City Light Petrol Pump"
-              className="w-full px-4 py-3 bg-white border border-[#A8A29E]/30 rounded-sm text-[#563a13]"
-                />
-              </div>
+                  <label
+                    htmlFor="apartment"
+                    className="block text-sm text-[#4A5F55] mb-2"
+                  >
+                    Flat, House no., Building, Company, Apartment
+                  </label>
+                  <input
+                    type="text"
+                    id="apartment"
+                    name="apartment"
+                    value={formData.apartment}
+                    onChange={handleInputChange}
+                    placeholder="e.g. 402, Lotus Residency"
+                    className="w-full px-4 py-3 bg-white border border-[#A8A29E]/30 rounded-sm text-[#563a13]"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="landmark"
+                    className="block text-sm text-[#4A5F55] mb-2"
+                  >
+                    Landmark (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    id="landmark"
+                    name="landmark"
+                    value={formData.landmark}
+                    onChange={handleInputChange}
+                    placeholder="e.g. Near City Light Petrol Pump"
+                    className="w-full px-4 py-3 bg-white border border-[#A8A29E]/30 rounded-sm text-[#563a13]"
+                  />
+                </div>
+
                 <div className="grid md:grid-cols-2 gap-5">
                   <div>
-                    <label 
-                      htmlFor="city" 
+                    <label
+                      htmlFor="city"
                       className="block text-sm text-[#4A5F55] mb-2 tracking-wide"
                     >
                       City
@@ -272,15 +320,13 @@ const handleSubmit = (e: React.FormEvent) => {
                       onChange={handleInputChange}
                       required
                       placeholder="City"
-                      className="w-full px-4 py-3 bg-white border border-[#A8A29E]/30 rounded-sm 
-                               text-[#563a13] placeholder:text-[#A8A29E] 
-                               focus:outline-none focus:border-[#563a13] transition-colors"
+                      className="w-full px-4 py-3 bg-white border border-[#A8A29E]/30 rounded-sm text-[#563a13] placeholder:text-[#A8A29E] focus:outline-none focus:border-[#563a13] transition-colors"
                     />
                   </div>
 
                   <div>
-                    <label 
-                      htmlFor="state" 
+                    <label
+                      htmlFor="state"
                       className="block text-sm text-[#4A5F55] mb-2 tracking-wide"
                     >
                       State
@@ -291,9 +337,7 @@ const handleSubmit = (e: React.FormEvent) => {
                       value={formData.state}
                       onChange={handleInputChange}
                       required
-                      className="w-full px-4 py-3 bg-white border border-[#A8A29E]/30 rounded-sm 
-                               text-[#563a13] 
-                               focus:outline-none focus:border-[#563a13] transition-colors"
+                      className="w-full px-4 py-3 bg-white border border-[#A8A29E]/30 rounded-sm text-[#563a13] focus:outline-none focus:border-[#563a13] transition-colors"
                     >
                       <option value="">Select state</option>
                       <option value="Gujarat">Gujarat</option>
@@ -309,8 +353,8 @@ const handleSubmit = (e: React.FormEvent) => {
 
                 <div className="grid md:grid-cols-2 gap-5">
                   <div>
-                    <label 
-                      htmlFor="pincode" 
+                    <label
+                      htmlFor="pincode"
                       className="block text-sm text-[#4A5F55] mb-2 tracking-wide"
                     >
                       Pincode
@@ -325,15 +369,13 @@ const handleSubmit = (e: React.FormEvent) => {
                       required
                       placeholder="400001"
                       maxLength={6}
-                      className="w-full px-4 py-3 bg-white border border-[#A8A29E]/30 rounded-sm 
-                               text-[#563a13] placeholder:text-[#A8A29E] 
-                               focus:outline-none focus:border-[#563a13] transition-colors"
+                      className="w-full px-4 py-3 bg-white border border-[#A8A29E]/30 rounded-sm text-[#563a13] placeholder:text-[#A8A29E] focus:outline-none focus:border-[#563a13] transition-colors"
                     />
                   </div>
 
                   <div>
-                    <label 
-                      htmlFor="country" 
+                    <label
+                      htmlFor="country"
                       className="block text-sm text-[#4A5F55] mb-2 tracking-wide"
                     >
                       Country
@@ -344,24 +386,19 @@ const handleSubmit = (e: React.FormEvent) => {
                       name="country"
                       value={formData.country}
                       readOnly
-                      className="w-full px-4 py-3 bg-[#FFFDF9] border border-[#A8A29E]/30 rounded-sm 
-                               text-[#4A5F55] cursor-not-allowed"
+                      className="w-full px-4 py-3 bg-[#FFFDF9] border border-[#A8A29E]/30 rounded-sm text-[#4A5F55] cursor-not-allowed"
                     />
                   </div>
                 </div>
               </div>
             </section>
 
-            {/* 3. Shipping Method */}
+            {/* Shipping method */}
             <section>
               <h2 className="text-xl font-serif text-[#563a13] mb-5 pb-3 border-b border-[#A8A29E]/20">
                 Shipping Method
               </h2>
-              
-              <div 
-                className="bg-white border border-[#A8A29E]/30 rounded-sm p-5 cursor-pointer 
-                         hover:border-[#563a13] transition-colors"
-              >
+              <div className="bg-white border border-[#A8A29E]/30 rounded-sm p-5 cursor-pointer hover:border-[#563a13] transition-colors">
                 <div className="flex items-start gap-3">
                   <input
                     type="radio"
@@ -374,46 +411,45 @@ const handleSubmit = (e: React.FormEvent) => {
                   />
                   <label htmlFor="standard" className="flex-1 cursor-pointer">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="font-medium text-[#563a13]">Standard Delivery</span>
+                      <span className="font-medium text-[#563a13]">
+                        Standard Delivery
+                      </span>
                       <span className="text-[#4A5F55]">
                         {shipping === 0 ? 'Free' : formatPrice(shipping)}
                       </span>
                     </div>
                     <p className="text-sm text-[#4A5F55] leading-relaxed">
-                      5-7 business days · Each piece is carefully packed by hand in eco-friendly materials
+                      5-7 business days · Each piece is carefully packed by hand in
+                      eco-friendly materials
                     </p>
                   </label>
                 </div>
               </div>
 
-              {/* Delivery Note */}
               <div className="mt-4 bg-[#FFFDF9] border border-[#A8A29E]/20 rounded-sm p-4">
                 <p className="text-sm text-[#4A5F55] leading-relaxed italic">
-                  Your pottery will be crafted & packed with care. Natural variations make each piece unique.
+                  Your pottery will be crafted & packed with care. Natural
+                  variations make each piece unique.
                 </p>
               </div>
             </section>
-
           </div>
 
-          {/* RIGHT SECTION - Order Summary (2 columns width, sticky on desktop) */}
+          {/* Right section */}
           <div className="lg:col-span-2">
             <div className="lg:sticky lg:top-24">
-              
-              {/* Order Summary Card */}
+              {/* Order summary */}
               <div className="bg-[#FFFDF9] border border-[#A8A29E]/20 rounded-sm p-6 shadow-sm">
                 <h2 className="text-xl font-serif text-[#563a13] mb-6 pb-4 border-b border-[#A8A29E]/20">
                   Order Summary
                 </h2>
 
-                {/* Cart Items */}
                 <div className="space-y-5 mb-6">
-                  {cartItems.map((item) => (
-                    <div 
+                  {cartItems.map(item => (
+                    <div
                       key={`${item.product.id}-${item.selectedColor.code}`}
                       className="flex gap-4"
                     >
-                      {/* Product Image */}
                       <div className="relative w-20 h-20 bg-[#FAF8F5] rounded-sm overflow-hidden flex-shrink-0">
                         <Image
                           src={item.product.images[0]}
@@ -421,14 +457,11 @@ const handleSubmit = (e: React.FormEvent) => {
                           fill
                           className="object-cover"
                         />
-                        {/* Quantity Badge */}
-                        <div className="absolute -top-2 -right-2 w-6 h-6 bg-[#563a13] text-white text-xs 
-                                      flex items-center justify-center rounded-full font-medium">
+                        <div className="absolute -top-2 -right-2 w-6 h-6 bg-[#563a13] text-white text-xs flex items-center justify-center rounded-full font-medium">
                           {item.quantity}
                         </div>
                       </div>
 
-                      {/* Product Details */}
                       <div className="flex-1 min-w-0">
                         <h3 className="text-[#563a13] font-medium mb-1 truncate">
                           {item.product.name}
@@ -444,11 +477,12 @@ const handleSubmit = (e: React.FormEvent) => {
                   ))}
                 </div>
 
-                {/* Price Breakdown */}
                 <div className="space-y-3 pt-5 border-t border-[#A8A29E]/20">
                   <div className="flex justify-between text-[#4A5F55]">
                     <span>Subtotal</span>
-                    <span className="text-[#563a13] font-medium">{formatPrice(subtotal)}</span>
+                    <span className="text-[#563a13] font-medium">
+                      {formatPrice(subtotal)}
+                    </span>
                   </div>
 
                   <div className="flex justify-between text-[#4A5F55]">
@@ -474,27 +508,40 @@ const handleSubmit = (e: React.FormEvent) => {
                   </div>
                 </div>
 
-                {/* Total */}
                 <div className="flex justify-between items-baseline pt-5 mt-5 border-t border-[#A8A29E]/20">
                   <span className="text-lg font-serif text-[#563a13]">Total</span>
-                  <span className="text-2xl font-serif text-[#563a13]">{formatPrice(total)}</span>
+                  <span className="text-2xl font-serif text-[#563a13]">
+                    {formatPrice(total)}
+                  </span>
                 </div>
               </div>
 
-              {/* Payment Section */}
+              {/* Payment / Place order */}
               <div className="mt-6 bg-[#FFFDF9] border border-[#A8A29E]/20 rounded-sm p-6">
-                <h3 className="text-lg font-serif text-[#563a13] mb-4">Payment</h3>
-                
-                {/* Razorpay Placeholder */}
+                <h3 className="text-lg font-serif text-[#563a13] mb-4">
+                  Payment
+                </h3>
+
                 <div className="bg-white border border-[#A8A29E]/20 rounded-sm p-4 mb-4">
                   <div className="flex items-center justify-center gap-2 mb-3">
-                    <svg className="w-5 h-5 text-[#4A7C59]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    <svg
+                      className="w-5 h-5 text-[#4A7C59]"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                      />
                     </svg>
-                    <span className="text-sm text-[#4A5F55]">Secure payment powered by Razorpay</span>
+                    <span className="text-sm text-[#4A5F55]">
+                      Secure payment powered by Razorpay
+                    </span>
                   </div>
 
-                  {/* Payment Icons */}
                   <div className="flex items-center justify-center gap-4 pt-3 border-t border-[#A8A29E]/10">
                     <div className="text-xs text-[#A8A29E] flex items-center gap-2">
                       <span className="w-8 h-5 bg-[#FAF8F5] border border-[#A8A29E]/20 rounded-sm flex items-center justify-center text-[10px] font-medium">
@@ -510,51 +557,74 @@ const handleSubmit = (e: React.FormEvent) => {
                   </div>
                 </div>
 
-                {/* Place Order Button */}
                 <button
                   type="submit"
-                  className="w-full bg-[#563a13] text-[#FFFDF9] py-4 rounded-sm font-medium 
-                           hover:bg-[#652810] transition-colors focus:outline-none focus:ring-2 
-                           focus:ring-[#563a13] focus:ring-offset-2"
+                  className="w-full bg-[#563a13] text-[#FFFDF9] py-4 rounded-sm font-medium hover:bg-[#652810] transition-colors focus:outline-none focus:ring-2 focus:ring-[#563a13] focus:ring-offset-2"
                 >
                   Place Order
                 </button>
 
-                {/* Return to Cart Link */}
                 <Link
                   href="/cart"
-                  className="block text-center text-sm text-[#4A5F55] hover:text-[#563a13] 
-                           transition-colors mt-4"
+                  className="block text-center text-sm text-[#4A5F55] hover:text-[#563a13] transition-colors mt-4"
                 >
                   ← Return to cart
                 </Link>
               </div>
 
-              {/* Trust Badges */}
+              {/* Trust badges */}
               <div className="mt-6 space-y-2 text-xs text-[#4A5F55]">
                 <div className="flex items-center gap-2">
-                  <svg className="w-4 h-4 text-[#4A7C59]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  <svg
+                    className="w-4 h-4 text-[#4A7C59]"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
                   </svg>
                   <span>7-day return policy</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <svg className="w-4 h-4 text-[#4A7C59]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  <svg
+                    className="w-4 h-4 text-[#4A7C59]"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
                   </svg>
                   <span>Eco-friendly packaging</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <svg className="w-4 h-4 text-[#4A7C59]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  <svg
+                    className="w-4 h-4 text-[#4A7C59]"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
                   </svg>
                   <span>Each piece is handcrafted</span>
                 </div>
               </div>
-
             </div>
           </div>
-
         </div>
       </form>
     </main>

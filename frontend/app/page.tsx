@@ -30,7 +30,59 @@ const philosophy = [
     kanji: "簡",
   },
 ];
+const theories = [
+  {
+    title: "Clay Theory",
+    description:
+      "Clay, as the primary material in pottery, embodies the earth's essence. It teaches us about malleability, transformation through fire, and the beauty of natural variations, aligning with the impermanence celebrated in wabi-sabi.",
+    kanji: "粘",
+  },
+  {
+    title: "Craftsman Theory",
+    description:
+      "The craftsman acts as the bridge between raw material and finished form. Through mindful practice and skilled hands, the potter infuses life into clay, embracing imperfections as integral to the creative journey and personal growth.",
+    kanji: "職",
+  },
+  {
+    title: "Kiln Theory",
+    description:
+      "The kiln represents transformation and surrender. As clay endures intense heat, it emerges stronger, with colors and textures born from the fire's unpredictability, mirroring life's trials and the wabi-sabi acceptance of change.",
+    kanji: "窯",
+  },
+  {
+    title: "Glaze Theory",
+    description:
+      "Glazes veil the clay in subtle hues, allowing imperfections to shine through. They teach us that true beauty lies in the harmonious blend of intention and chance, inspired by Japanese ceramic traditions.",
+    kanji: "釉",
+  },
+];
 
+const testimonials = [
+  {
+    initials: "PS",
+    name: "PRIYA SHARMA",
+    location: "Mumbai",
+    quote: "\"The tea cup I purchased is not just a vessel—it's a daily meditation. Each imperfection tells a story. Shivangi's work brings peace to my morning ritual.\"",
+  },
+  {
+    initials: "AP",
+    name: "ARJUN PATEL",
+    location: "Ahmedabad",
+    quote: "\"Attended the weekend workshop and came back with not just pottery, but a new perspective on imperfection. Shivangi is an incredible teacher.\"",
+  },
+  {
+    initials: "MK",
+    name: "MEERA KRISHNAN",
+    location: "Bangalore",
+    quote: "\"The dinner set we ordered for our anniversary was absolutely stunning. Each plate unique, yet harmoniously part of a whole. True wabi-sabi.\"",
+  },
+  {
+    initials: "RD",
+    name: "RAHUL DESAI",
+    location: "Pune",
+    quote: "\"I've been collecting pottery for years, and Basho pieces stand out. The quality, the philosophy, the connection to Japanese aesthetics—unmatched in India.\"",
+  },
+];
 
 
 export default function HomePage() {
@@ -147,7 +199,7 @@ export default function HomePage() {
       {/* ================= SEGMENT 2 : FEATURED PIECES ================= */}
       <section
         ref={segment2Ref}
-        className="bg-[var(--basho-sand)] py-24 px-6"
+        className="bg-[#faf6ee] py-24 px-6"
       >
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-between items-center mb-12">
@@ -394,12 +446,139 @@ export default function HomePage() {
 
 
       {/* ================= SEGMENT 5 REMOVED (Customer Stories) ================= */}
+<section className="bg-gradient-to-b from-[#ede8e2] to-[#f5f1ea] py-24 px-6">
+  <div className="max-w-7xl mx-auto">
+    {/* Header - Center-aligned with decorative lines */}
+    <div className="mb-16 text-center">
+      <div className="flex items-center justify-center gap-4 mb-6">
+        <div className="h-px w-16 bg-[var(--basho-terracotta)]"></div>
+        <p className="tracking-[0.2em] text-sm text-[var(--basho-terracotta)]">
+          THE ESSENCE OF CREATION
+        </p>
+        <div className="h-px w-16 bg-[var(--basho-terracotta)]"></div>
+      </div>
+      <h2 className="text-5xl text-[#5d2b14] font-serif">
+        THEORIES WE FOLLOW
+      </h2>
+    </div>
+
+    {/* Cards Grid - Vertical Emphasis */}
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+      {theories.map((item, index) => (
+        <motion.div
+          key={item.title}
+          initial={{ opacity: 0, x: index % 2 === 0 ? -30 : 30 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: index * 0.15 }}
+          className="group relative bg-white rounded-2xl overflow-hidden
+                     shadow-md hover:shadow-xl transition-all duration-300"
+        >
+          {/* Decorative Top Bar */}
+          <div className="h-2 bg-gradient-to-r from-[var(--basho-terracotta)] to-[#5d2b14]"></div>
+          
+          <div className="p-8">
+            {/* Kanji - Watermark Style */}
+            <div className="absolute top-8 right-8 text-8xl text-[#5d2b14]/5 
+                            font-serif transition-all duration-300
+                            group-hover:text-[#5d2b14]/10 group-hover:scale-110">
+              {item.kanji}
+            </div>
+
+            {/* Content */}
+            <div className="relative z-10">
+              {/* Title with Icon */}
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-full bg-[var(--basho-terracotta)]/10 
+                                flex items-center justify-center flex-shrink-0">
+                  <span className="text-xl text-[var(--basho-terracotta)]">
+                    {item.kanji}
+                  </span>
+                </div>
+                <h3 className="text-[#5d2b14] font-semibold text-2xl">
+                  {item.title}
+                </h3>
+              </div>
+
+              {/* Description */}
+              <p className="text-[var(--basho-teal)] leading-relaxed text-base">
+                {item.description}
+              </p>
+            </div>
+          </div>
+
+          {/* Bottom Accent */}
+          <div className="h-1 bg-gradient-to-r from-transparent via-[var(--basho-terracotta)]/30 to-transparent"></div>
+        </motion.div>
+      ))}
+    </div>
+
+    {/* Quote Section - Different Style */}
+    <div className="relative">
+      {/* Decorative Quote Mark */}
+      <div className="absolute -top-6 left-1/2 -translate-x-1/2 
+                      text-8xl text-[var(--basho-terracotta)]/10 font-serif">
+        "
+      </div>
+      
+      <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-12 text-center 
+                      border-2 border-[var(--basho-terracotta)]/20 shadow-sm">
+        <p className="italic text-[var(--basho-teal)] text-lg max-w-3xl mx-auto mb-4 leading-relaxed">
+          "The clay speaks to those who listen, and the craftsman responds with heart and hand."
+        </p>
+        <div className="flex items-center justify-center gap-3">
+          <div className="h-px w-8 bg-[var(--basho-terracotta)]"></div>
+          <p className="text-[var(--basho-terracotta)] font-semibold tracking-wider">
+            SHIVANGI, FOUNDER
+          </p>
+          <div className="h-px w-8 bg-[var(--basho-terracotta)]"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
 
 
 
+<section className="bg-[#faf6ee] py-24 px-6">
+        <div className="max-w-7xl mx-auto text-center">
+          <p className="tracking-widest text-sm text-[var(--basho-terracotta)] mb-2">
+            CUSTOMER STORIES
+          </p>
 
+          <h2 className="text-4xl text-[var(--basho-dark)] mb-16">
+            Voices of Our Community
+          </h2>
 
+          <div className="grid md:grid-cols-2 gap-8">
+            {testimonials.map((testimonial, index) => (
+              <div
+                key={index}
+                className="bg-white/50 rounded-xl p-6 text-left shadow-sm"
+              >
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 rounded-full bg-[var(--basho-terracotta)] flex items-center justify-center text-white font-bold text-xl">
+                    {testimonial.initials}
+                  </div>
+                  <div className="ml-4">
+                    <h3 className="font-semibold text-[var(--basho-dark)]">{testimonial.name}</h3>
+                    <p className="text-sm text-[var(--basho-muted)]">{testimonial.location}</p>
+                  </div>
+                </div>
+
+                <div className="flex mb-4 text-[#123d06] text-xl">
+                  ★★★★★
+                </div>
+
+                <p className="text-[var(--basho-teal)] leading-relaxed">
+                  {testimonial.quote}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
 
     </div>
