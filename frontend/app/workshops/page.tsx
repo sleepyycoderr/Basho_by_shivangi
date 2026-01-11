@@ -1,45 +1,68 @@
 // Workshops Page - Main Workshop Listing
 
-'use client';
-import { motion } from 'framer-motion';
-import Image from 'next/image';
-import React, { useState, useMemo ,useRef} from 'react';
-import { workshops } from '@/data/workshops';
-import { WorkshopGrid } from '@/components/workshops/WorkshopGrid';
-import { WorkshopFilter } from '@/components/workshops/WorkshopFilter';
-import { Section } from '@/components/shared/Section';
+"use client";
+import { motion } from "framer-motion";
+import Image from "next/image";
+import React, { useState, useMemo, useRef, useEffect } from "react";
+import { workshops as staticWorkshops } from "@/data/workshops";
+import { fetchWorkshopsClient } from "@/lib/api";
+import { WorkshopGrid } from "@/components/workshops/WorkshopGrid";
+import { WorkshopFilter } from "@/components/workshops/WorkshopFilter";
+import { Section } from "@/components/shared/Section";
+import type { Workshop } from "@/types/workshop";
 
 export default function WorkshopsPage() {
-  const [activeFilter, setActiveFilter] = useState('all');
+  const [activeFilter, setActiveFilter] = useState("all");
+  const [workshopsData, setWorkshopsData] = useState<Workshop[]>([]);
+
   const workshopsSectionRef = useRef<HTMLDivElement>(null);
+
   const scrollToWorkshops = () => {
-    workshopsSectionRef.current?.scrollIntoView({ 
-      behavior: 'smooth',
-      block: 'start' 
+    workshopsSectionRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
     });
   };
+
+useEffect(() => {
+  const loadWorkshops = async () => {
+    const data = await fetchWorkshopsClient();
+    console.log("Workshops API response:", data);
+
+    if (Array.isArray(data)) {
+      setWorkshopsData(data);
+    }
+  };
+
+  loadWorkshops();
+}, []);
+
+
   // Filter workshops based on selected type/level
   const filteredWorkshops = useMemo(() => {
-    if (activeFilter === 'all') {
-      return workshops;
+    if (activeFilter === "all") {
+      return workshopsData;
     }
-    if (activeFilter === 'group' || activeFilter === 'private' || activeFilter === 'experience') {
-      return workshops.filter(workshop => workshop.type === activeFilter);
+
+    if (["group", "private", "experience"].includes(activeFilter)) {
+      return workshopsData.filter((w) => w.type === activeFilter);
     }
-    if (activeFilter === 'beginner' || activeFilter === 'intermediate' || activeFilter === 'advanced') {
-      return workshops.filter(workshop => workshop.level === activeFilter);
+
+    if (["beginner", "intermediate", "advanced"].includes(activeFilter)) {
+      return workshopsData.filter((w) => w.level === activeFilter);
     }
-    return workshops;
-  }, [activeFilter]);
+
+    return workshopsData;
+  }, [activeFilter, workshopsData]);
 
   const filterOptions = [
-    { label: 'All Workshops', value: 'all' },
-    { label: 'Group Classes', value: 'group' },
-    { label: 'Private Sessions', value: 'private' },
-    { label: 'Experiences', value: 'experience' },
-    { label: 'Beginner', value: 'beginner' },
-    { label: 'Intermediate', value: 'intermediate' },
-    { label: 'Advanced', value: 'advanced' },
+    { label: "All Workshops", value: "all" },
+    { label: "Group Classes", value: "group" },
+    { label: "Private Sessions", value: "private" },
+    { label: "Experiences", value: "experience" },
+    { label: "Beginner", value: "beginner" },
+    { label: "Intermediate", value: "intermediate" },
+    { label: "Advanced", value: "advanced" },
   ];
 
   return (
@@ -74,7 +97,7 @@ export default function WorkshopsPage() {
             transition={{ duration: 0.8, delay: 0.3 }}
             className="text-4xl md:text-5xl font-semibold mb-4"
           >
-           Pottery Workshops
+            Pottery Workshops
           </motion.h1>
 
           {/* Subtitle */}
@@ -84,38 +107,38 @@ export default function WorkshopsPage() {
             transition={{ duration: 0.8, delay: 0.5 }}
             className="max-w-xl mx-auto text-white/80"
           >
-            Whether you're a complete beginner or looking to deepen your practice,
-      our workshops offer a meditative escape into the world of clay. All
-      sessions are led by Shivangi and include everything you need to create
-      and take home your pieces.
+            Whether you're a complete beginner or looking to deepen your
+            practice, our workshops offer a meditative escape into the world of
+            clay. All sessions are led by Shivangi and include everything you
+            need to create and take home your pieces.
           </motion.p>
- <motion.button
-  whileHover={{ scale: 1.05 }}
-  whileTap={{ scale: 0.96 }}
-  onClick={scrollToWorkshops} // Add this line
-  className="mt-8 inline-block bg-white text-[#3b3415] px-8 py-3 rounded-sm font-medium tracking-wide shadow-lg hover:bg-[#FAF8F5] transition"
->
-  Explore Workshops
-</motion.button>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.96 }}
+            onClick={scrollToWorkshops} // Add this line
+            className="mt-8 inline-block bg-white text-[#3b3415] px-8 py-3 rounded-sm font-medium tracking-wide shadow-lg hover:bg-[#FAF8F5] transition"
+          >
+            Explore Workshops
+          </motion.button>
         </div>
       </section>
-     
-<div ref={workshopsSectionRef} className="scroll-mt-20">
-      {/* Workshops Section */}
-      <Section>
-        {/* Filter Tabs */}
-        <WorkshopFilter
-          activeFilter={activeFilter}
-          onFilterChange={setActiveFilter}
-          filters={filterOptions}
-        />
 
-        {/* Workshop Grid */}
-        <WorkshopGrid 
-          workshops={filteredWorkshops}
-          emptyMessage="No workshops available for the selected filter."
-        />
-      </Section>
+      <div ref={workshopsSectionRef} className="scroll-mt-20">
+        {/* Workshops Section */}
+        <Section>
+          {/* Filter Tabs */}
+          <WorkshopFilter
+            activeFilter={activeFilter}
+            onFilterChange={setActiveFilter}
+            filters={filterOptions}
+          />
+
+          {/* Workshop Grid */}
+          <WorkshopGrid
+            workshops={filteredWorkshops}
+            emptyMessage="No workshops available for the selected filter."
+          />
+        </Section>
       </div>
 
       {/* Private Experience Highlight */}
@@ -128,16 +151,28 @@ export default function WorkshopsPage() {
             One-on-One Masterclass
           </h2>
           <p className="text-lg opacity-90 mb-8 leading-relaxed">
-            Looking for a personalized experience? Book a private session tailored to your skill 
-            level and interests. Perfect for focused learning, special occasions, or just quality 
-            time with clay.
+            Looking for a personalized experience? Book a private session
+            tailored to your skill level and interests. Perfect for focused
+            learning, special occasions, or just quality time with clay.
           </p>
           <div className="flex items-center justify-center gap-4 mb-6">
             <div className="flex items-center gap-2">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
               </svg>
-              <span className="text-sm">"Life-changing experience!" - Priya K.</span>
+              <span className="text-sm">
+                "Life-changing experience!" - Priya K.
+              </span>
             </div>
           </div>
           <button className="bg-[#C9B896] text-[#2C2C2C] px-8 py-3 rounded-sm font-medium hover:bg-[#B8A785] transition-colors">
@@ -152,15 +187,15 @@ export default function WorkshopsPage() {
           <h2 className="text-3xl md:text-4xl font-serif text-[#2C2C2C] mb-12 text-center">
             Frequently Asked Questions
           </h2>
-          
+
           <div className="space-y-6">
             <details className="bg-white p-6 rounded-sm shadow-sm">
               <summary className="font-semibold text-[#2C2C2C] cursor-pointer text-lg">
                 Do I need any prior experience?
               </summary>
               <p className="mt-4 text-[#666] leading-relaxed">
-                Not at all! Our beginner workshops are designed for complete novices. We guide you 
-                through every step.
+                Not at all! Our beginner workshops are designed for complete
+                novices. We guide you through every step.
               </p>
             </details>
 
@@ -169,8 +204,9 @@ export default function WorkshopsPage() {
                 What should I wear?
               </summary>
               <p className="mt-4 text-[#666] leading-relaxed">
-                Wear comfortable clothes that you don't mind getting a bit messy. We provide aprons, 
-                but clay can be playful! Tie back long hair and avoid loose jewelry.
+                Wear comfortable clothes that you don't mind getting a bit
+                messy. We provide aprons, but clay can be playful! Tie back long
+                hair and avoid loose jewelry.
               </p>
             </details>
 
@@ -179,8 +215,8 @@ export default function WorkshopsPage() {
                 When do I get my finished pieces?
               </summary>
               <p className="mt-4 text-[#666] leading-relaxed">
-                Pieces need to dry and be fired twice. Plan for 3-4 weeks for pickup or shipping of 
-                your creations.
+                Pieces need to dry and be fired twice. Plan for 3-4 weeks for
+                pickup or shipping of your creations.
               </p>
             </details>
 
@@ -189,14 +225,13 @@ export default function WorkshopsPage() {
                 Can I book for a group or event?
               </summary>
               <p className="mt-4 text-[#666] leading-relaxed">
-                Absolutely! We offer birthday parties, couples dates, and corporate workshops. 
-                Contact us to customize your experience.
+                Absolutely! We offer birthday parties, couples dates, and
+                corporate workshops. Contact us to customize your experience.
               </p>
             </details>
           </div>
         </div>
       </Section>
-
     </main>
   );
 }

@@ -451,15 +451,14 @@
 /* PAGE ENTER ANIMATION */
 .pageEnter {
   animation: pageFadeUp 0.8s ease-out both;
+  will-change: opacity;   /* ❗ remove transform side-effects */
 }
 
 @keyframes pageFadeUp {
   from {
     opacity: 0;
-    transform: translateY(24px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
