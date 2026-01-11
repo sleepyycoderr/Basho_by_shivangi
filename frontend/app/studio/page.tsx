@@ -1,27 +1,95 @@
 "use client";
 
 import styles from "./Studio.module.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
+
+interface Event {
+  id: number;
+  title: string;
+  date: string;
+  location: string;
+  description: string;
+  badge: string;
+}
 
 export default function StudioPage() {
   const [isOpen, setIsOpen] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const handleBookingSubmit = (e: React.FormEvent) => {
+  const [events, setEvents] = useState<Event[]>([]);
+
+  useEffect(() => {
+    // Fetch upcoming events
+    //fetch("http://localhost:8000/api/experiences/studio-book/")
+    fetch("http://127.0.0.1:8000/api/experiences/events/")
+      .then(res => res.json())
+      //.then(data => setEvents(data))
+      .then(data => {
+      // If data has a key "events" -> use it
+      if (Array.isArray(data)) {
+        setEvents(data);
+      } else if (Array.isArray(data.events)) {
+        setEvents(data.events);
+      } else {
+        console.error("Unexpected data format", data);
+        setEvents([]); // fallback
+      }
+    })
+      .catch(err => console.error(err));
+  }, []);
+
+    // 🔒 Lock background scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
+  const handleBookingSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const form = e.currentTarget;
+    const formData = {
+      full_name: (form.elements.namedItem("full_name") as HTMLInputElement).value,
+      phone: (form.elements.namedItem("phone") as HTMLInputElement).value,
+      email: (form.elements.namedItem("email") as HTMLInputElement).value,
+      visit_date: (form.elements.namedItem("visit_date") as HTMLInputElement).value,
+      time_slot: (form.elements.namedItem("time_slot") as HTMLSelectElement).value,
+    };
 
-    setIsOpen(false);
-    setIsSuccess(true);
+    try {
+      const res = await fetch("http://127.0.0.1:8000/api/experiences/studio-book/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
 
-    setTimeout(() => {
-      setIsSuccess(false);
-    }, 3000);
+      if (res.ok) {
+        // setIsOpen(false);
+        setIsSuccess(true);
+        form.reset(); // ✅ reset the form
+        setTimeout(() => setIsSuccess(false), 3000);
+        setTimeout(() => {
+        setIsSuccess(false); // hide toast after 3s
+        setIsOpen(false);    // close modal after toast disappears
+        }, 2500);
+      } else {
+        const errorText = await res.text(); // ✅ get backend error
+      console.error("Booking failed:", errorText)
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
   return (
    <main className={`${styles.page} ${styles.pageEnter}`}>
-
-
+{isSuccess && <h1 style={{ color: "red", fontSize: "30px" }}>SUCCESS WORKING</h1>}
      
 {/* Hero */}
       <section className="relative h-[60vh] flex items-center justify-center text-center overflow-hidden">
@@ -137,95 +205,23 @@ export default function StudioPage() {
         </div>
       </section>
 
- {/* Upcoming events */}
+ {/* UPCOMING EVENTS */}
 <section className={styles.section}>
-  <h2 className={styles.sectionTitle}>Upcoming Events</h2>
-
-  <div className={styles.horizontalScroll}>
-    
-    <div className={styles.card}>
-      <span className={styles.badge}>✨ Upcoming</span>
-      <h3>Weekend Pottery Fair</h3>
-
-      <div className={styles.eventMeta}>
-        <div className={styles.metaItem}>
-          <span className={styles.icon}>📅</span>
-          <span>January 15–16, 2025</span>
+        <h2 className={styles.sectionTitle}>Upcoming Events</h2>
+        <div className={styles.horizontalScroll}>
+          {events.map(event => (
+            <div key={event.id} className={styles.card}>
+              <span className={styles.badge}>{event.badge}</span>
+              <h3>{event.title}</h3>
+              <div className={styles.eventMeta}>
+                <div className={styles.metaItem}>📅 {event.date}</div>
+                <div className={styles.metaItem}>📍 {event.location}</div>
+              </div>
+              <p>{event.description}</p>
+            </div>
+          ))}
         </div>
-        <div className={styles.metaItem}>
-          <span className={styles.icon}>📍</span>
-          <span>Basho Studio, Surat</span>
-        </div>
-      </div>
-
-      <p>
-        Browse our latest collections and meet the artisans behind each piece.
-      </p>
-    </div>
-
-    <div className={styles.card}>
-      <span className={styles.badge}>✨ Upcoming</span>
-      <h3>Ceramic Art Exhibition</h3>
-
-      <div className={styles.eventMeta}>
-        <div className={styles.metaItem}>
-          <span className={styles.icon}>📅</span>
-          <span>February 5–10, 2025</span>
-        </div>
-        <div className={styles.metaItem}>
-          <span className={styles.icon}>📍</span>
-          <span>Art Gallery, Ahmedabad</span>
-        </div>
-      </div>
-
-      <p>
-        A curated showcase of Japanese-inspired pottery featuring wabi-sabi
-        aesthetics.
-      </p>
-    </div>
-
-    <div className={styles.card}>
-      <span className={styles.badge}>✨ Upcoming</span>
-      <h3>Farmer’s Market Pop-up</h3>
-
-      <div className={styles.eventMeta}>
-        <div className={styles.metaItem}>
-          <span className={styles.icon}>📅</span>
-          <span>Every Sunday</span>
-        </div>
-        <div className={styles.metaItem}>
-          <span className={styles.icon}>📍</span>
-          <span>Organic Farmer’s Market, Surat</span>
-        </div>
-      </div>
-
-      <p>
-        Find our handcrafted pieces at the weekly farmer’s market.
-      </p>
-    </div>
-
-    <div className={styles.card}>
-      <span className={styles.badge}>✨ Upcoming</span>
-      <h3>Clay & Calm Workshop</h3>
-
-      <div className={styles.eventMeta}>
-        <div className={styles.metaItem}>
-          <span className={styles.icon}>📅</span>
-          <span>March 2</span>
-        </div>
-        <div className={styles.metaItem}>
-          <span className={styles.icon}>📍</span>
-          <span>Basho Studio</span>
-        </div>
-      </div>
-
-      <p>
-        A mindful pottery workshop focused on slow craft and calm creation.
-      </p>
-    </div>
-
-  </div>
-</section>
+      </section>
 
 
       {/* PAST EXHIBITIONS */}
@@ -258,66 +254,43 @@ export default function StudioPage() {
     </div>
   </div>
 </section>
-
- {/* BOOKING MODAL */}
+      {/* BOOKING MODAL */}
 {isOpen && (
-  <div className={styles.modalOverlay}>
-    <div className={styles.modal}>
-      
-      {/* Cancel */}
-      <button
-        className={styles.closeButton}
-        onClick={() => setIsOpen(false)}
-        aria-label="Close"
-      >
-        ✕
-      </button>
-
-      <h3 className={styles.modalTitle}>Book a Studio Visit</h3>
-
-      <form onSubmit={handleBookingSubmit} className={styles.form}>
-        <label>
-          Your Name
-          <input
-            type="text"
-            placeholder="e.g. Lily Sharma"
-            required
-          />
-        </label>
-
-        <label>
-          Contact Number
-          <input
-            type="tel"
-            placeholder="We’ll use this to confirm"
-            required
-          />
-        </label>
-
-        <div className={styles.row}>
-          <label>
-            Visit Date
-            <input type="date" required />
-          </label>
-
-          <label>
-            Time Slot
-            <select required>
-              <option value="">Select</option>
-              <option>Morning (10–1)</option>
-              <option>Afternoon (1–4)</option>
-              <option>Evening (4–7)</option>
-            </select>
-          </label>
+        <div className={styles.modalOverlay}>
+          <div className={styles.modal}>
+            <button className={styles.closeButton} onClick={() => setIsOpen(false)}>✕</button>
+            <h3 className={styles.modalTitle}>Book a Studio Visit</h3>
+            <form onSubmit={handleBookingSubmit} className={styles.form}>
+              <label>
+                Your Name
+                <input name="full_name" type="text" placeholder="e.g. Lily Sharma" required />
+              </label>
+              <label>
+                Contact Number
+                <input name="phone" type="tel" placeholder="We’ll use this to confirm" required />
+              </label>
+              <label>
+                Email
+                <input name="email" type="email" placeholder="you@example.com" required/>
+              </label>
+              <label>
+                Visit Date
+                <input name="visit_date" type="date" required />
+              </label>
+              <label>
+                Time Slot
+                <select name="time_slot" required>
+                  <option value="">Select</option>
+                  <option>Morning (10–1)</option>
+                  <option>Afternoon (1–4)</option>
+                  <option>Evening (4–7)</option>
+                </select>
+              </label>
+              <button type="submit" className={styles.primaryButton}>Confirm Booking</button>
+            </form>
+          </div>
         </div>
-
-        <button type="submit" className={styles.primaryButton}>
-          Confirm Booking
-        </button>
-      </form>
-    </div>
-  </div>
-)}
+      )}
 
 
 {/* SUCCESS MESSAGE */}

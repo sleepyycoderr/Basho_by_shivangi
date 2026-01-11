@@ -2,26 +2,48 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import  { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { getWorkshopById } from '@/data/workshops';
-import { WorkshopCard } from '@/components/workshops/WorkshopCard';
+//import { getWorkshopById } from '@/data/workshops';
+// import { WorkshopCard } from '@/components/workshops/WorkshopCard';
 import { formatPrice, formatDate } from '@/lib/utils';
-import { workshops } from '@/data/workshops';
+import { workshops as staticWorkshops} from '@/data/workshops';
+import { fetchWorkshopsClient } from '@/lib/api';
+import type { Workshop } from '@/types/workshop';
+import { registerWorkshop } from '@/lib/api';
 
-export default function WorkshopDetailPage() {
+
+ export default function WorkshopDetailPage() {
+  // 1️⃣ params
   const params = useParams();
-  const router = useRouter();
   const workshopId = params.id as string;
-  const workshop = getWorkshopById(workshopId);
 
+  // 2️⃣ state (THIS CREATES setWorkshop)
+  const [workshop, setWorkshop] = useState<Workshop | null>(null);
+
+  // 3️⃣ effect
+  useEffect(() => {
+    fetchWorkshopsClient().then((data) => {
+      if (Array.isArray(data)) {
+        const found = data.find((w: Workshop) => String(w.id) === workshopId);
+        if (found) {
+          setWorkshop(found);
+          return;
+        }
+      }
+      setWorkshop(null);
+    });
+  }, [workshopId]);
+  
   // Booking flow state
   const [bookingStep, setBookingStep] = useState<'details' | 'calendar' | 'form'|'experience' | 'review'>('details');
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [bookingSuccess, setBookingSuccess] = useState(false);
 
   
   // Form state
@@ -133,9 +155,10 @@ export default function WorkshopDetailPage() {
   const total = subtotal + gst;
 
   // Related workshops
-  const relatedWorkshops = workshops
-    .filter(w => w.type === workshop.type && w.id !== workshop.id)
-    .slice(0, 3);
+  const relatedWorkshops = staticWorkshops
+  .filter(w => w.type === workshop.type && w.id !== workshop.id)
+  .slice(0, 3);
+
 
   const handleContinueToCalendar = () => {
     setBookingStep('calendar');
@@ -175,10 +198,36 @@ const handleBack = () => {
 };
 
 
-  const handleConfirmBooking = () => {
-    // This will be connected to backend later
-    alert(`Booking confirmed! Total: ${formatPrice(total)}\nA confirmation email will be sent to ${formData.email}`);
-  };
+const handleConfirmBooking = async () => {
+  if (!selectedSchedule || isSubmitting) return;
+
+  setIsSubmitting(true);
+
+  try {
+    const payload = {
+      name: formData.fullName,
+      email: formData.email,
+      phone: formData.phone,
+      workshop: Number(workshop.id),
+      slot: Number(selectedSchedule.id),
+      number_of_participants: formData.participants,
+      special_requests: formData.specialRequests || '',
+    };
+
+    const response = await registerWorkshop(payload);
+
+    console.log('Booking success:', response);
+    setBookingSuccess(true);
+  } catch (err: any) {
+    console.error(err);
+    alert(
+      err?.error ||
+      'Booking failed. Slot may be full or unavailable.'
+    );
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   return (
     <main className="min-h-screen bg-[#FAF8F5]">
@@ -773,7 +822,7 @@ const handleBack = () => {
             onClick={handleContinueToReview}
             className="flex-1 bg-[#8B6F47] text-white py-4 rounded-sm font-medium hover:bg-[#6D5836] transition-colors uppercase"
           >
-          Continue
+           Confirm Booking {formatPrice(total)}
           </button>
             </div>
       </div>
@@ -907,10 +956,14 @@ const handleBack = () => {
               </button>
               <button
                 onClick={handleConfirmBooking}
-                className="flex-1 bg-[#C9B896] text-[#2C2C2C] py-4 rounded-sm font-medium hover:bg-[#B8A785] transition-colors uppercase tracking-wide"
+                disabled={isSubmitting}
+                className="flex-1 bg-[#C9B896] text-[#2C2C2C] py-4 rounded-sm font-medium
+                          hover:bg-[#B8A785] transition-colors uppercase tracking-wide
+                          disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Confirm Booking {formatPrice(total)}
+                {isSubmitting ? 'Booking...' : `Confirm Booking ${formatPrice(total)}`}
               </button>
+
             </div>
           </div>
         )}

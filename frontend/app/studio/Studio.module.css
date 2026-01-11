@@ -379,7 +379,7 @@
   background: #fff;
 }
 
-/* SUCCESS TOAST */
+/* SUCCESS TOAST 
 .successToast {
   position: fixed;
   bottom: 2rem;
@@ -394,6 +394,29 @@
   gap: 0.75rem;
   z-index: 1100;
   animation: slideUpFade 0.4s ease;
+}
+*/
+.successToast {
+  position: fixed;
+  top: 2rem;
+  right: 2rem;
+  background-color: #4BB543;
+  color: white;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  z-index: 99999; /* above modal */
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  animation: fadeInOut 3s forwards;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translateY(-10px); }
+  10% { opacity: 1; transform: translateY(0); }
+  90% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-10px); }
 }
 
 .successToast span {
@@ -428,15 +451,14 @@
 /* PAGE ENTER ANIMATION */
 .pageEnter {
   animation: pageFadeUp 0.8s ease-out both;
+  will-change: opacity;   /* ❗ remove transform side-effects */
 }
 
 @keyframes pageFadeUp {
   from {
     opacity: 0;
-    transform: translateY(24px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }

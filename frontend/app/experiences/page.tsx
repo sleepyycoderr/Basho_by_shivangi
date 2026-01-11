@@ -62,6 +62,7 @@ export default function ExperiencesPage() {
         </div>
       </section>
       <ExperienceSection
+        experienceId={1}
         title="Couple’s Pottery Date"
         tagline="Create together, bond forever"
         description="An intimate pottery session for couples. Shape clay together and take home matching pieces."
@@ -78,6 +79,7 @@ export default function ExperiencesPage() {
       />
 
       <ExperienceSection
+        experienceId={2}
         title="Birthday Celebrations"
         tagline="Celebrate with clay & laughter"
         description="A joyful pottery party designed for birthdays—fun, creative, and memorable."
@@ -95,6 +97,7 @@ export default function ExperiencesPage() {
       />
 
       <ExperienceSection
+        experienceId={3}
         title="Farm & Garden Mini Parties"
         tagline="Nature, clay & connection"
         description="Pottery sessions hosted in farm or garden settings for a relaxed, earthy celebration."
@@ -111,6 +114,7 @@ export default function ExperiencesPage() {
       />
 
       <ExperienceSection
+        experienceId={4}
         title="Studio-Based Experiences"
         tagline="Learn, explore, create"
         description="Structured studio workshops for individuals or small groups to deepen pottery skills."

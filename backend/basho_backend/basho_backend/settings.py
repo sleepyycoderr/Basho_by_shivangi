@@ -45,8 +45,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-
-    'rest_framework',
+ 
+    "rest_framework",
     'corsheaders',
 
     'apps.experiences',
@@ -61,9 +61,9 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'django.middleware.common.CommonMiddleware',
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
-    "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
@@ -133,18 +133,17 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
 LANGUAGE_CODE = "en-us"
-
-TIME_ZONE = "UTC"
-
 USE_I18N = True
-
-USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = "static/"
+ 
+CORS_ALLOW_ALL_ORIGINS = True
+
+# Email configuration (Gmail SMTP)
+ 
 
 
 
@@ -184,5 +183,7 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 TIME_ZONE = 'Asia/Kolkata'
 USE_TZ = True
+ 
 
 DEFAULT_FROM_EMAIL = "Basho by Shivangi <bashobyshivangi123@gmail.com>"
+
