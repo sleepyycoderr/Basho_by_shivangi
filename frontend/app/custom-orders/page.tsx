@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Send } from "lucide-react";
+import { Send, ImageIcon } from "lucide-react";
 import { MessageSquare, Palette, Package, CheckCircle2 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -50,46 +50,155 @@ const pastOrders = [
   },
 ];
 
+type FormField =
+  | "name"
+  | "email"
+  | "phone"
+  | "product_type"
+  | "quantity"
+  | "dimensions"
+  | "preferred_colors"
+  | "timeline"
+  | "budget_range"
+  | "description"
+  | "reference_images";
+
 export default function CustomOrdersPage() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
-    productType: "",
-    quantity: "",
-    dimensions: "",
-    colors: "",
-    timeline: "",
-    budget: "",
-    description: "",
-    files: null as FileList | null,
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleChange = (field: string, value: string | FileList | null) => {
+    product_type: "",
+    quantity: 1,
+
+    dimensions: "",
+    preferred_colors: "",
+    timeline: "",
+    budget_range: "",
+
+    description: "",
+    reference_images: [] as File[],
+  });
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submittedOrder, setSubmittedOrder] = useState<null | {
+  name: string;
+  product_type: string;
+  created_at: string;
+}>(null);
+
+
+  const handleChange = (field: FormField, value: string | number | File[]) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    await new Promise((r) => setTimeout(r, 1500));
-    alert("Custom order request submitted!");
+
+    const form = new FormData();
+
+    form.append("name", formData.name);
+    form.append("email", formData.email);
+    form.append("phone", formData.phone);
+    form.append("product_type", formData.product_type);
+    form.append("quantity", String(formData.quantity));
+    form.append("dimensions", formData.dimensions);
+    form.append("preferred_colors", formData.preferred_colors);
+    form.append("timeline", formData.timeline);
+    form.append("budget_range", formData.budget_range);
+    form.append("description", formData.description);
+
+    formData.reference_images.forEach((file) => {
+      form.append("reference_images", file);
+    });
+
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/products/custom-orders/`,
+      {
+        method: "POST",
+        body: form,
+      }
+    );
+
+    if (!res.ok) {
+      const err = await res.json();
+      console.error(err);
+
+      const message =
+        err.reference_images?.[0] || err.detail || "Submission failed";
+
+      alert(message);
+      setIsSubmitting(false);
+      return;
+    }
+
+    const data = await res.json();
+
+    setSubmittedOrder({
+      name: data.name,
+      product_type: data.product_type,
+      created_at: data.created_at,
+    });
+
     setFormData({
       name: "",
       email: "",
       phone: "",
-      productType: "",
-      quantity: "",
+      product_type: "",
+      quantity: 1,
       dimensions: "",
-      colors: "",
+      preferred_colors: "",
       timeline: "",
-      budget: "",
+      budget_range: "",
       description: "",
-      files: null,
+      reference_images: [],
     });
     setIsSubmitting(false);
   };
+
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+  const MAX_FILES = 5;
+
+  const validateFiles = (files: File[]) => {
+    const valid: File[] = [];
+
+    for (const file of files) {
+      if (!file.type.startsWith("image/")) {
+        alert(`${file.name} is not an image`);
+        continue;
+      }
+
+      if (file.size > MAX_FILE_SIZE) {
+        alert(`${file.name} exceeds 5MB`);
+        continue;
+      }
+
+      valid.push(file);
+    }
+
+    return valid.slice(0, MAX_FILES);
+  };
+
+  const removeImage = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      reference_images: prev.reference_images.filter((_, i) => i !== index),
+    }));
+  };
+
+
+  const formatToIST = (utcString: string) => {
+  const date = new Date(utcString);
+
+  return date.toLocaleString("en-IN", {
+    timeZone: "Asia/Kolkata",
+    dateStyle: "long",
+    timeStyle: "short",
+  });
+};
+
 
   return (
     <section
@@ -97,54 +206,54 @@ export default function CustomOrdersPage() {
       style={{ backgroundColor: "hsl(48 44% 96%)" }} // Warm Linen
     >
       {/* Hero */}
-         <div className="relative h-[60vh] w-full overflow-hidden">
+      <div className="relative h-[60vh] w-full overflow-hidden">
+        {/* Background Image with motion */}
+        <motion.div
+          initial={{ scale: 1.15, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 1.2, ease: "easeOut" }}
+          className="absolute inset-0"
+        >
+          <Image
+            src="/images/workshop-pieces/10.png"
+            alt="Custom handmade pottery"
+            fill
+            className="object-cover"
+            priority
+          />
+        </motion.div>
 
-      {/* Background Image with motion */}
-      <motion.div
-        initial={{ scale: 1.15, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 1.2, ease: "easeOut" }}
-        className="absolute inset-0"
-      >
-        <Image
-          src="/images/workshop-pieces/10.png"
-          alt="Custom handmade pottery"
-          fill
-          className="object-cover"
-          priority
-        />
-      </motion.div>
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+          <div className="text-center px-8">
+            {/* Heading */}
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+              className="text-5xl font-medium tracking-wide text-white mb-4 font-[var(--font-display)]"
+            >
+              CUSTOM ORDERS
+            </motion.h1>
 
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-        <div className="text-center px-8">
-
-          {/* Heading */}
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="text-5xl font-medium tracking-wide text-white mb-4 font-[var(--font-display)]"
-          >
-            CUSTOM ORDERS
-          </motion.h1>
-
-          {/* Subtitle */}
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.5 }}
-            className="text-white"
-          >
-            Crafted slowly, intentionally, and uniquely — just for you.
-          </motion.p>
-
+            {/* Subtitle */}
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.5 }}
+              className="text-white"
+            >
+              Crafted slowly, intentionally, and uniquely — just for you.
+            </motion.p>
+          </div>
         </div>
       </div>
-    </div>
 
       {/* Process */}
-      <section className="py-24  "style={{ backgroundColor: "hsl(48 44% 96%)" }}>
+      <section
+        className="py-24  "
+        style={{ backgroundColor: "hsl(48 44% 96%)" }}
+      >
         <div className="max-w-7xl mx-auto px-8 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -179,9 +288,7 @@ export default function CustomOrdersPage() {
                   <h3 className="text-xl text-[var(--basho-teal)] font-display  mb-2">
                     {step.title}
                   </h3>
-                  <p className="text-sm text-gray-700">
-                    {step.desc}
-                  </p>
+                  <p className="text-sm text-gray-700">{step.desc}</p>
                 </div>
                 {idx < processSteps.length - 1 && (
                   <div className="hidden lg:block absolute top-8 left-[60%] w-[80%] h-px bg-border" />
@@ -269,202 +376,337 @@ export default function CustomOrdersPage() {
             </p>
           </motion.div>
           <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.2 }}
-              > 
-          <form
-            onSubmit={handleSubmit}
-            className="bg-white/70 p-8  space-y-6 backdrop-blur rounded-xl  border border-[var(--basho-brown)]/25 shadow-sm"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
           >
-            <div className="grid md:grid-cols-2 gap-4">
-              {/* Full Name */}
+            {submittedOrder ? (
+  <div className="bg-white border border-green-300 rounded-xl p-8 text-center shadow-sm">
+    <h3 className="text-2xl font-semibold text-green-700 mb-4">
+      🎉 Custom Order Submitted Successfully
+    </h3>
+
+    <p className="text-gray-700 mb-2">
+      <strong>Name:</strong> {submittedOrder.name}
+    </p>
+
+    <p className="text-gray-700 mb-2">
+      <strong>Product Type:</strong>{" "}
+      {submittedOrder.product_type.replace("_", " ")}
+    </p>
+
+    <p className="text-gray-700 mb-6">
+      <strong>Submitted on:</strong>{" "}
+      {formatToIST(submittedOrder.created_at)}
+    </p>
+
+    <button
+      onClick={() => {
+        setSubmittedOrder(null);
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          product_type: "",
+          quantity: 1,
+          dimensions: "",
+          preferred_colors: "",
+          timeline: "",
+          budget_range: "",
+          description: "",
+          reference_images: [],
+        });
+      }}
+      className="px-6 py-2 bg-[var(--basho-brown)] text-white rounded"
+    >
+      Submit Another Order
+    </button>
+  </div>
+) : (
+            <form
+              onSubmit={handleSubmit}
+              className="bg-white/70 p-8  space-y-6 backdrop-blur rounded-xl  border border-[var(--basho-brown)]/25 shadow-sm"
+            >
+              <div className="grid md:grid-cols-2 gap-4">
+                {/* Full Name */}
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm text-[var(--basho-dark)]">
+                    Full Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => handleChange("name", e.target.value)}
+                    className="w-full border border-[var(--basho-brown)]/30 px-4 py-2 rounded bg-white"
+                    required
+                  />
+                </div>
+
+                {/* Email */}
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm text-[var(--basho-dark)]">
+                    Email *
+                  </label>
+                  <input
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => handleChange("email", e.target.value)}
+                    className="w-full border border-[var(--basho-brown)]/30 px-4 py-2 rounded bg-white"
+                    required
+                  />
+                </div>
+
+                {/* Phone */}
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm text-[var(--basho-dark)]">
+                    Phone
+                  </label>
+                  <input
+                    type="tel"
+                    value={formData.phone}
+                    onChange={(e) => handleChange("phone", e.target.value)}
+                    className="w-full border border-[var(--basho-brown)]/30 px-4 py-2 rounded bg-white"
+                  />
+                </div>
+
+                {/* Product Type */}
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm text-[var(--basho-dark)]">
+                    Product Type
+                  </label>
+                  <select
+                    value={formData.product_type}
+                    onChange={(e) =>
+                      handleChange("product_type", e.target.value)
+                    }
+                    className="w-full border border-[var(--basho-brown)]/30 px-4 py-2 rounded bg-white"
+                  >
+                    <option value="">Select----</option>
+                    <option value="cups_mugs">Cups & Mugs</option>
+                    <option value="bowls">Bowls</option>
+                    <option value="plates">Plates</option>
+                    <option value="vases">Vases</option>
+                    <option value="decorative">Decorative pieces</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Quantity */}
               <div className="flex flex-col gap-1">
                 <label className="text-sm text-[var(--basho-dark)]">
-                  Full Name *
+                  Quantity *
+                </label>
+
+                <div className="flex items-center w-fit border border-[var(--basho-brown)]/30 rounded bg-white">
+                  <input
+                    type="number"
+                    min={1}
+                    value={formData.quantity}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        quantity: Math.max(1, Number(e.target.value)),
+                      }))
+                    }
+                    className=" px-4 py-2  text-lg text-[var(--basho-brown)] outline-none"
+                  />
+                </div>
+              </div>
+
+              {/* Dimensions */}
+              <div className="flex flex-col gap-1">
+                <label className="text-sm text-[var(--basho-dark)]">
+                  Dimensions
                 </label>
                 <input
                   type="text"
-                  value={formData.name}
-                  onChange={(e) => handleChange("name", e.target.value)}
-                 className="w-full border border-[var(--basho-brown)]/30 px-4 py-2 rounded bg-white"
-               
-                  required
-                />
-              </div>
-
-              {/* Email */}
-              <div className="flex flex-col gap-1">
-                <label className="text-sm text-[var(--basho-dark)]">
-                  Email *
-                </label>
-                <input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => handleChange("email", e.target.value)}
+                  placeholder="Dimensions"
+                  value={formData.dimensions}
+                  onChange={(e) => handleChange("dimensions", e.target.value)}
                   className="w-full border border-[var(--basho-brown)]/30 px-4 py-2 rounded bg-white"
-                  required
                 />
               </div>
 
-              {/* Phone */}
+              {/* Colors */}
               <div className="flex flex-col gap-1">
                 <label className="text-sm text-[var(--basho-dark)]">
-                  Phone
+                  Preferred Colors/Glazes
                 </label>
                 <input
-                  type="tel"
-                  value={formData.phone}
-                  onChange={(e) => handleChange("phone", e.target.value)}
-                   className="w-full border border-[var(--basho-brown)]/30 px-4 py-2 rounded bg-white"
+                  type="text"
+                  placeholder="Colors / Glazes"
+                  value={formData.preferred_colors}
+                  onChange={(e) =>
+                    handleChange("preferred_colors", e.target.value)
+                  }
+                  className="w-full border border-[var(--basho-brown)]/30 px-4 py-2 rounded bg-white"
                 />
               </div>
 
-              {/* Product Type */}
+              {/* Timeline */}
               <div className="flex flex-col gap-1">
                 <label className="text-sm text-[var(--basho-dark)]">
-                  Product Type
+                  Desired Timeline
                 </label>
                 <select
-                  value={formData.productType}
-                  onChange={(e) => handleChange("productType", e.target.value)}
-                   className="w-full border border-[var(--basho-brown)]/30 px-4 py-2 rounded bg-white"
+                  value={formData.timeline}
+                  onChange={(e) => handleChange("timeline", e.target.value)}
+                  className="w-full border border-[var(--basho-brown)]/30 px-4 py-2 rounded bg-white"
                 >
-                  <option value="">Select----</option>
-                  <option value="Cups & Mugs">Cups & Mugs</option>
-                  <option value="Bowls">Bowls</option>
-                  <option value="Plates">Plates</option>
-                  <option value="Vases">Vases</option>
-                  <option value="Decorative pieces">Decorative pieces</option>
-                  <option value="Other">Other</option>
+                  <option value="">Select Timeline</option>
+                  <option value="3-4weeks">3-4 weeks</option>
+                  <option value="1-2months">1-2 months</option>
+                  <option value="2-3months">2-3 months</option>
+                  <option value="flexible">Flexible</option>
                 </select>
               </div>
-            </div>
 
-            {/* Quantity */}
-            <div className="flex flex-col gap-1">
-              <label className="text-sm text-[var(--basho-dark)]">
-                Quantity
-              </label>
-              <input
-                type="text"
-                placeholder="Eg:5 pieces"
-                value={formData.quantity}
-                onChange={(e) => handleChange("quantity", e.target.value)}
-              className="w-full border border-[var(--basho-brown)]/30 px-4 py-2 rounded bg-white"
-              />
-            </div>
+              {/* Budget */}
+              <div className="flex flex-col gap-1">
+                <label className="text-sm text-[var(--basho-dark)]">
+                  Budget Range
+                </label>
+                <select
+                  value={formData.budget_range}
+                  onChange={(e) => handleChange("budget_range", e.target.value)}
+                  className="w-full border border-[var(--basho-brown)]/30 px-4 py-2 rounded bg-white"
+                >
+                  <option value="">Select Budget</option>
+                  <option value="under-5k">Under ₹5,000</option>
+                  <option value="5k-15k">₹5,000 - ₹15,000</option>
+                  <option value="15k-50k">₹15,000 - ₹50,000</option>
+                  <option value="above-50k">Above ₹50,000</option>
+                </select>
+              </div>
 
-            {/* Dimensions */}
-            <div className="flex flex-col gap-1">
-              <label className="text-sm text-[var(--basho-dark)]">
-                Dimensions
-              </label>
-              <input
-                type="text"
-                placeholder="Dimensions"
-                value={formData.dimensions}
-                onChange={(e) => handleChange("dimensions", e.target.value)}
-                className="w-full border border-[var(--basho-brown)]/30 px-4 py-2 rounded bg-white"
-              />
-            </div>
-
-            {/* Colors */}
-            <div className="flex flex-col gap-1">
-              <label className="text-sm text-[var(--basho-dark)]">
-                Preferred Colors/Glazes
-              </label>
-              <input
-                type="text"
-                placeholder="Colors / Glazes"
-                value={formData.colors}
-                onChange={(e) => handleChange("colors", e.target.value)}
-                 className="w-full border border-[var(--basho-brown)]/30 px-4 py-2 rounded bg-white"
-              />
-            </div>
-
-            {/* Timeline */}
-            <div className="flex flex-col gap-1">
-              <label className="text-sm text-[var(--basho-dark)]">
-                Desired Timeline
-              </label>
-              <select
-                value={formData.timeline}
-                onChange={(e) => handleChange("timeline", e.target.value)}
-                className="w-full border border-[var(--basho-brown)]/30 px-4 py-2 rounded bg-white"
-              >
-                <option value="">Select Timeline</option>
-                <option value="3-4weeks">3-4 weeks</option>
-                <option value="1-2months">1-2 months</option>
-                <option value="2-3months">2-3 months</option>
-                <option value="flexible">Flexible</option>
-              </select>
-            </div>
-
-            {/* Budget */}
-            <div className="flex flex-col gap-1">
-              <label className="text-sm text-[var(--basho-dark)]">
-                Budget Range
-              </label>
-              <select
-                value={formData.budget}
-                onChange={(e) => handleChange("budget", e.target.value)}
-                className="w-full border border-[var(--basho-brown)]/30 px-4 py-2 rounded bg-white"
-              >
-                <option value="">Select Budget</option>
-                <option value="under-5k">Under ₹5,000</option>
-                <option value="5k-15k">₹5,000 - ₹15,000</option>
-                <option value="15k-50k">₹15,000 - ₹50,000</option>
-                <option value="above-50k">Above ₹50,000</option>
-              </select>
-            </div>
-
-            {/* Description */}
-            <div className="flex flex-col gap-1">
-              <label className="text-sm text-[var(--basho-dark)]">
-                Describe Your Vision *
-              </label>
-              <textarea
-                placeholder="Tell us about the piece you're envisioning.Include any inspiration,specific details,intended use
+              {/* Description */}
+              <div className="flex flex-col gap-1">
+                <label className="text-sm text-[var(--basho-dark)]">
+                  Describe Your Vision *
+                </label>
+                <textarea
+                  placeholder="Tell us about the piece you're envisioning.Include any inspiration,specific details,intended use
       ,or special requirements...."
-                value={formData.description}
-                onChange={(e) => handleChange("description", e.target.value)}
-                rows={5}
-                required
-                className="w-full border border-[var(--basho-brown)]/30 px-4 py-2 rounded bg-white"
-              />
-            </div>
+                  value={formData.description}
+                  onChange={(e) => handleChange("description", e.target.value)}
+                  rows={5}
+                  required
+                  className="w-full border border-[var(--basho-brown)]/30 px-4 py-2 rounded bg-white"
+                />
+              </div>
 
-            {/* File Upload */}
-            <div className="flex flex-col gap-1">
-              <label className="text-sm text-[var(--basho-dark)]">
-                Reference Images / Files 
-              </label>
-              <input
-                type="file"
-                multiple
-                onChange={(e) => handleChange("files", e.target.files)}
-                 className="w-full border border-[var(--basho-brown)]/30 px-4 py-2 rounded bg-white"
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full py-3 bg-[var(--basho-brown)] text-white rounded font-semibold hover:opacity-90 flex items-center justify-center"
-            >
-              {isSubmitting ? (
-                "Submitting..."
-              ) : (
-                <>
-                  <Send className="w-4 h-4 mr-2" /> SUBMIT CUSTOM ORDER REQUEST
-                </>
-              )}
-            </button>
-          </form>
+              {/* File Upload */}
+              <div className="flex flex-col gap-2">
+                <label className="text-sm text-[var(--basho-dark)]">
+                  Reference Images (Optional)
+                </label>
+
+                <div
+                  className="border-2 border-dashed border-[var(--basho-brown)]/40 rounded-lg p-6 text-center cursor-pointer hover:bg-[var(--basho-brown)]/5 transition bg-white"
+                  onClick={() => document.getElementById("fileInput")?.click()}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={(e) => {
+                    e.preventDefault();
+
+                    const droppedFiles = validateFiles(
+                      Array.from(e.dataTransfer.files)
+                    );
+
+                    setFormData((prev) => ({
+                      ...prev,
+                      reference_images: [
+                        ...prev.reference_images,
+                        ...droppedFiles,
+                      ].slice(0, MAX_FILES),
+                    }));
+                  }}
+                >
+                  {/* Lucide Image Icon */}
+                  <ImageIcon className="w-10 h-10 text-[var(--basho-brown)]/70 mx-auto mb-sm" />
+
+                  <p className="text-sm text-gray-500 mb-1">
+                    Drag & drop images or click to upload
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    PNG, JPG up to 5MB each
+                  </p>
+                  <input
+                    type="file"
+                    id="fileInput"
+                    multiple
+                    accept="image/png,image/jpeg"
+                    className="hidden"
+                    onChange={(e) => {
+                      if (!e.target.files) return;
+
+                      const selectedFiles = validateFiles(
+                        Array.from(e.target.files)
+                      );
+
+                      setFormData((prev) => ({
+                        ...prev,
+                        reference_images: [
+                          ...prev.reference_images,
+                          ...selectedFiles,
+                        ].slice(0, MAX_FILES),
+                      }));
+                    }}
+                  />
+                </div>
+
+                {/* Preview Selected Images */}
+                {formData.reference_images.length > 0 && (
+                  <div className="flex flex-wrap gap-3 mt-4">
+                    {formData.reference_images.map((file, idx) => (
+                      <div
+                        key={idx}
+                        className="relative w-24 h-24 rounded-lg overflow-hidden border bg-white shadow-sm group"
+                      >
+                        <img
+                          src={URL.createObjectURL(file)}
+                          alt={file.name}
+                          className="w-full h-full object-cover"
+                        />
+
+                        {/* Remove Button */}
+                        <button
+                          type="button"
+                          onClick={() => removeImage(idx)}
+                          className="absolute top-1 right-1 bg-black/60 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs opacity-100 "
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <button
+                type="submit"
+                disabled={
+                  isSubmitting ||
+                  !formData.name ||
+                  !formData.email ||
+                  !formData.description
+                }
+                className="w-full py-3 bg-[var(--basho-brown)] text-white rounded font-semibold hover:opacity-90 flex items-center justify-center"
+              >
+                {isSubmitting ? (
+                  "Submitting..."
+                ) : (
+                  <>
+                    <Send className="w-4 h-4 mr-2" /> SUBMIT CUSTOM ORDER
+                    REQUEST
+                  </>
+                )}
+              </button>
+            </form>)}
           </motion.div>
         </div>
       </section>
     </section>
   );
-}
+} 

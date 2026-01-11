@@ -4,46 +4,63 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
-import React, { useState, useMemo } from 'react';
-import { products } from '@/data/products';
+import React, { useState, useMemo,useEffect } from 'react';
+import { fetchProducts } from "@/lib/api";
+import { Product } from "@/types/product";
 import { ProductGrid } from '@/components/shop/ProductGrid';
 import { ProductFilter } from '@/components/shop/ProductFilter';
+import { CategoryFilter } from '@/components/shop/ProductFilter';
+
 import { Section } from '@/components/shared/Section';
 
+
 export default function ShopPage() {
-  const [activeFilter, setActiveFilter] = useState('all');
+  const [products, setProducts] = useState<Product[]>([]);
+  const [activeFilter, setActiveFilter] = useState<CategoryFilter>('all');
+
+
+  useEffect(() => {
+    fetchProducts()
+      .then(setProducts)
+      .catch(console.error);
+  }, []);
+
 
   // Filter products based on selected category
-  const filteredProducts = useMemo(() => {
-    if (activeFilter === 'all') {
-      return products;
-    }
-    return products.filter(product => product.category === activeFilter);
-  }, [activeFilter]);
+const filteredProducts = useMemo(() => {
+  if (activeFilter === "all") return products;
+  return products.filter(p => p.category === activeFilter);
+}, [activeFilter, products]);
+
 
   // Count products in each category
-  const filterOptions = [
-    { 
-      label: 'All Products', 
-      value: 'all',
-      count: products.length
-    },
-    { 
-      label: 'Tableware', 
-      value: 'tableware',
-      count: products.filter(p => p.category === 'tableware').length
-    },
-    { 
-      label: 'Decor', 
-      value: 'decor',
-      count: products.filter(p => p.category === 'decor').length
-    },
-    { 
-      label: 'Custom', 
-      value: 'custom',
-      count: products.filter(p => p.category === 'custom').length
-    },
-  ];
+const filterOptions: {
+  label: string;
+  value: CategoryFilter;
+  count: number;
+}[] = [
+  {
+    label: 'All Products',
+    value: 'all',
+    count: products.length,
+  },
+  {
+    label: 'Tableware',
+    value: 'tableware',
+    count: products.filter(p => p.category === 'tableware').length,
+  },
+  {
+    label: 'Decor',
+    value: 'decor',
+    count: products.filter(p => p.category === 'decor').length,
+  },
+  {
+    label: 'Custom',
+    value: 'custom',
+    count: products.filter(p => p.category === 'custom').length,
+  },
+];
+
 
   return (
     <main className="min-h-screen">
@@ -95,8 +112,6 @@ export default function ShopPage() {
       </section>
 
 
-
-
       {/* Products Section */}
       <Section>
         {/* Filter Tabs */}
@@ -116,7 +131,7 @@ export default function ShopPage() {
       <Section bgColor="bg-[#D8CBC4]" className="py-16">
     <div className="grid md:grid-cols-3 gap-8 text-center max-w-6xl mx-auto">
           <div className="group bg-white/80 backdrop-blur rounded-2xl p-8 shadow-md transition-all duration-300 hover:-translate-y-2 hover:shadow-xl">
-D
+
             <div className="w-16 h-16 mx-auto mb-4 bg-[#F5F0BF] rounded-full flex items-center justify-center transition-transform duration-300 group-hover:rotate-6 group-hover:scale-110">
 
               <svg className="w-8 h-8 text-[#8B6F47]" fill="none" stroke="currentColor" viewBox="0 0 24 24">

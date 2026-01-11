@@ -50,12 +50,25 @@ export default function Footer() {
             >
               <InstagramIcon size={20} />
             </a>
-            <a
-              href="mailto:hello@bashobyshivangi.com"
-              className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-[var(--basho-sand)]/20 transition"
-            >
-              <MailIcon size={20} />
-            </a>
+           <a
+            href="https://mail.google.com/mail/?view=cm&fs=1&to=bashobyshivangi123@gmail.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Email Basho"
+            className="
+              w-12 h-12
+              rounded-full
+              bg-white/10
+              flex items-center justify-center
+              text-white
+              hover:bg-[var(--basho-sand)]/20
+              hover:scale-110
+              transition
+            "
+          >
+            <MailIcon size={20} />
+          </a>
+
           </div>
         </div>
 
@@ -66,8 +79,8 @@ export default function Footer() {
           open={open === "links"}
           onClick={() => toggle("links")}
         >
-          <FooterLink href="/">Shop Collection</FooterLink>
-          <FooterLink href="/">Workshops</FooterLink>
+          <FooterLink href="/shop">Shop Collection</FooterLink>
+          <FooterLink href="/workshops">Workshops</FooterLink>
           <FooterLink href="/">Our Philosophy</FooterLink>
           <FooterLink href="/custom-orders">Custom Orders</FooterLink>
         </FooterSection>
@@ -102,7 +115,7 @@ export default function Footer() {
           </p>
           <p className="flex gap-3 items-center text-white/70">
             <MailIcon size={20} className="mt-1 text-[var(--basho-sand)]/80" />
-            hello@bashobyshivangi.com
+            bashobyshivangi123@gmail.com
           </p>
         </FooterSection>
       </div>
