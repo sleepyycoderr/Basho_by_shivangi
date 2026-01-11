@@ -54,12 +54,7 @@ INSTALLED_APPS = [
     'apps.orders',
     'apps.accounts',
     "apps.corporate",
-
-
-    #aish changes :
-    "corsheaders",
-    # third party
-    "rest_framework",
+    
     "rest_framework.authtoken",
 
     
