@@ -69,10 +69,13 @@ class Booking(models.Model):
     )
 
     slot = models.ForeignKey(
-        ExperienceSlot,
-        on_delete=models.PROTECT,
-        related_name="bookings"
-    )
+    ExperienceSlot,
+    on_delete=models.PROTECT,
+    related_name="bookings",
+    null=True,
+    blank=True,
+)
+
 
     full_name = models.CharField(max_length=100)
     phone = models.CharField(max_length=15)
