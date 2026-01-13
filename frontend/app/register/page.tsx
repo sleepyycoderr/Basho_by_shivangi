@@ -18,51 +18,43 @@ export default function RegisterPage() {
   const [emailError, setEmailError] = useState("");
   
   const [showUsernameModal, setShowUsernameModal] = useState(false);
-const [googleEmail, setGoogleEmail] = useState("");
-const [googleUsername, setGoogleUsername] = useState("");
 
-
-
-  
-const [otpLoading, setOtpLoading] = useState(false);
-
-
+  const [googleEmail, setGoogleEmail] = useState("");
+  const [googleUsername, setGoogleUsername] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpLoading, setOtpLoading] = useState(false);
   const router = useRouter();
-const [error, setError] = useState("");
-
-const [success, setSuccess] = useState("");
-
-
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [password1, setPassword1] = useState("");
   const [password2, setPassword2] = useState("");
-
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
   const [strengthText, setStrengthText] = useState("");
   const [strengthColor, setStrengthColor] = useState("");
+  const [passwordStrength, setPasswordStrength] = useState(0);
 
-  /* ✅ OTP STATE */
-  const [otp, setOtp] = useState("");
-  const [otpError, setOtpError] = useState("");
+
+/* ✅ OTP STATE */
+const [otp, setOtp] = useState("");
+const [otpError, setOtpError] = useState("");
+
+// ⏱ OTP TIMERS
+const [resendTimer, setResendTimer] = useState(30);
+const [canResend, setCanResend] = useState(false);
+const [otpExpiry, setOtpExpiry] = useState(300); // 5 minutes
+
 
 
  const handleSendOtp = async () => {
-
-
-
-
   setError("");
   setSuccess("");
   setOtpLoading(true);
-
   if (!username.trim()) {
   setError("Username is required");
   setOtpLoading(false);
   return;
 }
-
-
   if (!validateEmail(email)) {
     setError("Invalid email id entered");
     setOtpLoading(false);
@@ -75,8 +67,6 @@ const [success, setSuccess] = useState("");
     body: JSON.stringify({ email, username }),
   });
 
-  
-
   const data = await res.json();
 
   if (!res.ok) {
@@ -86,39 +76,74 @@ const [success, setSuccess] = useState("");
   }
 
   setSuccess("OTP sent successfully");
-
+  setOtp("");
+  setOtpSent(false);
+  setResendTimer(30);
+  setOtpExpiry(300);
+  setCanResend(false);
+  setOtpError("");
+  setOtpSent(true);
   setOtpLoading(false);
+
 };
+
+// ⏱ Resend OTP timer (30s)
+useEffect(() => {
+  if (!otpSent) return;
+
+  if (resendTimer > 0) {
+    const timer = setTimeout(() => setResendTimer(resendTimer - 1), 1000);
+    return () => clearTimeout(timer);
+  } else {
+    setCanResend(true);
+  }
+}, [resendTimer, otpSent]);
+
+// ⏱ OTP expiry timer (5 minutes)
+useEffect(() => {
+  if (!otpSent) return;
+
+  if (otpExpiry > 0) {
+    const timer = setTimeout(() => setOtpExpiry(otpExpiry - 1), 1000);
+    return () => clearTimeout(timer);
+  } else {
+    setOtpError("OTP expired. Please resend OTP.");
+    setCanResend(true);
+  }
+}, [otpExpiry, otpSent]);
+
 
 <GoogleLogin
   onSuccess={(credentialResponse) => {
+    if (!credentialResponse.credential) {
+      setError("Google authentication failed");
+      return;
+    }
+
     const decoded: any = jwtDecode(credentialResponse.credential);
     const email = decoded.email;
 
     setGoogleEmail(email);
 
-    // 🔍 Check if user already exists
     fetch("http://127.0.0.1:8000/api/accounts/google-login/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),
-    })
-      .then(async (res) => {
-        if (res.ok) {
-          // ✅ EXISTING USER → LOGIN
-          const data = await res.json();
-          localStorage.setItem("accessToken", data.access);
-          localStorage.setItem("refreshToken", data.refresh);
-          localStorage.setItem("username", data.username);
-          router.replace("/");
-        } else {
-          // 🆕 NEW USER → ASK USERNAME
-          setShowUsernameModal(true);
-        }
-      });
+    }).then(async (res) => {
+      if (res.ok) {
+        const data = await res.json();
+        localStorage.setItem("accessToken", data.access);
+        localStorage.setItem("refreshToken", data.refresh);
+        localStorage.setItem("username", data.username);
+        router.replace("/");
+      } else {
+        setShowUsernameModal(true);
+      }
+    });
   }}
   onError={() => setError("Google authentication failed")}
 />
+
 
 
 {showUsernameModal && (
@@ -207,51 +232,71 @@ const [success, setSuccess] = useState("");
     return strength;
   };
 
-  useEffect(() => {
-    if (!password1) {
-      setStrengthText("");
-      return;
-    }
+useEffect(() => {
+  if (!password1) {
+    setStrengthText("");
+    setStrengthColor("");
+    setPasswordStrength(0);
+    return;
+  }
 
-    const strength = checkStrength(password1);
+  const strength = checkStrength(password1);
+  setPasswordStrength(strength);
 
-    if (strength <= 1) {
-      setStrengthText("Weak password");
-      setStrengthColor("text-red-500");
-    } else if (strength === 2) {
-      setStrengthText("Moderate password");
-      setStrengthColor("text-orange-500");
-    } else {
-      setStrengthText("Strong password");
-      setStrengthColor("text-green-600");
-    }
-  }, [password1]);
+  if (strength === 1) {
+    setStrengthText("Weak password");
+    setStrengthColor("text-red-600");
+  } else if (strength === 2) {
+    setStrengthText("Moderate password");
+    setStrengthColor("text-orange-500");
+  } else if (strength === 3) {
+    setStrengthText("Strong password");
+    setStrengthColor("text-green-600");
+  }
+}, [password1]);
+
 
   const passwordsMatch =
     password1 && password2 && password1 === password2;
 
   const showPasswordRules = password1.length === 0;
 
-
-
- const handleRegister = async () => {
+  const handleRegister = async () => {
   setError("");
 
-  const res = await fetch("http://127.0.0.1:8000/api/accounts/register/", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      username,
-      email,
-      password: password1,
-      otp,
-    }),
-  });
+  if (passwordStrength !== 3) {
+  setError("Password must be strong (8 characters, 1 uppercase, 1 special character)");
+  setSuccess("");
+  return;
+}
+
+
+  // ✅ CHECK FIRST
+  if (otpExpiry <= 0) {
+    setError("OTP expired. Please resend OTP.");
+    setSuccess("");
+    return;
+  }
+
+  const res = await fetch(
+    "http://127.0.0.1:8000/api/accounts/register/",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        username,
+        email,
+        password: password1,
+        otp,
+      }),
+    }
+  );
 
   const data = await res.json();
 
   if (!res.ok) {
     setError(data.error || "Invalid credentials - incorrect OTP");
+    setSuccess(""); 
     return;
   }
 
@@ -261,6 +306,7 @@ const [success, setSuccess] = useState("");
 
   router.replace("/");
 };
+
 
 
 
@@ -344,47 +390,64 @@ const [success, setSuccess] = useState("");
 {error && <p className="text-red-600 text-sm">{error}</p>}
 
 
+{/* otp timers */}
+{otpSent && (
+  <>
+    {/* OTP INPUT */}
+    <div className="relative mb-2">
+      <Lock
+        size={18}
+        className="absolute left-4 top-1/2 -translate-y-1/2 text-[#c2b29b]"
+      />
 
+      <input
+        type="text"
+        inputMode="numeric"
+        pattern="[0-9]*"
+        placeholder="Enter OTP"
+        value={otp}
+        maxLength={6}
+        onChange={(e) => {
+          const value = e.target.value.replace(/\D/g, "");
 
+          if (value.length < 6) {
+            setOtp(value);
+            setOtpError("OTP must be of 6 digits");
+          } else {
+            setOtp(value);
+            setOtpError("");
+          }
+        }}
+        className="w-full h-12 pl-11 pr-4 rounded-full bg-transparent border
+        border-[var(--basho-divider)] text-black placeholder:text-[#c2b29b]
+        focus:outline-none focus:border-[var(--basho-clay)]"
+      />
+    </div>
 
-{/* OTP INPUT */}
-<div className="relative mb-2">
-  <Lock
-    size={18}
-    className="absolute left-4 top-1/2 -translate-y-1/2 text-[#c2b29b]"
-  />
+    {otpError && (
+      <p className="text-left text-sm text-red-600 pl-2 mb-4">
+        {otpError}
+      </p>
+    )}
 
-  <input
-    type="text"
-    inputMode="numeric"
-    pattern="[0-9]*"
-    placeholder="Enter OTP"
-    value={otp}
-    maxLength={6}
-    onChange={(e) => {
-      const value = e.target.value.replace(/\D/g, ""); // only digits
+    {/* OTP TIMERS */}
+    <p className="text-xs text-gray-500 mb-2">
+      OTP expires in: {Math.floor(otpExpiry / 60)}:
+      {(otpExpiry % 60).toString().padStart(2, "0")}
+    </p>
 
-      if (value.length < 6) {
-        setOtp(value);
-        setOtpError("OTP must be of 6 digits");
-      } else if (value.length === 6) {
-        setOtp(value);
-        setOtpError(""); // valid
-      } else {
-        // length > 6 → block typing
-        setOtpError("OTP must be of 6 digits");
-      }
-    }}
-    className="w-full h-12 pl-11 pr-4 rounded-full bg-transparent border
-      border-[var(--basho-divider)] text-black placeholder:text-[#c2b29b]
-      focus:outline-none focus:border-[var(--basho-clay)]"
-  />
-</div>
-
-{otpError && (
-  <p className="text-left text-sm text-red-600 pl-2 mb-4">
-    {otpError}
-  </p>
+    <button
+      disabled={!canResend}
+      className={`text-sm mb-4 ${
+        canResend
+          ? "text-[#652810] hover:underline cursor-pointer"
+          : "text-gray-400 cursor-not-allowed"
+      }`}
+      onClick={handleSendOtp}
+    >
+      {canResend ? "Resend OTP" : `Resend in ${resendTimer}s`}
+    </button>
+  </>
 )}
 
 
@@ -450,17 +513,29 @@ const [success, setSuccess] = useState("");
           {/* Register Button */}
           
             <button
-  type="button"
-  disabled={!passwordsMatch || !!emailError || !otp}
+              type="button"
+              disabled={
+              !passwordsMatch ||
+              !!emailError ||
+              !otp ||
+              otpExpiry <= 0 ||
+              passwordStrength !== 3
+            }
+
 
   onClick={handleRegister}
   className={`w-full h-12 rounded-full text-white flex items-center justify-center gap-2 text-lg
   transition-colors
   ${
-    passwordsMatch && !emailError
-      ? "bg-[var(--basho-terracotta)] hover:bg-[var(--basho-clay)]"
-      : "bg-gray-300 cursor-not-allowed"
-  }`}
+  passwordsMatch &&
+  !emailError &&
+  otp &&
+  otpExpiry > 0 &&
+  passwordStrength === 3
+    ? "bg-[var(--basho-terracotta)] hover:bg-[var(--basho-clay)]"
+    : "bg-gray-300 cursor-not-allowed"
+}
+`}
 >
   Create Account
   <ArrowRight size={18} />

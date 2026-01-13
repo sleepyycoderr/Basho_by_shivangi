@@ -21,6 +21,17 @@ from django.contrib.auth import get_user_model
 from django.utils.crypto import get_random_string
 
 
+import re
+
+def is_strong_password(password):
+    if len(password) < 8:
+        return False
+    if not re.search(r"[A-Z]", password):
+        return False
+    if not re.search(r"[^A-Za-z0-9]", password):
+        return False
+    return True
+
 @api_view(["POST"])
 def send_otp(request):
     email = request.data.get("email")
@@ -29,11 +40,9 @@ def send_otp(request):
     if not email or not username:
         return Response({"error": "Email and username required"}, status=400)
 
-    # ✅ username uniqueness check
     if User.objects.filter(username=username).exists():
         return Response({"error": "Username already exists"}, status=400)
 
-    # ✅ email uniqueness check
     if User.objects.filter(email=email).exists():
         return Response({"error": "Email already registered"}, status=400)
 
@@ -41,47 +50,14 @@ def send_otp(request):
 
     EmailOTP.objects.update_or_create(
         email=email,
-        defaults={"otp": otp}
+        defaults={
+            "otp": otp,
+            "created_at": timezone.now()
+        }
     )
 
     send_otp_email(email, otp)
-    return Response({"success": "OTP sent successfully"})
-
-    email = request.data.get("email")
-    username = request.data.get("username")
-
-    if not email or not username:
-        return Response(
-            {"error": "Email and username required"},
-            status=400
-        )
-
-    if User.objects.filter(email=email).exists():
-        return Response(
-            {"error": "Email already registered"},
-            status=400
-        )
-
-    if User.objects.filter(username=username).exists():
-        return Response(
-            {"error": "Username already taken"},
-            status=400
-        )
-
-    otp = generate_otp()
-
-    EmailOTP.objects.update_or_create(
-        email=email,
-        defaults={"otp": otp, "created_at": timezone.now()}
-    )
-
-    send_otp_email(email, otp)
-
-    return Response({"success": "OTP sent successfully"})
-
-
-
-
+    return Response({"success": "OTP sent"})
 
 @api_view(["POST"])
 def register_user(request):
@@ -90,9 +66,30 @@ def register_user(request):
     password = request.data.get("password")
     otp = request.data.get("otp")
 
+    if not all([email, username, password, otp]):
+        return Response({"error": "All fields are required"}, status=400)
+
     otp_obj = EmailOTP.objects.filter(email=email, otp=otp).first()
     if not otp_obj:
-        return Response({"error": "Invalid credentials - incorrect OTP"}, status=400)
+        return Response({"error": "Incorrect OTP"}, status=400)
+
+    # ✅ OTP expiry (5 minutes)
+    if timezone.now() - otp_obj.created_at > timedelta(minutes=5):
+        otp_obj.delete()
+        return Response({"error": "OTP expired"}, status=400)
+
+    if User.objects.filter(email=email).exists():
+        return Response({"error": "Email already registered"}, status=400)
+
+    if User.objects.filter(username=username).exists():
+        return Response({"error": "Username already taken"}, status=400)
+    
+    if not is_strong_password(password):
+        return Response(
+        {"error": "Password must be at least 8 characters, include 1 uppercase letter and 1 special character"},
+        status=400
+    )
+
 
     user = User.objects.create_user(
         username=username,
@@ -111,64 +108,6 @@ def register_user(request):
         "refresh": str(refresh),
         "username": user.username,
     })
-
-    email = request.data.get("email")
-    username = request.data.get("username")
-    password = request.data.get("password")
-    otp = request.data.get("otp")
-
-    if not all([email, username, password, otp]):
-        return Response(
-            {"error": "All fields are required"},
-            status=400
-        )
-
-    otp_obj = EmailOTP.objects.filter(email=email, otp=otp).first()
-
-    if not otp_obj:
-        return Response(
-            {"error": "Incorrect credentials"},
-            status=400
-        )
-
-    # OTP expiry check (5 minutes)
-    if timezone.now() - otp_obj.created_at > timedelta(minutes=5):
-        otp_obj.delete()
-        return Response(
-            {"error": "OTP expired"},
-            status=400
-        )
-
-    if User.objects.filter(email=email).exists():
-        return Response(
-            {"error": "Email already registered"},
-            status=400
-        )
-
-    if User.objects.filter(username=username).exists():
-        return Response(
-            {"error": "Username already taken"},
-            status=400
-        )
-
-    user = User.objects.create_user(
-        username=username,
-        email=email,
-        password=password
-    )
-    user.is_email_verified = True
-    user.save()
-
-    otp_obj.delete()
-
-    refresh = RefreshToken.for_user(user)
-
-    return Response({
-    "access": str(refresh.access_token),
-    "refresh": str(refresh),
-    "username": user.username,
-    "profile_image": user.profile_image.url if user.profile_image else None,
-})
 
 
 
@@ -480,6 +419,13 @@ def forgot_password_reset(request):
     user = User.objects.filter(email=email).first()
     if not user:
         return Response({"error": "Invalid request"}, status=400)
+    
+    if not is_strong_password(new_password):
+        return Response(
+        {"error": "Password must be strong (8 chars, 1 uppercase, 1 special character)"},
+        status=400
+    )
+
 
     user.set_password(new_password)
     user.save()
