@@ -102,7 +102,7 @@ class CustomOrderAdmin(admin.ModelAdmin):
             )
 
         return format_html(
-            '<a class="button" href="/admin/custom-orders/{}/send-email/">{}</a>', obj.id,"Send Email"
+            '<a class="button style="text-decoration:none;" href="{}/send-email/">{}</a>', obj.id,"Send Email"
             
         )  
     

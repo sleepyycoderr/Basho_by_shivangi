@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.urls import reverse
 
 from rest_framework import generics,status
 from .models import Product
@@ -57,54 +58,71 @@ class CustomOrderCreateView(generics.CreateAPIView):
     serializer_class = CustomOrderSerializer
     parser_classes = [MultiPartParser, FormParser]
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if not serializer.is_valid():
+            print("❌ SERIALIZER ERRORS:", serializer.errors)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        self.perform_create(serializer)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
     def get_serializer_context(self):
         # ensures serializer has access to request.FILES
         context = super().get_serializer_context()
         context["request"] = self.request
         return context
+    
+    def perform_create(self, serializer):
+        order = serializer.save()
 
-def verify_custom_order_email(request, token):
-    order = get_object_or_404(
-        CustomOrder,
-        email_verification_token=token
+        verification_link = self.request.build_absolute_uri(
+            reverse(
+                "verify-custom-order-email",
+                args=[str(order.email_verification_token)]
+            )
     )
 
-    if order.email_verified:
-        return HttpResponse(
-            "Your email is already verified.",
-            content_type="text/plain"
+        html_content = render_to_string(
+            "email/verify_custom_order_email.html",
+            {
+                "name": order.name,
+                "verification_link": verification_link,
+            }
         )
 
+        email = EmailMultiAlternatives(
+            subject="Verify your custom order – Basho by Shivangi",
+            body="Please verify your email to confirm your custom order.",
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=[order.email],
+        )
+
+        email.attach_alternative(html_content, "text/html")
+        email.send()
+
+def verify_custom_order_email(request, token):
+    order = get_object_or_404(CustomOrder, email_verification_token=token)
+
+    if order.email_verified:
+        return render(
+                request,
+            "email/email_verified.html",
+                {
+                    "frontend_url": settings.FRONTEND_URL,
+                    "already_verified": True,
+                }
+            )
     order.email_verified = True
     order.save(update_fields=["email_verified"])
 
-    return HttpResponse(
-        "<h2>Thank you! Your email has been successfully verified.</h2>"
-        "<p>Thank you. We will contact you shortly.</p>"
-    )
-
-def perform_create(self, serializer):
-    order = serializer.save()
-
-    verification_link = (
-        f"{settings.FRONTEND_URL}/verify-email/"
-        f"{order.email_verification_token}/"
-    )
-
-    html_content = render_to_string(
-        "email/verify_custom_order_email.html",
+    return render(
+        request,
+       "email/email_verified.html",
         {
-            "name": order.name,
-            "verification_link": verification_link,
+            "frontend_url": settings.FRONTEND_URL,
+            "already_verified": False,
         }
     )
 
-    email = EmailMultiAlternatives(
-        subject="Verify your custom order – Basho by Shivangi",
-        body="Please verify your email to confirm your custom order.",
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        to=[order.email],
-    )
 
-    email.attach_alternative(html_content, "text/html")
-    email.send()

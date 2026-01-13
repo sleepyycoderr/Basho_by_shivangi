@@ -1,23 +1,53 @@
 <!DOCTYPE html>
 <html>
-<body>
-  <p>Hi {{ name }},</p>
+<body style="font-family: Arial, sans-serif; background:#f7f2ec; padding:20px;">
+
+  <h2>Welcome to Handmade 🌿</h2>
+
+  <p>Hi <b>{{ name }}</b>,</p>
 
   <p>
     Thank you for placing a custom order with <strong>Basho by Shivangi</strong>.
   </p>
 
-  <p>Please verify your email by clicking the link below:</p>
-
   <p>
-    <a href="{{ verification_link }}">
+    To continue, please verify your email address by clicking the button below:
+  </p>
+
+  <p style="margin: 30px 0;">
+    <a href="{{ verification_link }}"
+       style="
+         background:#8b5e3c;
+         color:#ffffff;
+         padding:12px 22px;
+         text-decoration:none;
+         border-radius:6px;
+         font-weight:bold;
+         display:inline-block;
+       ">
       Verify My Email
     </a>
   </p>
 
-  <p>If you did not place this order, you can ignore this email.</p>
+  <p>
+    Email verification helps us ensure your order details are safe and allows us
+    to keep you updated about crafting and delivery.
+  </p>
 
-  <br />
-  <p>— Basho by Shivangi</p>
+  <p>
+    If you did not place this order, you can safely ignore this email.
+  </p>
+
+  <br>
+
+  <p>
+    We're grateful to have you as part of our ceramic art journey. Every piece is
+    handcrafted with care, intention, and love — made especially for you.
+  </p>
+
+  <br>
+
+  <p>– Basho by Shivangi</p>
+
 </body>
 </html>

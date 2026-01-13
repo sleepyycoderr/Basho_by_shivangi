@@ -133,28 +133,6 @@ class CustomOrderSerializer(serializers.ModelSerializer):
                     order=order,
                     image=img
                 )
-         # 🔐 SEND VERIFICATION EMAIL
-        verification_url = request.build_absolute_uri(
-            reverse(
-                "verify-custom-order-email",
-                args=[str(order.email_verification_token)]
-            )
-        )
-
-        send_mail(
-            subject="Verify your email – Basho by Shivangi",
-            message=(
-                f"Hello {order.name},\n\n"
-                f"Thank you for your custom order request.\n\n"
-                f"Please verify your email by clicking the link below:\n\n"
-                f"{verification_url}\n\n"
-                f"If you did not place this request, you can ignore this email."
-            ),
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[order.email],
-            fail_silently=False,
-        )
-        
         return order
 
 
