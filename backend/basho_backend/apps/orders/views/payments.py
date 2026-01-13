@@ -1,19 +1,77 @@
-import email
-import razorpay,json
-from django.conf import settings
-from email.mime.image import MIMEImage
+import json
+import razorpay
 import os
-from django.core.mail import EmailMultiAlternatives
-from django.template.loader import render_to_string
+
+from django.conf import settings
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from apps.orders.models import PaymentOrder
-from apps.orders.models import Payment, Transaction
+from django.db import transaction
+
+from apps.orders.models import PaymentOrder, Payment, Transaction
+from apps.experiences.models import Booking, WorkshopRegistration
+
 os.environ["PYTHONHTTPSVERIFY"] = "1"
-import socket
 
-client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+client = razorpay.Client(
+    auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
+)
 
+
+# ==============================
+# POST-PAYMENT CONFIRMATIONS
+# ==============================
+
+def confirm_experience_booking(payment_order):
+    with transaction.atomic():
+        booking = Booking.objects.select_for_update().get(
+            id=payment_order.linked_object_id
+        )
+
+        # Prevent double confirmation
+        if booking.status == "confirmed":
+            return
+
+        slot = booking.slot
+        people = booking.number_of_people
+
+        if slot.booked_participants + people > slot.max_participants:
+            raise Exception("Experience slot is full")
+
+        slot.booked_participants += people
+        slot.save()
+
+        booking.status = "confirmed"
+        booking.save()
+
+
+def confirm_workshop_registration(payment_order):
+    with transaction.atomic():
+        registration = WorkshopRegistration.objects.select_for_update().get(
+            id=payment_order.linked_object_id
+        )
+
+        if registration.status == "confirmed":
+            return
+
+        slot = registration.slot
+        people = registration.number_of_participants
+
+        if people > slot.available_spots:
+            raise Exception("Workshop slot is full")
+
+        slot.available_spots -= people
+        if slot.available_spots == 0:
+            slot.is_available = False
+
+        slot.save()
+
+        registration.status = "confirmed"
+        registration.save()
+
+
+# ==============================
+# VERIFY PAYMENT (SINGLE SOURCE OF TRUTH)
+# ==============================
 
 @csrf_exempt
 def verify_payment(request):
@@ -22,90 +80,66 @@ def verify_payment(request):
 
     data = json.loads(request.body)
     print("🔥 VERIFY PAYMENT DATA:", data)
+
     razorpay_order_id = data.get("razorpay_order_id")
     razorpay_payment_id = data.get("razorpay_payment_id")
     razorpay_signature = data.get("razorpay_signature")
-    
+
     try:
-        # 1. Verify signature
+        # 1️⃣ Verify Razorpay signature
         client.utility.verify_payment_signature({
             "razorpay_order_id": razorpay_order_id,
             "razorpay_payment_id": razorpay_payment_id,
             "razorpay_signature": razorpay_signature
         })
         print("🔥 PAYMENT SIGNATURE VERIFIED")
-        # 2. Mark PaymentOrder as PAID
-        payment_order = PaymentOrder.objects.get(razorpay_order_id=razorpay_order_id)
+
+        # 2️⃣ Fetch & update PaymentOrder
+        payment_order = PaymentOrder.objects.get(
+            razorpay_order_id=razorpay_order_id
+        )
         payment_order.status = "PAID"
         payment_order.save()
         print("🔥 PaymentOrder marked as PAID")
-        # 3. Save payment
+
+        # 3️⃣ Save payment record
         payment = Payment.objects.create(
             payment_order=payment_order,
             razorpay_payment_id=razorpay_payment_id,
             status="PAID"
         )
         print("🔥 Payment record created")
-        # 4. Save transaction log
+
+        # 4️⃣ Save transaction log
         Transaction.objects.create(
             payment=payment,
             event="verified",
             response=data
         )
         print("🔥 Transaction log created")
-  # Render HTML email template
-        # html_content = render_to_string(
-        # "emails/order_success.html",
-        # {"order_id": payment_order.id}
-        
-        # )
 
-# Resolve recipient email
-    #     recipient_email = (
-    #         payment_order.product_order.email
-    # if hasattr(payment_order, "product_order")
-    # else payment_order.user.email
-    # )
+        # 5️⃣ POST-PAYMENT BUSINESS LOGIC
+        if payment_order.order_type == "EXPERIENCE":
+            confirm_experience_booking(payment_order)
 
-    #     print("🔥 Sending confirmation email to:", recipient_email)
+        elif payment_order.order_type == "WORKSHOP":
+            confirm_workshop_registration(payment_order)
 
-# Create email
-        # email = EmailMultiAlternatives(
-        # subject="Your Basho Order is Confirmed 🌿",
-        #     body="Your payment was successful.",
-        #     from_email=settings.EMAIL_HOST_USER,
-        #     to=[recipient_email],
-        # )
-# Attach HTML version
-        # email.attach_alternative(html_content, "text/html")
-
-# Attach inline image
-        # image_path = os.path.join(settings.BASE_DIR, "static", "care_card.png")
-
-        # with open(image_path, "rb") as f:
-        #     img = MIMEImage(f.read())
-        #     img.add_header("Content-ID", "<care_card>")
-        #     img.add_header("Content-Disposition", "inline", filename="care_card.png")
-        #     email.attach(img)
-
-
-
-        #email.send()
-
-
-        #return JsonResponse({"status": "success"})
+        return JsonResponse({"status": "success"})
 
     except Exception as e:
+        print("❌ PAYMENT FAILED:", str(e))
+
         try:
             payment_order = PaymentOrder.objects.get(
-                razorpay_order_id=data.get("razorpay_order_id")
+                razorpay_order_id=razorpay_order_id
             )
             payment_order.status = "FAILED"
             payment_order.save()
 
             payment = Payment.objects.create(
                 payment_order=payment_order,
-                razorpay_payment_id=data.get("razorpay_payment_id", "FAILED"),
+                razorpay_payment_id=razorpay_payment_id or "FAILED",
                 status="FAILED"
             )
 
@@ -114,7 +148,10 @@ def verify_payment(request):
                 event="failed",
                 response=data
             )
-        except:
+        except Exception:
             pass
 
-        return JsonResponse({"error": "Payment verification failed"}, status=400)
+        return JsonResponse(
+            {"error": "Payment verification failed"},
+            status=400
+        )

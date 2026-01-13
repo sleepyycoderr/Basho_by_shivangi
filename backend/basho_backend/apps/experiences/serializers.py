@@ -145,3 +145,21 @@ class WorkshopRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = WorkshopRegistration
         fields = "__all__"
+
+class ExperienceSerializer(serializers.ModelSerializer):
+    slots = ExperienceSlotSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Experience
+        fields = [
+            "id",
+            "title",
+            "tagline",
+            "description",
+            "duration",
+            "people",
+            "price",
+            "image",
+            "is_active",
+            "slots",
+        ]

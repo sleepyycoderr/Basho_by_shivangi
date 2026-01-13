@@ -8,18 +8,22 @@ from .views import (
     ListWorkshopSlotsView,
     CreateWorkshopRegistrationView,
     ListExperienceSlotsView,
-    ConfirmBookingView,
+    ListExperiencesView,   # ✅ ADD THIS
 )
+
+
 
 urlpatterns = [
     # Experiences
     path("book/", CreateBookingView.as_view(), name="create-booking"),
-    path("book/confirm/", ConfirmBookingView.as_view(), name="confirm-booking"),
+    #path("book/confirm/", ConfirmBookingView.as_view(), name="confirm-booking"),
     path(
         "<int:experience_id>/slots/",
         ListExperienceSlotsView.as_view(),
         name="experience-slots",
     ),
+    path("", ListExperiencesView.as_view(), name="list-experiences"),
+
 
     # Studio
     path("studio-book/", CreateStudioBookingView.as_view(), name="create-studio-booking"),

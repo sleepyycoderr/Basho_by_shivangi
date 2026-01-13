@@ -211,19 +211,63 @@ const handleConfirmBooking = async () => {
       workshop: Number(workshop.id),
       slot: Number(selectedSchedule.id),
       number_of_participants: formData.participants,
-      special_requests: formData.specialRequests || '',
+      special_requests: formData.specialRequests || "",
     };
 
-    const response = await registerWorkshop(payload);
+    // 1️⃣ Create workshop registration + PaymentOrder
+    const data = await registerWorkshop(payload);
 
-    console.log('Booking success:', response);
-    setBookingSuccess(true);
+    // 2️⃣ Open Razorpay
+    const options = {
+      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+      amount: data.amount * 100, // paise
+      currency: "INR",
+      name: "Basho by Shivangi",
+      description: workshop.name,
+      order_id: data.razorpay_order_id,
+
+      handler: async function (response: any) {
+        // 3️⃣ Verify payment with backend
+        const verifyRes = await fetch(
+          "http://127.0.0.1:8000/api/orders/payment/verify/",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_signature: response.razorpay_signature,
+            }),
+          }
+        );
+
+        if (!verifyRes.ok) {
+          alert("Payment verification failed");
+          return;
+        }
+
+        // ✅ SUCCESS
+        setBookingSuccess(true);
+        alert("Payment successful! Booking confirmed 🎉");
+      },
+
+      prefill: {
+        name: formData.fullName,
+        email: formData.email,
+        contact: formData.phone,
+      },
+
+      theme: {
+        color: "#8B6F47",
+      },
+    };
+
+    const razorpay = new (window as any).Razorpay(options);
+    razorpay.open();
+
   } catch (err: any) {
     console.error(err);
-    alert(
-      err?.error ||
-      'Booking failed. Slot may be full or unavailable.'
-    );
+    alert("Booking or payment failed");
   } finally {
     setIsSubmitting(false);
   }

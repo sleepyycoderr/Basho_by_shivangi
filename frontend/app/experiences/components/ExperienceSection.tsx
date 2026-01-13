@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 import styles from "./ExperienceSection.module.css";
 
+/* =====================
+   TYPES
+===================== */
 interface Slot {
   id: number;
   date: string;
@@ -26,6 +29,12 @@ interface Props {
   reverse?: boolean;
 }
 
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
+
 export default function ExperienceSection({
   experienceId,
   title,
@@ -40,7 +49,7 @@ export default function ExperienceSection({
 }: Props) {
   const [open, setOpen] = useState(false);
 
-  // form state
+  /* FORM STATE */
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -49,97 +58,159 @@ export default function ExperienceSection({
   const [slotId, setSlotId] = useState<number | null>(null);
   const [participants, setParticipants] = useState(2);
 
-  // OTP flow
-  const [bookingId, setBookingId] = useState<number | null>(null);
-  const [otp, setOtp] = useState("");
-  const [step, setStep] = useState<"form" | "otp" | "confirmed">("form");
+  const [step, setStep] = useState<"form" | "confirmed">("form");
 
-  /* ---------------- FETCH SLOTS ---------------- */
+  /* =====================
+     FETCH SLOTS
+  ===================== */
   useEffect(() => {
     if (!open) return;
 
-    fetch(
-      `http://localhost:8000/api/experiences/${experienceId}/slots/`
-    )
+    fetch(`http://127.0.0.1:8000/api/experiences/${experienceId}/slots/`)
       .then((res) => res.json())
       .then(setSlots)
       .catch(() => setSlots([]));
   }, [open, experienceId]);
 
-  /* ---------------- CREATE BOOKING ---------------- */
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  /* =====================
+     RAZORPAY
+  ===================== */
+  const openRazorpay = (data: {
+    razorpay_order_id: string;
+    amount: number;
+  }) => {
+    const options = {
+      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+      amount: data.amount * 100,
+      currency: "INR",
+      name: "Basho Studio",
+      description: "Experience Booking",
+      order_id: data.razorpay_order_id,
 
-    const res = await fetch(
-      "http://localhost:8000/api/experiences/book/",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          experience: experienceId,
-          slot: slotId,
-          full_name: name,
-          phone,
-          email,
-          booking_date: date,
-          number_of_people: participants,
-        }),
-      }
-    );
+      handler: async function (response: any) {
+        await fetch(
+          "http://127.0.0.1:8000/api/orders/payment/verify/",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(response),
+          }
+        );
 
-    if (!res.ok) {
-      alert("Booking failed ❌");
-      return;
-    }
+        setStep("confirmed");
+      },
 
-    const data = await res.json();
-    setBookingId(data.booking_id);
-    setStep("otp");
+      prefill: {
+        name,
+        email,
+        contact: phone,
+      },
+
+      theme: {
+        color: "#6B2F14",
+      },
+    };
+
+    const rzp = new window.Razorpay(options);
+    rzp.open();
   };
 
-  /* ---------------- CONFIRM OTP ---------------- */
-const confirmOtp = async () => {
-  console.log("BOOKING ID:", bookingId);
-  console.log("OTP ENTERED:", otp);
+  /* =====================
+     CREATE BOOKING
+  ===================== */
+  const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-  if (!otp.trim() || !bookingId) {
-    alert("Please enter OTP");
-    return;
+  try {
+    const res = await fetch("http://localhost:8000/api/experiences/book/", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    experience: experienceId,
+    slot: slotId,
+    full_name: name,
+    phone,
+    email,
+    booking_date: date,
+    number_of_people: participants,
+  }),
+});
+
+const data = await res.json();
+console.log("BOOKING RESPONSE:", data);
+
+if (!res.ok) {
+  alert(JSON.stringify(data));
+  return;
+}
+
+
+    // 2️⃣ OPEN RAZORPAY (SAME AS WORKSHOP)
+    const options = {
+      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+      amount: data.amount * 100,
+      currency: "INR",
+      name: "Basho by Shivangi",
+      description: title,
+      order_id: data.razorpay_order_id,
+
+      handler: async function (response: any) {
+        const verifyRes = await fetch(
+          "http://127.0.0.1:8000/api/orders/payment/verify/",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_signature: response.razorpay_signature,
+            }),
+          }
+        );
+
+        if (!verifyRes.ok) {
+          alert("Payment verification failed ❌");
+          return;
+        }
+
+        setStep("confirmed");
+        alert("Payment successful 🎉 Experience booked!");
+      },
+
+      prefill: {
+        name,
+        email,
+        contact: phone,
+      },
+
+      theme: {
+        color: "#8B6F47",
+      },
+    };
+
+    const razorpay = new (window as any).Razorpay(options);
+    razorpay.open();
+
+  } catch (err) {
+    console.error(err);
+    alert("Something went wrong ❌");
   }
-
-  const res = await fetch(
-    "http://localhost:8000/api/experiences/book/confirm/",
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        booking_id: bookingId,
-        otp: otp.trim(),
-      }),
-    }
-  );
-
-  if (!res.ok) {
-    alert("Invalid or expired OTP ❌");
-    return;
-  }
-
-  setStep("confirmed");
 };
-
-
+ 
 
   return (
     <>
+      {/* Razorpay Script */}
+      <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
       <section className={`${styles.section} ${reverse ? styles.reverse : ""}`}>
         <div className={styles.imageWrapper}>
-          <img src={image} alt={title} />
+          <img src={`http://127.0.0.1:8000${image}`} alt={title} />
         </div>
 
         <div className={styles.content}>
           <span className={styles.tagline}>♡ {tagline}</span>
           <h2 className={styles.title}>{title}</h2>
-
           <p className={styles.description}>{description}</p>
 
           <div className={styles.meta}>
@@ -154,7 +225,9 @@ const confirmOtp = async () => {
         </div>
       </section>
 
-      {/* ---------------- MODAL ---------------- */}
+      {/* =====================
+          MODAL
+      ===================== */}
       {open && (
         <div className={styles.modalOverlay}>
           <div className={styles.modal}>
@@ -162,7 +235,6 @@ const confirmOtp = async () => {
               ✕
             </button>
 
-            {/* STEP 1: FORM */}
             {step === "form" && (
               <>
                 <h3 className={styles.modalTitle}>Book Your Experience</h3>
@@ -226,51 +298,16 @@ const confirmOtp = async () => {
                   </select>
 
                   <button type="submit" className={styles.submit}>
-                    Continue
+                    Proceed to Payment
                   </button>
                 </form>
               </>
             )}
 
-            {/* STEP 2: OTP */}
-            {step === "otp" && (
-              <>
-                <h3>Confirm Booking</h3>
-                <p>Enter the OTP sent to your email</p>
-
-                <input
-                  type="text"
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
-                  placeholder="Enter OTP"
-                />
-
-                <button
-                  onClick={confirmOtp}
-                  className={styles.submit}
-                  disabled={!otp.trim() || !bookingId}
-                >
-                  Verify OTP
-                </button>
-
-              </>
-            )}
-
-            {/* STEP 3: CONFIRMED */}
             {step === "confirmed" && (
               <>
                 <h3>Booking Confirmed 🎉</h3>
                 <p>Your experience has been successfully booked.</p>
-
-                {/* PAYMENT PLACEHOLDER */}
-                {/* 
-                  PAYMENT INTEGRATION PLACEHOLDER
-                  Razorpay / Stripe will be added by payments team
-                  booking_id should be passed to gateway
-                */}
-                <button disabled className={styles.submit}>
-                  Proceed to Payment
-                </button>
               </>
             )}
           </div>
