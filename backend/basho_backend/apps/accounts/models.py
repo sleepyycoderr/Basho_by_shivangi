@@ -9,10 +9,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
 
     profile_image = models.ImageField(
-        upload_to="profile_pics/",
-        null=True,
-        blank=True
-    )
+    upload_to="profile_pics/",
+    default="profile_pics/default/default.png",
+    blank=True
+)
+
 
     is_email_verified = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)

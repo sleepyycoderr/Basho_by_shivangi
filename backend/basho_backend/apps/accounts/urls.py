@@ -7,11 +7,8 @@ from .views import (
     google_register,
     change_username,  
     upload_profile_picture, 
-    change_password,
 
 )
-
-
 
 urlpatterns = [
     path("send-otp/", send_otp),
@@ -21,7 +18,18 @@ urlpatterns = [
     path("google-register/", google_register),
     path("change-username/", change_username),
     path("upload-profile-picture/", upload_profile_picture),
-    path("change-password/", change_password),
+   
 
+]
 
+from .views import (
+    forgot_password_send_otp,
+    forgot_password_verify_otp,
+    forgot_password_reset,
+)
+
+urlpatterns += [
+    path("forgot-password/send-otp/", forgot_password_send_otp),
+    path("forgot-password/verify-otp/", forgot_password_verify_otp),
+    path("forgot-password/reset-password/", forgot_password_reset),
 ]

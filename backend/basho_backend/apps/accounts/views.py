@@ -5,6 +5,12 @@ from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.utils import timezone
 from datetime import timedelta
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework.authentication import BasicAuthentication
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.decorators import authentication_classes
+
+
 
 
 from .models import User, EmailOTP
@@ -158,10 +164,12 @@ def register_user(request):
     refresh = RefreshToken.for_user(user)
 
     return Response({
-        "access": str(refresh.access_token),
-        "refresh": str(refresh),
-        "username": user.username,
-    })
+    "access": str(refresh.access_token),
+    "refresh": str(refresh),
+    "username": user.username,
+    "profile_image": user.profile_image.url if user.profile_image else None,
+})
+
 
 
 
@@ -181,11 +189,13 @@ def login_user(request):
     refresh = RefreshToken.for_user(user)
 
     return Response({
-        "access": str(refresh.access_token),
-        "refresh": str(refresh),
-        "username": user.username,
-        "email": user.email,
-    })
+    "access": str(refresh.access_token),
+    "refresh": str(refresh),
+    "username": user.username,
+    "email": user.email,
+    "profile_image": user.profile_image.url if user.profile_image else None,
+})
+
 
 
 
@@ -210,11 +220,13 @@ def google_login(request):
     refresh = RefreshToken.for_user(user)
 
     return Response({
-        "access": str(refresh.access_token),
-        "refresh": str(refresh),
-        "username": user.username,
-        "email": user.email,
-    })
+    "access": str(refresh.access_token),
+    "refresh": str(refresh),
+    "username": user.username,
+    "email": user.email,
+    "profile_image": user.profile_image.url if user.profile_image else None,
+})
+
 
 User = get_user_model()
 
@@ -256,9 +268,66 @@ def google_register(request):
 
 User = get_user_model()
 
+@csrf_exempt
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def change_username(request):
+    user = request.user
+
+    new_username = request.data.get("username", "").strip()
+
+    if not new_username:
+        return Response(
+            {"error": "Username cannot be empty"},
+            status=400
+        )
+
+    # ✅ CASE-SENSITIVE uniqueness check
+    if User.objects.filter(username=new_username).exclude(id=user.id).exists():
+        return Response(
+            {"error": "Username already taken"},
+            status=400
+        )
+
+    # ✅ Save new username
+    user.username = new_username
+    user.save(update_fields=["username"])
+
+    return Response(
+        {"username": user.username},
+        status=200
+    )
+
+
+@api_view(["POST"])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def change_username(request):
+    user = request.user
+
+    new_username = request.data.get("username", "").strip()
+
+    if not new_username:
+        return Response(
+            {"error": "Username cannot be empty"},
+            status=400
+        )
+
+    # ✅ CASE-SENSITIVE uniqueness check
+    if User.objects.filter(username=new_username).exclude(id=user.id).exists():
+        return Response(
+            {"error": "Username already taken"},
+            status=400
+        )
+
+    user.username = new_username
+    user.save(update_fields=["username"])
+
+    return Response(
+        {"username": user.username},
+        status=200
+    )
+
     user = request.user
 
     new_username = request.data.get("username", "").strip()
@@ -357,41 +426,64 @@ def upload_profile_picture(request):
     })
 
 
-from django.contrib.auth.hashers import check_password
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+@api_view(["POST"])
+def forgot_password_send_otp(request):
+    email = request.data.get("email")
+
+    if not email:
+        return Response({"error": "Email is required"}, status=400)
+
+    user = User.objects.filter(email=email).first()
+    if not user:
+        return Response({"error": "Incorrect email id entered"}, status=400)
+
+    otp = generate_otp()
+
+    EmailOTP.objects.update_or_create(
+        email=email,
+        defaults={"otp": otp, "created_at": timezone.now()}
+    )
+
+    send_otp_email(email, otp)
+    return Response({"success": "OTP sent"})
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
-def change_password(request):
-    user = request.user
+def forgot_password_verify_otp(request):
+    email = request.data.get("email")
+    otp = request.data.get("otp")
 
-    current_password = request.data.get("current_password")
+    if not otp or len(otp) != 6:
+        return Response({"error": "OTP should be of 6 digits"}, status=400)
+
+    otp_obj = EmailOTP.objects.filter(email=email, otp=otp).first()
+    if not otp_obj:
+        return Response({"error": "Incorrect OTP entered"}, status=400)
+
+    if timezone.now() - otp_obj.created_at > timedelta(minutes=5):
+        otp_obj.delete()
+        return Response({"error": "OTP expired"}, status=400)
+
+    return Response({"success": "OTP verified"})
+
+@api_view(["POST"])
+def forgot_password_reset(request):
+    email = request.data.get("email")
     new_password = request.data.get("new_password")
+    confirm_password = request.data.get("confirm_password")
 
-    if not current_password or not new_password:
-        return Response(
-            {"error": "Both current and new password are required"},
-            status=400
-        )
+    if not new_password or not confirm_password:
+        return Response({"error": "All fields are required"}, status=400)
 
-    # ✅ verify current password
-    if not user.check_password(current_password):
-        return Response(
-            {"error": "Current password is incorrect"},
-            status=400
-        )
+    if new_password != confirm_password:
+        return Response({"error": "Passwords do not match"}, status=400)
 
-    # ✅ prevent same password reuse
-    if current_password == new_password:
-        return Response(
-            {"error": "New password must be different"},
-            status=400
-        )
+    user = User.objects.filter(email=email).first()
+    if not user:
+        return Response({"error": "Invalid request"}, status=400)
 
     user.set_password(new_password)
     user.save()
 
-    return Response({"success": "Password updated successfully"})
+    EmailOTP.objects.filter(email=email).delete()
 
-
+    return Response({"success": "Password reset successful"})
