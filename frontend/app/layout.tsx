@@ -7,6 +7,9 @@ import Navbar from "@/components/Navbar";
 
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { CartProvider } from "@/context/CartContext";
+import ClientShell from "@/components/Clientshell";
+
+import Script from "next/script"; // ✅ ADD THIS
 
 /* ---------- Fonts ---------- */
 
@@ -46,11 +49,18 @@ export default function RootLayout({
           clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}
         >
           <CartProvider>
-            <Navbar />
-            <main className="grow">{children}</main>
-            <Footer />
+            <ClientShell>
+              <Navbar />
+              <main className="grow">{children}</main>
+              <Footer />
+            </ClientShell>
           </CartProvider>
         </GoogleOAuthProvider>
+
+        <Script
+          src="https://checkout.razorpay.com/v1/checkout.js"
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   );

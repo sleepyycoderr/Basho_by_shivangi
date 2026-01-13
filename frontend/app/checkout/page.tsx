@@ -7,7 +7,6 @@ import { useCart } from '@/context/CartContext';
 import { formatPrice } from '@/lib/utils';
 import { useRouter } from "next/navigation";
 import { VAPI_BASE } from "@/lib/api";
-import { loadRazorpay } from "@/lib/loadRazopay";
 
 
 
@@ -83,12 +82,11 @@ try {
       alert(data.error || "Order creation failed");
       return;
     }
- const razorpayLoaded = await loadRazorpay();
+    if (!(window as any).Razorpay) {
+  alert("Razorpay SDK not available. Please refresh the page.");
+  return;
+}
 
-    if (!razorpayLoaded) {
-      alert("Razorpay SDK failed to load");
-      return;
-    }
     // Razorpay
     const options = {
       key: data.key,

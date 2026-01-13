@@ -1,8 +1,10 @@
 import json
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth.decorators import login_required
 
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from apps.orders.models import Cart, CartItem
 
 from apps.products.models import Product
@@ -13,7 +15,8 @@ def get_or_create_cart(user):
     return cart
 
 
-@login_required
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def get_cart(request):
     cart = get_or_create_cart(request.user)
 
@@ -37,7 +40,8 @@ def get_cart(request):
 
 
 @csrf_exempt
-@login_required
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def add_to_cart(request):
     data = json.loads(request.body)
     product_id = data.get("product_id")
@@ -59,7 +63,8 @@ def add_to_cart(request):
 
 
 @csrf_exempt
-@login_required
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def update_cart(request):
     data = json.loads(request.body)
     item_id = data.get("item_id")
@@ -77,7 +82,8 @@ def update_cart(request):
 
 
 @csrf_exempt
-@login_required
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def remove_from_cart(request):
     data = json.loads(request.body)
     item_id = data.get("item_id")
@@ -88,7 +94,8 @@ def remove_from_cart(request):
 
 
 @csrf_exempt
-@login_required
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def clear_cart(request):
     cart = get_or_create_cart(request.user)
     cart.items.all().delete()
