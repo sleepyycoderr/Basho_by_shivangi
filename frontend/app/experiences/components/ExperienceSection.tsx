@@ -11,10 +11,9 @@ interface Slot {
   date: string;
   startTime: string;
   endTime: string;
-  minParticipants: number;
-  maxParticipants: number;
-  bookedParticipants: number;
+  availableSlots: number;
 }
+
 
 interface Props {
   experienceId: number;
@@ -27,6 +26,7 @@ interface Props {
   price: string;
   includes: string[];
   reverse?: boolean;
+  onBookingSuccess: () => void;
 }
 
 declare global {
@@ -46,6 +46,7 @@ export default function ExperienceSection({
   price,
   includes,
   reverse = false,
+  onBookingSuccess,
 }: Props) {
   const [open, setOpen] = useState(false);
 
@@ -57,146 +58,187 @@ export default function ExperienceSection({
   const [slots, setSlots] = useState<Slot[]>([]);
   const [slotId, setSlotId] = useState<number | null>(null);
   const [participants, setParticipants] = useState(2);
+  const [submitting, setSubmitting] = useState(false);
+  const [availableDates, setAvailableDates] = useState<string[]>([]);
 
-  const [step, setStep] = useState<"form" | "confirmed">("form");
+  // const [step, setStep] = useState<"form" | "confirmed">("form");
 
   /* =====================
      FETCH SLOTS
   ===================== */
   useEffect(() => {
-    if (!open) return;
+  if (!open) return;
 
-    fetch(`http://127.0.0.1:8000/api/experiences/${experienceId}/slots/`)
-      .then((res) => res.json())
-      .then(setSlots)
-      .catch(() => setSlots([]));
-  }, [open, experienceId]);
+  fetch(
+    `http://127.0.0.1:8000/api/experiences/${experienceId}/available-dates/`
+  )
+    .then((res) => res.json())
+    .then(setAvailableDates)
+    .catch(() => setAvailableDates([]));
+}, [open, experienceId]);
 
-  /* =====================
-     RAZORPAY
-  ===================== */
-  const openRazorpay = (data: {
-    razorpay_order_id: string;
-    amount: number;
-  }) => {
-    const options = {
-      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-      amount: data.amount * 100,
-      currency: "INR",
-      name: "Basho Studio",
-      description: "Experience Booking",
-      order_id: data.razorpay_order_id,
+  useEffect(() => {
+  if (!date) {
+    setSlots([]);
+    return;
+  }
 
-      handler: async function (response: any) {
-        await fetch(
-          "http://127.0.0.1:8000/api/orders/payment/verify/",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(response),
-          }
-        );
-
-        setStep("confirmed");
-      },
-
-      prefill: {
-        name,
-        email,
-        contact: phone,
-      },
-
-      theme: {
-        color: "#6B2F14",
-      },
-    };
-
-    const rzp = new window.Razorpay(options);
-    rzp.open();
-  };
+  fetch(
+    `http://127.0.0.1:8000/api/experiences/${experienceId}/slots-by-date/?date=${date}`
+  )
+    .then((res) => res.json())
+    .then(setSlots)
+    .catch(() => setSlots([]));
+}, [date, experienceId]);
 
   /* =====================
      CREATE BOOKING
   ===================== */
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  try {
-    const res = await fetch("http://localhost:8000/api/experiences/book/", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    experience: experienceId,
-    slot: slotId,
-    full_name: name,
-    phone,
-    email,
-    booking_date: date,
-    number_of_people: participants,
-  }),
-});
+    // ✅ PREVENT DOUBLE SUBMIT
+    if (submitting) return;
+    setSubmitting(true);
 
-const data = await res.json();
-console.log("BOOKING RESPONSE:", data);
+    try {
+      const res = await fetch("http://localhost:8000/api/experiences/book/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          experience: experienceId,
+          slot: slotId,
+          full_name: name,
+          phone,
+          email,
+          booking_date: date,
+          number_of_people: participants,
+        }),
+      });
 
-if (!res.ok) {
-  alert(JSON.stringify(data));
+       let data;
+        try {
+          data = await res.json();
+        } catch {
+          alert("This slot is fully booked. Please choose another slot.");
+          setSubmitting(false);
+          return;
+        }
+
+      console.log("BOOKING RESPONSE:", data);
+
+      if (!res.ok) {
+        alert(data?.slot || "Booking failed. Please try another slot.");
+        setSubmitting(false);
+        return;
+      }
+
+
+      // 2️⃣ OPEN RAZORPAY
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        amount: data.amount * 100,
+        currency: "INR",
+        name: "Basho by Shivangi",
+        description: title,
+        order_id: data.razorpay_order_id,
+
+        handler: async function (response: any) {
+          const verifyRes = await fetch(
+            "http://127.0.0.1:8000/api/experiences/verify-payment/",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_signature: response.razorpay_signature,
+              }),
+            }
+          );
+
+if (!verifyRes.ok) {
+  await fetch("http://127.0.0.1:8000/api/experiences/release-slot/", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      booking_id: data.booking_id,
+    }),
+  });
+
+  setSubmitting(false);
+  alert("Payment failed. Slot released.");
   return;
 }
 
 
-    // 2️⃣ OPEN RAZORPAY (SAME AS WORKSHOP)
-    const options = {
-      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-      amount: data.amount * 100,
-      currency: "INR",
-      name: "Basho by Shivangi",
-      description: title,
-      order_id: data.razorpay_order_id,
+          // ✅ show success globally
+          onBookingSuccess();
 
-      handler: async function (response: any) {
-        const verifyRes = await fetch(
-          "http://127.0.0.1:8000/api/orders/payment/verify/",
-          {
+        // ✅ REFRESH SLOTS AFTER BOOKING
+        if (date) {
+          fetch(
+            `http://127.0.0.1:8000/api/experiences/${experienceId}/slots-by-date/?date=${date}`
+          )
+            .then(res => res.json())
+            .then(setSlots);
+        }
+
+        // ✅ 2. CLOSE MODAL IMMEDIATELY
+         setOpen(false);
+
+          // ✅ 3. RESET FORM (background)
+          setSubmitting(false);
+          setName("");
+          setPhone("");
+          setEmail("");
+          setDate("");
+          setSlotId(null);
+          setParticipants(2);
+        },
+
+        // 👇 USER CLOSES RAZORPAY WITHOUT PAYING
+      modal: {
+        ondismiss: async () => {
+          await fetch("http://127.0.0.1:8000/api/experiences/release-slot/", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_signature: response.razorpay_signature,
+              booking_id: data.booking_id,
             }),
-          }
-        );
+          });
 
-        if (!verifyRes.ok) {
-          alert("Payment verification failed ❌");
-          return;
-        }
+      if (date) {
+        fetch(
+          `http://127.0.0.1:8000/api/experiences/${experienceId}/slots-by-date/?date=${date}`
+        )
+          .then(res => res.json())
+          .then(setSlots);
+      }
+      setSubmitting(false);
+    },
+  },
 
-        setStep("confirmed");
-        alert("Payment successful 🎉 Experience booked!");
-      },
 
-      prefill: {
-        name,
-        email,
-        contact: phone,
-      },
+        prefill: {
+          name,
+          email,
+          contact: phone,
+        },
 
-      theme: {
-        color: "#8B6F47",
-      },
-    };
+        theme: {
+          color: "#8B6F47",
+        },
+      };
 
-    const razorpay = new (window as any).Razorpay(options);
-    razorpay.open();
-
-  } catch (err) {
-    console.error(err);
-    alert("Something went wrong ❌");
-  }
-};
- 
+      const razorpay = new (window as any).Razorpay(options);
+      razorpay.open();
+    } catch (err) {
+      console.error(err);
+      setSubmitting(false); // ❌ unexpected error
+      alert("Something went wrong ❌");
+    }
+  };
 
   return (
     <>
@@ -235,81 +277,93 @@ if (!res.ok) {
               ✕
             </button>
 
-            {step === "form" && (
-              <>
-                <h3 className={styles.modalTitle}>Book Your Experience</h3>
+            <>
+              <h3 className={styles.modalTitle}>Book Your Experience</h3>
 
-                <form className={styles.form} onSubmit={handleSubmit}>
-                  <input
-                    type="text"
-                    placeholder="Full Name"
-                    required
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                  />
+              <form className={styles.form} onSubmit={handleSubmit}>
+                <input
+                  type="text"
+                  placeholder="Full Name"
+                  required
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
 
-                  <input
-                    type="tel"
-                    placeholder="Phone Number"
-                    required
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                  />
+                <input
+                  type="tel"
+                  placeholder="Phone Number"
+                  required
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                />
 
-                  <input
-                    type="email"
-                    placeholder="Email Address"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
+                <input
+                  type="email"
+                  placeholder="Email Address"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
 
-                  <input
-                    type="date"
-                    required
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                  />
+                <input
+                  type="date"
+                  required
+                  value={date}
+                  onChange={(e) => {
+                    setDate(e.target.value);
+                    setSlotId(null);
+                  }}
+                  min={availableDates[0]}
+                  className={styles.input}
+                />
 
-                  <input
-                    type="number"
-                    min={1}
-                    placeholder="Number of Participants"
-                    value={participants}
-                    onChange={(e) =>
-                      setParticipants(Number(e.target.value))
-                    }
-                  />
 
-                  <select
-                    required
-                    value={slotId ?? ""}
-                    onChange={(e) => setSlotId(Number(e.target.value))}
-                  >
-                    <option value="">Select Time Slot</option>
-                    {slots.map((slot) => (
-                      <option key={slot.id} value={slot.id}>
-                        {slot.startTime} – {slot.endTime} (
-                        {slot.maxParticipants -
-                          slot.bookedParticipants}{" "}
-                        spots left)
-                      </option>
-                    ))}
-                  </select>
+                <input
+                  type="number"
+                  min={1}
+                  placeholder="Number of Participants"
+                  value={participants}
+                  onChange={(e) => setParticipants(Number(e.target.value))}
+                />
 
-                  <button type="submit" className={styles.submit}>
-                    Proceed to Payment
-                  </button>
-                </form>
-              </>
-            )}
+                <select
+                  required
+                  value={slotId ?? ""}
+                  onChange={(e) => setSlotId(Number(e.target.value))}
+                >
+                  <option value="">Select Time Slot</option>
 
-            {step === "confirmed" && (
-              <>
-                <h3>Booking Confirmed 🎉</h3>
-                <p>Your experience has been successfully booked.</p>
-              </>
-            )}
+                  {slots.map((slot) => (
+                    <option
+                      key={slot.id}
+                      value={slot.id}
+                      disabled={slot.availableSlots <= 0}
+                    >
+                      {slot.startTime} – {slot.endTime} (
+                      {slot.availableSlots > 0
+                        ? `${slot.availableSlots} slots left`
+                        : "Fully Booked"}
+                      )
+                    </option>
+                  ))}
+                </select>
+
+                  {slots.length > 0 &&
+                    slots.every((slot) => slot.availableSlots <= 0) && (
+                      <p className={styles.fullNotice}>
+                        All slots are fully booked for this date.
+                      </p>
+                  )}
+
+                <button
+                  type="submit"
+                  className={styles.submit}
+                  disabled={submitting}
+                >
+                  {submitting ? "Processing..." : "Proceed to Payment"}
+                </button>
+              </form>
+            </>
           </div>
         </div>
       )}

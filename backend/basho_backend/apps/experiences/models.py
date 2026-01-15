@@ -6,6 +6,8 @@ class Experience(models.Model):
     description = models.TextField()
     duration = models.CharField(max_length=50)
     people = models.CharField(max_length=50)
+    min_participants = models.PositiveIntegerField()
+    max_participants = models.PositiveIntegerField()
     price = models.IntegerField()
     image = models.ImageField(upload_to="experiences/")
     is_active = models.BooleanField(default=True)
@@ -25,11 +27,8 @@ class ExperienceSlot(models.Model):
     date = models.DateField()
     start_time = models.TimeField()
     end_time = models.TimeField()
-
-    min_participants = models.PositiveIntegerField()
-    max_participants = models.PositiveIntegerField()
-
-    booked_participants = models.PositiveIntegerField(default=0)
+    total_slots = models.PositiveIntegerField()
+    booked_slots = models.PositiveIntegerField(default=0)
 
     is_active = models.BooleanField(default=True)
 

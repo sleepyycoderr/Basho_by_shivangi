@@ -13,7 +13,7 @@ interface WorkshopGridProps {
 
 export const WorkshopGrid: React.FC<WorkshopGridProps> = ({ 
   workshops,
-  emptyMessage = 'No workshops available at the moment.' 
+  emptyMessage = 'Workshops Are Coming Soon!', 
 }) => {
   if (workshops.length === 0) {
     return (

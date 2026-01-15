@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ExperienceSection from "./components/ExperienceSection";
 import styles from "./Experiences.module.css";
 import { motion } from "framer-motion";
@@ -20,6 +20,9 @@ interface Experience {
 export default function ExperiencesPage() {
   const [experiences, setExperiences] = useState<Experience[]>([]);
   const [loading, setLoading] = useState(true);
+  const [bookingSuccess, setBookingSuccess] = useState(false);
+  const successRef = useRef<HTMLDivElement>(null);
+
 
   useEffect(() => {
     fetch("http://127.0.0.1:8000/api/experiences/")
@@ -30,6 +33,13 @@ export default function ExperiencesPage() {
       })
       .catch(() => setLoading(false));
   }, []);
+
+ useEffect(() => {
+  if (bookingSuccess) {
+    successRef.current?.scrollIntoView({ behavior: "smooth" });
+  }
+}, [bookingSuccess]);
+
 
   return (
     <main className={styles.wrapper}>
@@ -89,6 +99,16 @@ export default function ExperiencesPage() {
       )}
 
       {/* EXPERIENCES FROM BACKEND */}
+
+
+      {bookingSuccess && (
+        <div ref={successRef} className="text-center py-10 bg-green-50 text-green-800">
+          <h3 className="text-xl font-semibold">Booking Confirmed 🎉</h3>
+          <p>Your experience has been successfully booked.</p>
+        </div>
+      )}
+
+
       {experiences.map((exp, index) => (
         <ExperienceSection
           key={exp.id}
@@ -106,6 +126,7 @@ export default function ExperiencesPage() {
             "Finished pottery pieces",
           ]}
           reverse={index % 2 !== 0}
+          onBookingSuccess={() => setBookingSuccess(true)}
         />
       ))}
     </main>

@@ -24,9 +24,8 @@ class ExperienceSlotAdmin(admin.ModelAdmin):
         "date",
         "start_time",
         "end_time",
-        "min_participants",
-        "max_participants",
-        "booked_participants",
+        "total_slots",
+        "booked_slots",
         "is_active",
     )
 
@@ -34,7 +33,7 @@ class ExperienceSlotAdmin(admin.ModelAdmin):
     search_fields = ("experience__title",)
     ordering = ("date", "start_time")
 
-    readonly_fields = ("booked_participants",)
+    readonly_fields = ("booked_slots",)
 
 
 @admin.register(Booking)
