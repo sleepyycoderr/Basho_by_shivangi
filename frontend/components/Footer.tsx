@@ -28,7 +28,7 @@ export default function Footer() {
 
   return (
     <footer className="bg-[var(--basho-teal)] text-[var(--basho-sand)]/90">
-      <div className="max-w-7xl mx-auto px-10 py-5 mt-10 grid grid-cols-1 md:grid-cols-4 gap-12">
+      <div className="max-w-7xl mx-auto px-10 py-5 mt-10 grid grid-cols-1 md:grid-cols-4 gap-16">
 
         {/* Brand */}
         <div className="mb-0">
@@ -81,23 +81,27 @@ export default function Footer() {
         >
           <FooterLink href="/shop">Shop Collection</FooterLink>
           <FooterLink href="/workshops">Workshops</FooterLink>
-          <FooterLink href="/">Our Philosophy</FooterLink>
+          <FooterLink href="/about">About us</FooterLink>
           <FooterLink href="/custom-orders">Custom Orders</FooterLink>
         </FooterSection>
 
         {/* Support */}
         <FooterSection
-          title="Support"
+          title="Contact us "
           isMobile={isMobile}
           open={open === "support"}
           onClick={() => toggle("support")}
         >
-          <FooterLink href="/">Shipping & Returns</FooterLink>
-          <FooterLink href="/">Care Instructions</FooterLink>
-          <FooterLink href="/">FAQ</FooterLink>
-          <FooterLink href="/">Contact Us</FooterLink>
+          <p className="flex gap-3 items-center text-white/70">
+            <PhoneIcon size={20} className="mt-1 text-[var(--basho-sand)]/80" />
+            +91 99999 88888
+          </p>
+          <p className="flex gap-3 items-center text-white/70">
+            <MailIcon size={20} className="mt-1 text-[var(--basho-sand)]/80" />
+            bashobyshivangi123@gmail.com
+          </p>
         </FooterSection>
-
+        
         {/* Studio */}
         <FooterSection
           title="Visit Our Studio"
@@ -109,14 +113,7 @@ export default function Footer() {
             <MapPinIcon size={30} className="mt-1 text-[var(--basho-sand)]/80" />
             Basho Studio, City Light Road, Surat, Gujarat 395007
           </p>
-          <p className="flex gap-3 items-center text-white/70">
-            <PhoneIcon size={20} className="mt-1 text-[var(--basho-sand)]/80" />
-            +91 99999 88888
-          </p>
-          <p className="flex gap-3 items-center text-white/70">
-            <MailIcon size={20} className="mt-1 text-[var(--basho-sand)]/80" />
-            bashobyshivangi123@gmail.com
-          </p>
+          
         </FooterSection>
       </div>
 

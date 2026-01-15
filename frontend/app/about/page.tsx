@@ -225,7 +225,7 @@ export default function AboutPage() {
         </section>
 
         {/* Journey Timeline */}
-        <section className="section-padding bg-white relative pt-32 pb-32">
+        <section className="section-padding bg-[#FBF7F2] relative pt-32 pb-32">
           <div className="container-basho">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -243,7 +243,7 @@ export default function AboutPage() {
 
             <div className="relative">
               {/* Center Line */}
-              <div className="absolute left-1/2 top-0 bottom-32 w-px bg-[var(--basho-divider)] hidden md:block" />
+              <div className="absolute left-1/2 top-26 bottom-26 w-[2px] bg-[var(--basho-brown)] hidden md:block opacity-80" />
 
               <div className="space-y-20 relative">
                 {journey.map((item, index) => {
