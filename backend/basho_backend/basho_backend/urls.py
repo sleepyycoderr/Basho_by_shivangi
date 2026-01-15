@@ -10,6 +10,8 @@ urlpatterns = [
     path("api/experiences/", include("apps.experiences.urls")),
     path("api/products/", include("apps.products.urls")),
     path("api/orders/", include("apps.orders.urls")),
+    path("api/reviews/", include("apps.reviews.urls")),
+
 ]
 
 urlpatterns += static(
