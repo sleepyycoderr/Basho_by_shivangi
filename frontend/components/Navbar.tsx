@@ -11,9 +11,6 @@ import { logout, isLoggedIn, getUsername } from "@/lib/auth";
 const DEFAULT_BACKEND_AVATAR =
   "http://127.0.0.1:8000/media/profile_pics/default/default.png";
 
-const getUserAvatarKey = (email: string) =>
-  `profileImage_${email}`;
-
 
 export default function Navbar() {
   const router = useRouter();
@@ -48,28 +45,27 @@ const resetSensitiveUI = () => {
   setPasswordError("");
   
 };
+const [profileImage, setProfileImage] = useState<string>(
+  DEFAULT_BACKEND_AVATAR
+);
 
 /* ================= AUTH REFRESH ================= */
-  const refreshAuth = () => {
+const refreshAuth = () => {
   const logged = isLoggedIn();
   const user = getUsername();
-const email = localStorage.getItem("email");
 
-setLoggedIn(logged);
-setUsername(user);
+  setLoggedIn(logged);
+  setUsername(user);
 
-if (logged && email) {
-  const storedImage = localStorage.getItem(
-    getUserAvatarKey(email)
-  );
-  setProfileImage(storedImage || DEFAULT_BACKEND_AVATAR);
-} else {
-  setProfileImage(DEFAULT_BACKEND_AVATAR);
-}
+  if (!logged) {
+    setProfileImage(DEFAULT_BACKEND_AVATAR);
+    return;
+  }
 
-
-  resetSensitiveUI();
+  const avatar = localStorage.getItem("profile_image");
+  setProfileImage(avatar || DEFAULT_BACKEND_AVATAR);
 };
+
 
 
   useEffect(() => {
@@ -79,11 +75,14 @@ if (logged && email) {
 
   const handleLogout = () => {
   logout();
-
-  resetSensitiveUI();
-  refreshAuth();
+  localStorage.removeItem("profile_image");
+  setProfileImage(DEFAULT_BACKEND_AVATAR);
+  setUsername(null);
+  setLoggedIn(false);
   router.replace("/");
 };
+
+
 
 
 useEffect(() => {
@@ -98,12 +97,7 @@ useEffect(() => {
   /* ================= PROFILE MENU ================= */
   const [showProfileMenu, setShowProfileMenu] = useState(false);
 
-  const DEFAULT_BACKEND_AVATAR =
-  "http://127.0.0.1:8000/media/profile_pics/default/default.png";
 
-const [profileImage, setProfileImage] = useState<string>(
-  DEFAULT_BACKEND_AVATAR
-);
 
 
 
@@ -191,16 +185,7 @@ const [profileImage, setProfileImage] = useState<string>(
       return;
     }
 
-    const email = localStorage.getItem("email");
-
-if (email) {
-  localStorage.setItem(
-    getUserAvatarKey(email),
-    data.profile_image
-  );
-}
-
-
+   localStorage.setItem("profile_image", data.profile_image);
 setProfileImage(data.profile_image);
 
     setShowAvatarModal(false);
@@ -210,19 +195,37 @@ setProfileImage(data.profile_image);
 };
 
 
-const saveAvatar = (url: string) => {
-  const email = localStorage.getItem("email");
-if (!email) return;
+const saveAvatar = async (url: string) => {
+  try {
+    const res = await fetch(
+      "http://127.0.0.1:8000/api/accounts/set-profile-picture/",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+        body: JSON.stringify({ image_url: url }),
+      }
+    );
 
-localStorage.setItem(
-  getUserAvatarKey(email),
-  url
-);
+    const data = await res.json();
 
+    if (!res.ok) {
+      alert(data.error || "Failed to set profile picture");
+      return;
+    }
 
-  setProfileImage(url);
-  setShowAvatarModal(false);
+    // ✅ PRESET avatars are FRONTEND assets
+    localStorage.setItem("profile_image", url);
+    setProfileImage(url);
+
+    setShowAvatarModal(false);
+  } catch {
+    alert("Failed to update profile picture");
+  }
 };
+
 
 
 

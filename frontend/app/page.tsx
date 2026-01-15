@@ -1,8 +1,9 @@
 "use client";
 
-
 import { useRef, useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import AddReviewModal from "@/components/AddReviewModal";
+import ReviewSuccessModal from "@/components/ReviewSuccessModal";
 
 
 const philosophy = [
@@ -58,42 +59,58 @@ const theories = [
   },
 ];
 
-const testimonials = [
-  {
-    initials: "PS",
-    name: "PRIYA SHARMA",
-    location: "Mumbai",
-    quote: "\"The tea cup I purchased is not just a vessel—it's a daily meditation. Each imperfection tells a story. Shivangi's work brings peace to my morning ritual.\"",
-  },
-  {
-    initials: "AP",
-    name: "ARJUN PATEL",
-    location: "Ahmedabad",
-    quote: "\"Attended the weekend workshop and came back with not just pottery, but a new perspective on imperfection. Shivangi is an incredible teacher.\"",
-  },
-  {
-    initials: "MK",
-    name: "MEERA KRISHNAN",
-    location: "Bangalore",
-    quote: "\"The dinner set we ordered for our anniversary was absolutely stunning. Each plate unique, yet harmoniously part of a whole. True wabi-sabi.\"",
-  },
-  {
-    initials: "RD",
-    name: "RAHUL DESAI",
-    location: "Pune",
-    quote: "\"I've been collecting pottery for years, and Basho pieces stand out. The quality, the philosophy, the connection to Japanese aesthetics—unmatched in India.\"",
-  },
-];
+
 
 
 export default function HomePage() {
 
-  
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [loadingReviews, setLoadingReviews] = useState(true);
+
+  const [showAddReview, setShowAddReview] = useState(false);
+  const [showReviewSuccess, setShowReviewSuccess] = useState(false);
+
 
   const segment2Ref = useRef<HTMLDivElement>(null);
   const segment3Ref = useRef<HTMLDivElement>(null);
 
   const [showSuccess, setShowSuccess] = useState(false);
+
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    setIsLoggedIn(!!token);
+  }, []);
+
+
+
+useEffect(() => {
+  async function fetchReviews() {
+    try {
+      const res = await fetch("http://127.0.0.1:8000/api/reviews/", {
+  cache: "no-store",
+});
+
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text);
+      }
+
+      const data = await res.json();
+      setReviews(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Failed to load reviews", err);
+      setReviews([]);
+    } finally {
+      setLoadingReviews(false); // ✅ THIS WAS MISSING
+    }
+  }
+
+  fetchReviews();
+}, []);
+
+
 
   useEffect(() => {
     const created = sessionStorage.getItem("accountCreated");
@@ -118,12 +135,38 @@ export default function HomePage() {
     segment3Ref.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  function renderStars(rating: number) {
+  const stars = [];
+
+  for (let i = 1; i <= 5; i++) {
+    if (rating >= i) {
+      // full star
+      stars.push(
+        <span key={i} className="text-[#123d06] text-xl">★</span>
+      );
+    } else if (rating >= i - 0.5) {
+      // half star
+      stars.push(
+        <span key={i} className="text-[#123d06]/70 text-xl">★</span>
+      );
+    } else {
+      // empty star
+      stars.push(
+        <span key={i} className="text-gray-300 text-xl">★</span>
+      );
+    }
+  }
+
+  return stars;
+}
+
+
   return (
     <main>
     
       <div className="w-full overflow-x-hidden">
 
-        {/* ================= SUCCESS POPUP ================= */}
+        {/* ================= SUCCESS POPUP and Review pop up ================= */}
         {showSuccess && (
           <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 group">
             <div className="relative px-6 py-3 rounded-full bg-green-600 text-white text-sm font-medium shadow-lg flex items-center gap-3">
@@ -139,6 +182,18 @@ export default function HomePage() {
             </div>
           </div>
         )}
+
+        {showAddReview && (
+          <AddReviewModal
+            onClose={() => setShowAddReview(false)}
+            onSuccess={() => setShowReviewSuccess(true)}
+          />
+        )}
+
+        {showReviewSuccess && (
+          <ReviewSuccessModal onClose={() => setShowReviewSuccess(false)} />
+        )}
+
 
 
 
@@ -542,42 +597,110 @@ export default function HomePage() {
 
 
 
+
+
 <section className="bg-[#faf6ee] py-24 px-6">
         <div className="max-w-7xl mx-auto text-center">
           <p className="tracking-widest text-sm text-[var(--basho-terracotta)] mb-2">
             CUSTOMER STORIES
           </p>
 
-          <h2 className="text-4xl text-[var(--basho-dark)] mb-16">
-            Voices of Our Community
-          </h2>
+          <div className="relative mb-16">
+  {/* Centered heading */}
+  <h2 className="text-4xl text-[var(--basho-dark)] text-center">
+    Voices of Our Community
+  </h2>
 
-          <div className="grid md:grid-cols-2 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <div
-                key={index}
-                className="bg-white/50 rounded-xl p-6 text-left shadow-sm"
-              >
-                <div className="flex items-center mb-4">
-                  <div className="w-12 h-12 rounded-full bg-[var(--basho-terracotta)] flex items-center justify-center text-white font-bold text-xl">
-                    {testimonial.initials}
-                  </div>
-                  <div className="ml-4">
-                    <h3 className="font-semibold text-[var(--basho-dark)]">{testimonial.name}</h3>
-                    <p className="text-sm text-[var(--basho-muted)]">{testimonial.location}</p>
-                  </div>
-                </div>
+  {/* Right-aligned Add Review button */}
+  {isLoggedIn && (
+    <button
+      onClick={() => setShowAddReview(true)}
+      className="absolute right-0 top-1/2 -translate-y-1/2
+                 flex items-center gap-2 text-[var(--basho-terracotta)]
+                 hover:underline"
+    >
+      <span className="text-xl font-bold">+</span>
+      Add Review
+    </button>
+  )}
+</div>
 
-                <div className="flex mb-4 text-[#123d06] text-xl">
-                  ★★★★★
-                </div>
 
-                <p className="text-[var(--basho-teal)] leading-relaxed">
-                  {testimonial.quote}
-                </p>
-              </div>
-            ))}
+<div className="grid md:grid-cols-2 gap-8">
+
+  {loadingReviews && (
+    <p className="text-center text-gray-500">Loading reviews...</p>
+  )}
+
+  {!loadingReviews && reviews.length === 0 && (
+    <p className="md:col-span-2 text-center text-gray-500">
+      No reviews yet. Be the first to share your experience.
+    </p>
+  )}
+
+          {reviews.slice(0, 4).map((review, index) => {
+  const initials =
+    review.name
+      ?.split(" ")
+      .map((n: string) => n[0])
+      .slice(0, 2)
+      .join("")
+      .toUpperCase() || "?";
+
+  return (
+    <div
+      key={index}
+      className="bg-white/50 rounded-xl p-6 text-left shadow-sm"
+    >
+      {/* Header */}
+      <div className="flex items-center mb-4">
+        <div className="w-12 h-12 rounded-full bg-[var(--basho-terracotta)]
+                        flex items-center justify-center text-white
+                        font-bold text-xl">
+          {initials}
+        </div>
+
+        <div className="ml-4">
+          <h3 className="font-semibold text-[var(--basho-dark)]">
+            {review.name}
+          </h3>
+          <p className="text-sm text-[var(--basho-muted)]">
+            {review.city}
+          </p>
+        </div>
+      </div>
+
+      {/* ⭐ Rating (HALF STAR SUPPORTED) */}
+      <div className="flex mb-3">
+        {renderStars(review.rating)}
+      </div>
+
+      {/* Message */}
+      <p className="text-[var(--basho-teal)] leading-relaxed">
+        {review.message}
+      </p>
+    </div>
+  );
+})}
+
+
           </div>
+          {/* ✅ ADD BUTTON RIGHT HERE */}
+{reviews.length > 4 && (
+  <div className="mt-12 text-center">
+    <a
+      href="/review"
+      className="inline-block px-8 py-3 rounded-full
+                 border border-[var(--basho-terracotta)]
+                 text-[var(--basho-terracotta)]
+                 hover:bg-[var(--basho-terracotta)]
+                 hover:text-white
+                 transition"
+    >
+      View all reviews →
+    </a>
+  </div>
+)}
         </div>
       </section>
 
