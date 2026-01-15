@@ -1,0 +1,121 @@
+/* ================= GLOBAL ================= */
+body, .content-wrapper, .main-footer {
+    background-color: #EEE9E0 !important;
+}
+
+/* ================= REMOVE TEXT BRAND ================= */
+.brand-text, .brand-link span {
+    display: none !important;
+}
+
+/* ================= LOGO FIX (IMPORTANT) ================= */
+.brand-link {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    padding: 8px !important;
+    height: 70px !important;
+    overflow: hidden !important;
+}
+
+.brand-image {
+    max-height: 55px !important;
+    max-width: 160px !important;
+    width: auto !important;
+    height: auto !important;
+    object-fit: contain !important;
+    margin: 0 auto !important;
+}
+
+/* ================= HEADER ================= */
+.navbar, .main-header {
+    background-color: #442D1C !important;
+}
+
+.navbar a {
+    color: #EDD8B4 !important;
+}
+
+/* ================= SIDEBAR ================= */
+.main-sidebar {
+    background-color: #652810 !important;
+}
+
+.sidebar a {
+    color: #EDD8B4 !important;
+}
+
+.sidebar a:hover {
+    background-color: #8E5022 !important;
+    color: #fff !important;
+}
+
+.sidebar .nav-link.active {
+    background-color: #CA4D1F !important;
+    color: #fff !important;
+}
+
+/* ================= CARDS ================= */
+.card, .module, fieldset {
+    background: #fff !important;
+    border-radius: 12px;
+    border: 1px solid rgba(68,45,28,0.15);
+}
+
+/* ================= LINKS ================= */
+a {
+    color: #8E5022 !important;
+}
+a:hover {
+    color: #C85428 !important;
+}
+
+/* ================= FORMS ================= */
+input, select, textarea {
+    border-radius: 8px !important;
+    border: 1px solid #8E5022 !important;
+}
+
+/* ================= ALL BUTTONS ================= */
+
+/* Main buttons */
+.btn-primary, .btn-info {
+    background-color: #8E5022 !important;
+    border-color: #8E5022 !important;
+    color: #fff !important;
+}
+
+.btn-primary:hover, .btn-info:hover {
+    background-color: #C85428 !important;
+    border-color: #C85428 !important;
+}
+
+/* Add buttons */
+.btn-success {
+    background-color: #652810 !important;
+    border-color: #652810 !important;
+}
+
+.btn-success:hover {
+    background-color: #8E5022 !important;
+}
+
+/* Delete */
+.btn-danger {
+    background-color: #442D1C !important;
+    border-color: #442D1C !important;
+}
+
+.btn-danger:hover {
+    background-color: #652810 !important;
+}
+
+/* Django action buttons */
+.object-tools a,
+input[type="submit"],
+input[type="button"] {
+    background-color: #8E5022 !important;
+    border-color: #8E5022 !important;
+    color: #fff !important;
+    border-radius: 6px;
+}

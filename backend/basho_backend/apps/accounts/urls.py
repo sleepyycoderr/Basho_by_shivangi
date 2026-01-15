@@ -26,10 +26,13 @@ from .views import (
     forgot_password_send_otp,
     forgot_password_verify_otp,
     forgot_password_reset,
+    me
 )
 
 urlpatterns += [
     path("forgot-password/send-otp/", forgot_password_send_otp),
     path("forgot-password/verify-otp/", forgot_password_verify_otp),
     path("forgot-password/reset-password/", forgot_password_reset),
+    path("me/", me),
+
 ]

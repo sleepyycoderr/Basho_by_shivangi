@@ -9,7 +9,7 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import { CartProvider } from "@/context/CartContext";
 import ClientShell from "@/components/Clientshell";
 
-import Script from "next/script"; // ✅ ADD THIS
+ 
 
 /* ---------- Fonts ---------- */
 

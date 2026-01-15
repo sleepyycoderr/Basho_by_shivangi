@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Basho by Shivangi — Analytics</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+    body {
+        margin: 0;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        background: radial-gradient(circle at top, #f3ede6, #e6dccf);
+        color: #2e2a26;
+    }
+    .brand-header {
+  text-align: center;
+  margin-top: 30px;
+  margin-bottom: 50px;
+}
+
+.brand-title {
+  font-size: 52px;
+  font-weight: 800;
+  letter-spacing: 3px;
+  background: linear-gradient(90deg, #8b5e3c, #d2a679, #8b5e3c);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0px 6px 18px rgba(0,0,0,0.15);
+  position: relative;
+  display: inline-block;
+}
+
+.brand-title::after {
+  content: "";
+  position: absolute;
+  left: 10%;
+  bottom: -10px;
+  width: 80%;
+  height: 4px;
+  background: linear-gradient(90deg, #8b5e3c, #d2a679);
+  border-radius: 10px;
+  box-shadow: 0px 4px 12px rgba(139,94,60,0.4);
+}
+
+.brand-sub {
+  font-size: 26px;
+  font-weight: 600;
+  color: #3e2a1c;
+  margin-top: 18px;
+}
+
+.brand-tagline {
+  font-size: 15px;
+  letter-spacing: 1px;
+  color: #7a5a3a;
+  margin-top: 6px;
+}
+
+    .container {
+        max-width: 1400px;
+        padding: 40px;
+        margin: auto;
+    }
+
+    h1 {
+        font-size: 34px;
+        margin-bottom: 6px;
+        letter-spacing: -0.5px;
+        font-family: 'Playfair Display', serif;
+    }
+
+    .subtitle {
+        color: #7a6f63;
+        margin-bottom: 40px;
+    }
+
+    /* ===== GRID ===== */
+
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 22px;
+        margin-bottom: 40px;
+    }
+
+    .card {
+        background: linear-gradient(180deg, #ffffff, #f6f1eb);
+        border-radius: 22px;
+        padding: 22px;
+        box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 20px 45px rgba(0,0,0,0.12);
+    }
+
+    .card::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at top right, rgba(180,130,90,0.18), transparent 60%);
+        pointer-events: none;
+    }
+
+    .label {
+        font-size: 13px;
+        color: #8a7f73;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .value {
+        font-size: 34px;
+        font-weight: 700;
+        margin-top: 6px;
+    }
+
+    .hint {
+        margin-top: 6px;
+        font-size: 13px;
+        color: #9a8f83;
+    }
+
+    /* ===== SECTIONS ===== */
+
+    .section {
+        background: linear-gradient(180deg, #ffffff, #f6f1eb);
+        border-radius: 26px;
+        padding: 28px;
+        box-shadow: 0 14px 35px rgba(0,0,0,0.08);
+        margin-bottom: 32px;
+    }
+
+    .section h2 {
+        margin: 0 0 18px;
+        font-size: 22px;
+    }
+
+    canvas {
+        max-height: 340px;
+    }
+    .container::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle at 20% 10%, rgba(186,137,94,0.18), transparent 45%),
+                radial-gradient(circle at 80% 80%, rgba(120,80,50,0.14), transparent 45%);
+    pointer-events: none;
+}
+    /* ===== RESPONSIVE ===== */
+
+    @media (max-width: 1100px) {
+        .grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 600px) {
+        .grid { grid-template-columns: 1fr; }
+        h1 { font-size: 26px; }
+    }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <div class="brand-header">
+  <h1 class="brand-title">BASHO BYY SHIVANGI</h1>
+  <p class="brand-sub">Studio Control Dashboard</p>
+  <p class="brand-tagline">Business & Studio Analytics</p>
+</div>
+
+    <!-- ===== REVENUE ===== -->
+    <div class="grid">
+        <div class="card">
+            <div class="label">Total Revenue</div>
+            <div class="value">₹{{ total_revenue }}</div>
+            <div class="hint">All paid orders</div>
+        </div>
+
+        <div class="card">
+            <div class="label">Last 30 Days</div>
+            <div class="value">₹{{ monthly_revenue }}</div>
+            <div class="hint">Current growth window</div>
+        </div>
+
+        <div class="card">
+            <div class="label">Orders Today</div>
+            <div class="value">{{ orders_today }}</div>
+            <div class="hint">Product purchases</div>
+        </div>
+
+        <div class="card">
+            <div class="label">Corporate Leads</div>
+            <div class="value">{{ corporate_inquiries }}</div>
+            <div class="hint">Brand & gifting inquiries</div>
+        </div>
+    </div>
+
+    <!-- ===== REVENUE GRAPH ===== -->
+    <div class="section">
+        <h2>Revenue Flow (Last 30 Days)</h2>
+        <canvas id="revenueChart"></canvas>
+    </div>
+
+    <!-- ===== OPERATIONS ===== -->
+    <div class="grid">
+
+        <div class="card">
+            <div class="label">Products</div>
+            <div class="value">{{ total_products }}</div>
+            <div class="hint">Low stock: {{ low_stock_products }}</div>
+        </div>
+
+        <div class="card">
+            <div class="label">Experience Bookings</div>
+            <div class="value">{{ experience_bookings }}</div>
+            <div class="hint">Confirmed only</div>
+        </div>
+
+        <div class="card">
+            <div class="label">Workshop Registrations</div>
+            <div class="value">{{ workshop_registrations }}</div>
+            <div class="hint">Paid participants</div>
+        </div>
+
+        <div class="card">
+            <div class="label">Studio Visits</div>
+            <div class="value">{{ studio_visits }}</div>
+            <div class="hint">Total bookings</div>
+        </div>
+
+        <div class="card">
+            <div class="label">Custom Orders</div>
+            <div class="value">{{ custom_orders }}</div>
+            <div class="hint">Pending: {{ pending_custom_orders }}</div>
+        </div>
+
+        <div class="card">
+            <div class="label">Total Orders</div>
+            <div class="value">{{ total_orders }}</div>
+            <div class="hint">All product orders</div>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ===== CHART SCRIPT ===== -->
+<script>
+const labels = {{ revenue_labels|safe }};
+const values = {{ revenue_values|safe }};
+
+new Chart(document.getElementById("revenueChart"), {
+    type: "line",
+    data: {
+        labels: labels,
+        datasets: [{
+            label: "Revenue (₹)",
+            data: values,
+            tension: 0.4,
+            fill: true,
+            backgroundColor: "rgba(176,130,87,0.25)",
+            borderColor: "rgba(136,87,48,1)",
+            borderWidth: 3,
+            pointRadius: 4,
+            pointBackgroundColor: "rgba(136,87,48,1)"
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { display: false }
+        },
+        scales: {
+            y: {
+                ticks: {
+                    callback: value => "₹" + value
+                }
+            }
+        }
+    }
+});
+</script>
+
+</body>
+</html>

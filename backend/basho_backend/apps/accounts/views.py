@@ -487,3 +487,13 @@ def forgot_password_reset(request):
     EmailOTP.objects.filter(email=email).delete()
 
     return Response({"success": "Password reset successful"})
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def me(request):
+    user = request.user
+    return Response({
+        "id": user.id,
+        "username": user.username,
+        "email": user.email,
+    })

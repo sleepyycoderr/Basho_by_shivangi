@@ -43,6 +43,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    "jazzmin",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -58,17 +59,74 @@ INSTALLED_APPS = [
     'apps.orders',
     'apps.accounts',
     "apps.corporate",
-    
+    "apps.main.apps.MainConfig",
     "rest_framework.authtoken",
-
-    
 ]
+JAZZMIN_SETTINGS = {
+    # Admin titles
+    "site_title": "Basho Admin",
+    "site_header": "",
+    "site_brand": "",
+    "welcome_sign": "Welcome to Basho Admin Panel",
 
+    # Logo (THIS is the key)
+    "site_logo": "admin/img/basho-logo.png",
+    "site_logo_classes": "brand-image",
+
+
+    # Sidebar
+    "show_sidebar": True,
+    "navigation_expanded": True,
+
+    # Theme (keep default look – good choice)
+    "theme": "flatly",
+
+    # ✅ CORRECT ICON MAPPING (IMPORTANT)
+    "icons": {
+        # Accounts
+        "accounts.user": "fas fa-user",
+        "accounts.emailotp": "fas fa-envelope",
+
+        # Authentication
+        "auth.group": "fas fa-users-cog",
+        "authtoken.token": "fas fa-key",
+
+        # Experiences
+        "experiences.booking": "fas fa-calendar-check",
+        "experiences.experience": "fas fa-mug-hot",
+        "experiences.experienceslot": "fas fa-clock",
+        "experiences.workshop": "fas fa-paint-brush",
+        "experiences.workshopslot": "fas fa-hourglass",
+        "experiences.workshopregistration": "fas fa-users",
+
+        # Orders & Payments
+        "orders.order": "fas fa-shopping-cart",
+        "orders.payment": "fas fa-credit-card",
+        "orders.transaction": "fas fa-receipt",
+        "orders.paymentorder": "fas fa-file-invoice",
+
+        # Products
+        "products.product": "fas fa-box",
+        "products.category": "fas fa-tags",
+        "products.customorder": "fas fa-hammer",
+        "products.customorderimage": "fas fa-image",
+
+        # Corporate
+        "corporate.corporateinquiry": "fas fa-building",
+    },
+
+    # Fallback icons
+    "default_icon_parents": "fas fa-folder",
+    "default_icon_children": "fas fa-file",
+
+    # Custom CSS (✔ path is correct)
+    "custom_css": "admin/css/basho_admin.css",
+}
 MIDDLEWARE = [
-    "corsheaders.middleware.CorsMiddleware",   # ✅ MUST BE FIRST
-    'django.middleware.common.CommonMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
@@ -141,7 +199,13 @@ USE_I18N = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
+
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
+
+STATIC_ROOT = BASE_DIR / "staticfiles"
  
 #aishwarya changes: 
 AUTH_USER_MODEL = "accounts.User"
@@ -158,10 +222,16 @@ CORS_ALLOW_ALL_ORIGINS = True
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 
 REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.AllowAny',
     ),
 }
+
+
+
 
 # Upload limits (10 MB per file)
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
@@ -187,8 +257,6 @@ FRONTEND_URL = "http://localhost:3000"
 RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID")
 RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET")
 
-# CORS
-# CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOWED_ORIGINS = [
@@ -215,5 +283,8 @@ CORS_ALLOW_METHODS = [
     "DELETE",
     "OPTIONS",
 ]
+ 
+SESSION_COOKIE_SAMESITE = "Lax"
+SESSION_COOKIE_SECURE = False  # True only in HTTPS
  
 

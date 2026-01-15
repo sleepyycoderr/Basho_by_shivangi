@@ -1,0 +1,176 @@
+/* ===============================
+   GLOBAL
+================================ */
+body, .content-wrapper, .main-footer {
+    background-color: #F3EBDD !important;
+    font-family: "Poppins", "Segoe UI", sans-serif;
+}
+
+/* ===============================
+   REMOVE DJANGO TEXT BRAND
+================================ */
+.brand-text, .brand-link span {
+    display: none !important;
+}
+
+/* ===============================
+   LOGO FULL FIT
+================================ */
+/* ============ BRAND / LOGO AREA ============ *
+
+/* Brand container */
+.brand-link {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    padding: 10px !important;
+    height: auto !important;     /* KEY */
+    min-height: 80px !important; /* nice header height */
+    background: #64351c!important;
+}
+
+/* Logo itself */
+.brand-image {
+    max-height: 70px !important;
+    width: auto !important;
+    height: auto !important;
+    object-fit: stretch!important;  /* NO crop, NO stretch */
+    margin: 0 !important;
+}
+/* ===============================
+   TOP HEADER
+================================ */
+.main-header, .navbar {
+    background: linear-gradient(90deg, #8E5022, #5A321C) !important;
+    border: none !important;
+}
+
+.navbar a {
+    color: #F3EBDD !important;
+}
+
+/* ===============================
+   SIDEBAR
+================================ */
+.main-sidebar {
+    background: #64351c;
+}
+
+.sidebar a {
+    color: #F1DDC2 !important;
+    font-weight: 500;
+}
+
+.sidebar a:hover {
+    background-color: #7A3E1D !important;
+    color: #FFFFFF !important;
+    border-radius: 6px;
+}
+
+.sidebar .nav-link.active {
+    background: linear-gradient(90deg, #C85428, #8E3A16) !important;
+    color: #FFFFFF !important;
+    border-radius: 8px;
+}
+
+/* ===============================
+   CARDS
+================================ */
+.card, .module {
+    border-radius: 16px !important;
+    border: none !important;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08) !important;
+}
+
+/* ===============================
+   LINKS
+================================ */
+a {
+    color: #8E3A16 !important;
+    font-weight: 500;
+}
+
+a:hover {
+    color: #c0ada5 !important;
+    background-color: #8E5022;
+}
+
+/* ===============================
+   TABLE HEADERS
+================================ */
+thead th {
+    background-color: #EAD3B2 !important;
+    color: #3B2415 !important;
+    border: none !important;
+}
+
+/* ===============================
+   INPUTS
+================================ */
+input, select, textarea {
+    border-radius: 10px !important;
+    border: 1px solid #C9A27C !important;
+}
+
+input:focus, select:focus, textarea:focus {
+    border-color: #C85428 !important;
+    box-shadow: 0 0 0 0.2rem rgba(200,84,40,0.25) !important;
+}
+
+/* ===============================
+   BUTTONS – FIXED VISIBILITY
+================================ */
+
+/* ============ DASHBOARD ADD / CHANGE BUTTONS ============ */
+
+.btn, .object-tools a {
+    border-radius: 20px !important;
+    padding: 6px 14px !important;
+    font-weight: 600 !important;
+}
+
+/* Space between Add & Change */
+.btn + .btn,
+.object-tools a + a {
+    margin-left: 8px !important;
+}
+
+/* Add buttons */
+.btn-success {
+    background-color: #652810 !important;
+    border-color: #652810 !important;
+    color: #fff !important;
+}
+
+.btn-success:hover {
+    background-color: #9d7c63 !important;
+}
+
+/* Change / primary buttons */
+.btn-primary, .btn-info {
+    background-color: #8E5022 !important;
+    border-color: #8E5022 !important;
+    color: #fff !important;
+}
+
+.btn-primary:hover, .btn-info:hover {
+    background-color: #C85428 !important;
+}
+
+
+/* ===============================
+   DJANGO SAVE ROW
+================================ */
+.submit-row input, .submit-row a {
+    background: linear-gradient(90deg, #8E3A16, #C85428) !important;
+    color: #FFF3E6 !important;
+    border-radius: 10px !important;
+}
+
+/* ===============================
+   BREADCRUMB
+================================ */
+.breadcrumb a {
+    color: #8E3A16 !important;
+    font-weight: 600;
+}

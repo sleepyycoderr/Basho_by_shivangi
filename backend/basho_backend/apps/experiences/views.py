@@ -2,8 +2,11 @@ from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from django.http import JsonResponse
 from django.core.mail import send_mail
 from django.conf import settings
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import api_view, permission_classes
 import razorpay
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
@@ -207,3 +210,37 @@ class CreateWorkshopRegistrationView(APIView):
             },
             status=status.HTTP_201_CREATED
         )
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def my_workshops(request):
+    orders = PaymentOrder.objects.filter(
+        user=request.user,
+        order_type="WORKSHOP",
+        status="PAID"
+    ).order_by("-created_at")
+
+    data = [{
+        "id": o.id,
+        "amount": o.amount,
+        "date": o.created_at,
+        "linked_object_id": o.linked_object_id
+    } for o in orders]
+
+    return JsonResponse({"workshops": data})
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def my_experiences(request):
+    orders = PaymentOrder.objects.filter(
+        user=request.user,
+        order_type="EXPERIENCE",
+        status="PAID"
+    ).order_by("-created_at")
+
+    data = [{
+        "id": o.id,
+        "amount": o.amount,
+        "date": o.created_at,
+        "linked_object_id": o.linked_object_id
+    } for o in orders]
+
+    return JsonResponse({"experiences": data})

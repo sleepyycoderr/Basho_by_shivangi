@@ -1,9 +1,6 @@
 import axios from "axios";
-<<<<<<< HEAD
-import { Product } from '@/types/product';
-=======
 import { Product } from "@/types/product";
->>>>>>> origin/main
+
 
 /* =========================
    AXIOS INSTANCE (UNCHANGED)
@@ -17,14 +14,6 @@ const api = axios.create({
 });
 
 export default api;
-<<<<<<< HEAD
-// lib/api.ts
-=======
-
-/* =========================
-   BASE URLS
-========================= */
->>>>>>> origin/main
 export const VAPI_BASE = "http://localhost:8000";
 
 const API_BASE =
@@ -79,8 +68,7 @@ export async function registerWorkshop(payload: {
   const text = await res.text();
   console.log("RAW RESPONSE TEXT:", text);
 
-<<<<<<< HEAD
-=======
+ 
   try {
     const data = JSON.parse(text);
     if (!res.ok) throw data;
@@ -93,7 +81,7 @@ export async function registerWorkshop(payload: {
 /* =========================
    PRODUCTS
 ========================= */
->>>>>>> origin/main
+ 
 export async function fetchProducts(): Promise<Product[]> {
   const res = await fetch(`${API_BASE}/products/`, {
     cache: "no-store",
