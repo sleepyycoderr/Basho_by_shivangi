@@ -10,18 +10,33 @@ from django.core.validators import FileExtensionValidator
 # =========================
 
 class Cart(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
+    )
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user"],
+                condition=models.Q(is_active=True),
+                name="unique_active_cart_per_user"
+            )
+        ]
+
     def total_weight(self):
-        return sum(item.product.weight * item.quantity for item in self.items.all())
+        return sum(item.product.weight * item.quantity for item in self.items.select_related("product"))
 
     def total_price(self):
-        return sum(item.product.price * item.quantity for item in self.items.all())
+        return sum(item.product.price * item.quantity for item in self.items.select_related("product"))
 
     def __str__(self):
-        return f"Cart {self.id} - {self.user}"
+        return f"Cart {self.id}"
+
 
 
 class CartItem(models.Model):
@@ -29,8 +44,14 @@ class CartItem(models.Model):
     product = models.ForeignKey("products.Product", on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["cart", "product"], name="unique_product_per_cart")
+        ]
+
     def __str__(self):
         return f"{self.product.name} ({self.quantity})"
+
 
 
 # ==================================

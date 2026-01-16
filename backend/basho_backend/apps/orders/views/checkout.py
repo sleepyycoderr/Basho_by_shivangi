@@ -1,65 +1,90 @@
+import json
+import razorpay
+
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
-from apps.orders.models import Cart, Order, OrderItem, PaymentOrder, Payment, Transaction
+from django.db import transaction
+from django.core.mail import send_mail
+
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+
+from apps.orders.models import (
+    Cart, Order, OrderItem,
+    PaymentOrder, Payment, Transaction
+)
 from apps.products.models import Product
-import razorpay, json
+
 
 client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
 
 
 # ====================================================
 # CREATE ORDER + CREATE RAZORPAY ORDER
+# LOGIN REQUIRED
 # ====================================================
 
 @csrf_exempt
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+@transaction.atomic
 def create_product_order(request):
-    print("🔥 POST REACHED VIEW")
-    if request.method != "POST":
-        return JsonResponse({"error": "POST request required"}, status=405)
 
-    data = json.loads(request.body)
+    data = json.loads(request.body or "{}")
     customer = data.get("customer")
-    items = data.get("items", [])
 
-    if not items:
-        return JsonResponse({"error": "No items sent"}, status=400)
+    if not customer:
+        return JsonResponse({"error": "Customer data missing"}, status=400)
+
+    # 🔐 LOCK CART
+    cart = Cart.objects.select_for_update().filter(
+        user=request.user,
+        is_active=True
+    ).first()
+
+    if not cart or not cart.items.exists():
+        return JsonResponse({"error": "Cart is empty"}, status=400)
 
     subtotal = 0
     total_weight = 0
     validated_items = []
 
-    # ✅ SERVER SIDE VALIDATION
-    for item in items:
-        product = Product.objects.get(id=item["id"])
-        qty = int(item["qty"])
-        price = product.price
-        weight = getattr(product, "weight_kg", 0)
+    # 🔒 LOCK PRODUCTS (ANTI-OVERSELL)
+    for item in cart.items.select_related("product"):
+        product = Product.objects.select_for_update().get(id=item.product.id)
 
-        subtotal += price * qty
-        total_weight += weight * qty
+        if product.stock < item.quantity:
+            return JsonResponse(
+                {"error": f"{product.name} is out of stock"},
+                status=400
+            )
 
-        validated_items.append({
-            "product": product,
-            "qty": qty,
-            "price": price,
-            "weight": weight
-        })
+        subtotal += product.price * item.quantity
+        total_weight += product.weight * item.quantity
+
+        validated_items.append((item, product))
 
     shipping_cost = 50
-    total_amount = subtotal + shipping_cost
+    gst = round((subtotal + shipping_cost) * 0.18, 2)
+    total_amount = subtotal + shipping_cost + gst
 
-    # ✅ 1. Payment Order (MASTER)
+
+    # =========================
+    # MASTER PAYMENT ORDER
+    # =========================
     payment_order = PaymentOrder.objects.create(
-        user=request.user if request.user.is_authenticated else None,
+        user=request.user,
         order_type="PRODUCT",
         amount=total_amount,
         status="PENDING"
     )
 
-    # ✅ 2. Razorpay order
+    # =========================
+    # RAZORPAY ORDER
+    # =========================
     razorpay_order = client.order.create({
-        "amount": int(total_amount * 100),
+        "amount": int(round(total_amount * 100)),
         "currency": "INR",
         "payment_capture": 1
     })
@@ -67,7 +92,9 @@ def create_product_order(request):
     payment_order.razorpay_order_id = razorpay_order["id"]
     payment_order.save()
 
-    # ✅ 3. Product order
+    # =========================
+    # PRODUCT ORDER
+    # =========================
     order = Order.objects.create(
         payment_order=payment_order,
         full_name=customer["fullName"],
@@ -87,70 +114,48 @@ def create_product_order(request):
     payment_order.linked_app = "orders"
     payment_order.save()
 
-    # ✅ 4. Snapshot items
-    for v in validated_items:
+    # =========================
+    # ORDER ITEMS SNAPSHOT
+    # =========================
+    for item, product in validated_items:
         OrderItem.objects.create(
             order=order,
-            product_name=v["product"].name,
-            price=v["price"],
-            quantity=v["qty"],
-            weight_kg=v["weight"]
+            product=product,
+            product_name=product.name,
+            price=product.price,
+            quantity=item.quantity,
+            weight_kg=product.weight
         )
-    print("🧾 CREATED ORDER ID:", razorpay_order["id"])
 
     return JsonResponse({
         "order_id": order.id,
-        "payment_order_id": payment_order.id,
         "razorpay_order_id": razorpay_order["id"],
         "amount": int(total_amount * 100),
         "currency": "INR",
         "key": settings.RAZORPAY_KEY_ID
     })
 
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def my_orders(request):
+    orders = Order.objects.filter(
+        payment_order__user=request.user
+    ).order_by("-created_at")
 
-# ====================================================
-# VERIFY PAYMENT
-# ====================================================
-
-@csrf_exempt
-def verify_payment(request):
-
-    if request.method != "POST":
-        return JsonResponse({"error": "POST request required"}, status=405)
-
-    data = json.loads(request.body)
-
-    try:
-        client.utility.verify_payment_signature({
-            "razorpay_payment_id": data["razorpay_payment_id"],
-            "razorpay_order_id": data["razorpay_order_id"],
-            "razorpay_signature": data["razorpay_signature"]
+    data = []
+    for o in orders:
+        data.append({
+            "id": o.id,
+            "total": o.total_amount,
+            "status": o.status,
+            "created_at": o.created_at,
+            "items": [
+                {
+                    "name": i.product_name,
+                    "qty": i.quantity,
+                    "price": i.price
+                } for i in o.items.all()
+            ]
         })
-    except:
-        return JsonResponse({"status": "failed"}, status=400)
 
-    payment_order = PaymentOrder.objects.get(
-        razorpay_order_id=data["razorpay_order_id"]
-    )
-
-    payment = Payment.objects.create(
-        payment_order=payment_order,
-        razorpay_payment_id=data["razorpay_payment_id"],
-        razorpay_signature=data["razorpay_signature"],
-        status="success"
-    )
-
-    payment_order.status = "PAID"
-    payment_order.save()
-
-    order = payment_order.product_order
-    order.status = "paid"
-    order.save()
-
-    Transaction.objects.create(
-        payment=payment,
-        event="payment_success",
-        response=data
-    )
-
-    return JsonResponse({"status": "success"})
+    return JsonResponse({"orders": data})

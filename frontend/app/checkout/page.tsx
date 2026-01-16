@@ -7,13 +7,16 @@ import { useCart } from '@/context/CartContext';
 import { formatPrice } from '@/lib/utils';
 import { useRouter } from "next/navigation";
 import { VAPI_BASE } from "@/lib/api";
+import { getAccessToken, isLoggedIn } from "@/lib/auth";
 
 
 
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { cartItems, getCartTotal } = useCart();
+const { cartItems, getCartTotal, clearCart, isReady } = useCart();
+const [isPlacingOrder, setIsPlacingOrder] = useState(false);
+
   const [formError, setFormError] = useState('');
 
   const [formData, setFormData] = useState({
@@ -32,8 +35,16 @@ export default function CheckoutPage() {
 
   const subtotal = getCartTotal();
   const shipping = subtotal >= 3000 ? 0 : 100;
-  const gst = Math.round((subtotal + shipping) * 0.18);
+const gst = Math.round((subtotal + shipping) * 0.18 * 100) / 100;
+
   const total = subtotal + shipping + gst;
+  if (!isReady) {
+  return (
+    <main className="min-h-screen bg-[#FAF8F5] flex items-center justify-center">
+      <p className="text-[#563a13] font-serif">Loading checkout…</p>
+    </main>
+  );
+}
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -43,15 +54,35 @@ export default function CheckoutPage() {
   };
 const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
+  if (isPlacingOrder) return;
+
+  if (cartItems.length === 0) {
+    alert("Your cart is empty");
+    return;
+  }
+
+  // 🔐 CHECK LOGIN
+  if (!isLoggedIn()) {
+    router.push("/login?next=/checkout");
+    return;
+  }
+
+  const token = getAccessToken();
+  if (!token) {
+    router.push("/login?next=/checkout");
+    return;
+  }
+
+  setIsPlacingOrder(true);
 
   try {
     const response = await fetch(
       `${VAPI_BASE}/api/orders/checkout/product/`,
       {
         method: "POST",
-        credentials: "include", // 🔥 REQUIRED
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // ✅ YOUR JWT
         },
         body: JSON.stringify({
           customer: {
@@ -70,42 +101,60 @@ const handleSubmit = async (e: React.FormEvent) => {
       }
     );
 
-    let data;
-try {
-  data = await response.json();
-} catch {
-  throw new Error("Backend did not return JSON");
-}
+    const data = await response.json();
 
+    // 🔁 TOKEN EXPIRED / INVALID
+    if (response.status === 401) {
+      alert("Session expired. Please login again.");
+      router.push("/login?next=/checkout");
+      return;
+    }
 
     if (!response.ok) {
       alert(data.error || "Order creation failed");
       return;
     }
-    if (!(window as any).Razorpay) {
-  alert("Razorpay SDK not available. Please refresh the page.");
-  return;
-}
 
-    // Razorpay
+    if (!(window as any).Razorpay) {
+      alert("Razorpay SDK not loaded");
+      return;
+    }
+
     const options = {
       key: data.key,
       amount: data.amount,
       currency: data.currency,
       name: "Basho by Shivangi",
       order_id: data.razorpay_order_id,
+
+      modal: {
+        ondismiss: () => setIsPlacingOrder(false),
+      },
+
       handler: async function (response: any) {
-        await fetch(`${VAPI_BASE}/api/orders/payment/verify/`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(response),
-        });
+        const verifyRes = await fetch(
+          `${VAPI_BASE}/api/orders/payment/verify/`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`, // ✅ JWT AGAIN
+            },
+            body: JSON.stringify(response),
+          }
+        );
 
-        await fetch(`${VAPI_BASE}/api/orders/cart/clear/`, {
-          method: "POST",
-          credentials: "include",
-        });
+        const verifyData = await verifyRes.json();
 
+        if (!verifyRes.ok || !verifyData.success) {
+          alert("Payment verification failed");
+          return;
+        }
+
+        // ✅ AUTO CLEAR CART
+        clearCart();
+
+        // ✅ SUCCESS PAGE
         router.push("/order-success");
       },
     };
@@ -116,8 +165,12 @@ try {
   } catch (err) {
     console.error(err);
     alert("Checkout failed");
+  } finally {
+    setIsPlacingOrder(false);
   }
 };
+
+
 
   if (cartItems.length === 0) {
     return (
@@ -556,11 +609,13 @@ try {
                 </div>
 
                 <button
-                  type="submit"
-                  className="w-full bg-[#563a13] text-[#FFFDF9] py-4 rounded-sm font-medium hover:bg-[#652810] transition-colors focus:outline-none focus:ring-2 focus:ring-[#563a13] focus:ring-offset-2"
-                >
-                  Place Order
-                </button>
+  type="submit"
+  disabled={isPlacingOrder}
+  className="w-full bg-[#563a13] text-[#FFFDF9] py-4 rounded-sm font-medium hover:bg-[#652810] transition-colors disabled:opacity-60"
+>
+  {isPlacingOrder ? "Placing order..." : "Place Order"}
+</button>
+
 
                 <Link
                   href="/cart"

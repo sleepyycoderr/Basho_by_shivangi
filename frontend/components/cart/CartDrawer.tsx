@@ -1,5 +1,3 @@
-// components/cart/CartDrawer.tsx  (or wherever your drawer lives)
-
 'use client';
 
 import React from 'react';
@@ -13,15 +11,21 @@ interface CartDrawerProps {
   onClose: () => void;
 }
 
-export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
-  const { cartItems, updateQuantity, removeFromCart, getCartTotal } = useCart();
+export const CartDrawer: React.FC<CartDrawerProps> = ({
+  isOpen,
+  onClose,
+}) => {
+  const {
+    cartItems,
+    updateQuantity,
+    removeFromCart,
+    getCartTotal,
+    cartCount,
+    isReady,
+  } = useCart();
 
-  const cartCount = cartItems.reduce(
-    (total, item) => total + item.quantity,
-    0
-  );
-
-  if (!isOpen) return null;
+  // 🚫 Prevent hydration + empty flash
+  if (!isReady || !isOpen) return null;
 
   return (
     <>
@@ -49,6 +53,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
                 d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
               />
             </svg>
+
             <h2 className="text-xl font-medium text-[#2C2C2C]">
               Your Cart ({cartCount})
             </h2>
@@ -62,11 +67,14 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
           </button>
         </div>
 
-        {/* Cart Items */}
+        {/* Body */}
         <div className="flex-1 overflow-y-auto p-6">
           {cartItems.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center">
-              <p className="text-lg text-[#666] mb-6">Your cart is empty</p>
+              <p className="text-lg text-[#666] mb-6">
+                Your cart is empty
+              </p>
+
               <Link
                 href="/shop"
                 onClick={onClose}
@@ -82,15 +90,20 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
                   key={`${item.product.id}-${item.selectedColor.code}`}
                   className="flex gap-4"
                 >
+                  {/* Image */}
                   <div className="relative w-24 h-24 bg-[#E8DFD0] rounded-sm overflow-hidden">
                     <Image
-                      src={item.product.images[0]}
+                      src={
+                        item.product.images?.[0] ||
+                        '/placeholder.jpg'
+                      }
                       alt={item.product.name}
                       fill
                       className="object-cover"
                     />
                   </div>
 
+                  {/* Info */}
                   <div className="flex-1">
                     <h3 className="font-medium text-[#2C2C2C]">
                       {item.product.name}
@@ -105,6 +118,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
                     </p>
 
                     <div className="flex justify-between items-center">
+                      {/* Quantity */}
                       <div className="flex border-2 border-[#272222] text-[#272222]">
                         <button
                           onClick={() =>
@@ -119,7 +133,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
                           −
                         </button>
 
-                        <span className="px-4 py-1 border-x-2">{item.quantity}</span>
+                        <span className="px-4 py-1 border-x-2">
+                          {item.quantity}
+                        </span>
 
                         <button
                           onClick={() =>
@@ -129,13 +145,16 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
                               item.quantity + 1
                             )
                           }
-                          disabled={item.quantity >= item.product.stock}
+                          disabled={
+                            item.quantity >= item.product.stock
+                          }
                           className="px-3 py-1 disabled:opacity-30"
                         >
                           +
                         </button>
                       </div>
 
+                      {/* Remove */}
                       <button
                         onClick={() =>
                           removeFromCart(
@@ -148,6 +167,13 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
                         🗑
                       </button>
                     </div>
+
+                    {/* Stock warning */}
+                    {item.quantity >= item.product.stock && (
+                      <p className="text-xs text-red-500 mt-1">
+                        Max stock reached
+                      </p>
+                    )}
                   </div>
                 </div>
               ))}
@@ -158,13 +184,13 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
         {/* Footer */}
         {cartItems.length > 0 && (
           <div className="border-t border-[#E5E5E5] p-6 bg-white space-y-3">
-            {/* Subtotal */}
             <div className="flex text-[#666] justify-between mb-4">
               <span>Subtotal</span>
-              <span className="font-semibold">{formatPrice(getCartTotal())}</span>
+              <span className="font-semibold">
+                {formatPrice(getCartTotal())}
+              </span>
             </div>
 
-            {/* View Full Cart */}
             <Link
               href="/cart"
               onClick={onClose}
@@ -173,7 +199,6 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
               View Full Cart
             </Link>
 
-            {/* Proceed to Checkout */}
             <Link
               href="/checkout"
               onClick={onClose}
