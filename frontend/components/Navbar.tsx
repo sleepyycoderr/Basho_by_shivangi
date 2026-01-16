@@ -314,7 +314,7 @@ return (
   className="w-full text-left px-3 py-2 hover:bg-gray-100 rounded"
   onClick={() => {
     setShowProfileMenu(false);
-    router.push("/profiles");
+    router.push("/profile");
   }}
 >
   View Profile

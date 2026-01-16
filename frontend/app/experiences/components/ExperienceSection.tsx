@@ -14,13 +14,18 @@ interface Slot {
   availableSlots: number;
 }
 
+interface ExperienceImage {
+  url: string;
+  alt?: string;
+}
+
 
 interface Props {
   experienceId: number;
   title: string;
   tagline: string;
   description: string;
-  image: string;
+  image: ExperienceImage[];
   duration: string;
   people: string;
   price: string;
@@ -247,8 +252,18 @@ if (!verifyRes.ok) {
 
       <section className={`${styles.section} ${reverse ? styles.reverse : ""}`}>
         <div className={styles.imageWrapper}>
-          <img src={`http://127.0.0.1:8000${image}`} alt={title} />
-        </div>
+  {image && image.length > 0 ? (
+    <img
+      src={`http://127.0.0.1:8000${image[0].url}`} // first image
+      alt={image[0].alt || title}
+    />
+  ) : (
+    <img
+      src="/images/default.png"
+      alt={title}
+    />
+  )}
+</div>
 
         <div className={styles.content}>
           <span className={styles.tagline}>♡ {tagline}</span>

@@ -438,6 +438,47 @@ useEffect(() => {
 
   </div>
 </section>
+{/* ================= VIDEO TESTIMONIAL ================= */}
+<section className="bg-gradient-to-r from-[#f7f3ee] via-[#f1ebe2] to-[#f7f3ee] py-24 px-6">
+
+
+  <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+
+    {/* LEFT: TEXT */}
+    <div>
+      <p className="tracking-widest text-sm text-[var(--basho-terracotta)] mb-4">
+        STUDIO EXPERIENCE
+      </p>
+
+      <h2 className="text-4xl text-[var(--basho-dark)] font-serif mb-6">
+        Voices from Basho
+      </h2>
+
+      <p className="text-[var(--basho-teal)] leading-relaxed mb-8 max-w-lg">
+        Our visitors describe Basho as more than a pottery studio —
+        it’s a space to slow down, reconnect, and create with intention.
+      </p>
+
+      <p className="italic text-[var(--basho-terracotta)]">
+        “The experience felt grounding, calm, and deeply personal.”
+      </p>
+    </div>
+
+    {/* RIGHT: VIDEO */}
+    <div className="relative w-full aspect-video max-h-[480px] rounded-2xl overflow-hidden shadow-xl bg-black">
+
+      {/* 🔴 REPLACE src WITH YOUR VIDEO PATH */}
+      <video
+        src="/videos/basho Pottery Bliss.mp4"
+        controls
+        muted
+        playsInline
+        className="w-full h-full "
+      />
+
+    </div>
+  </div>
+</section>
 
       {/* ================= SEGMENT 3 : PHILOSOPHY ================= */}
       <section

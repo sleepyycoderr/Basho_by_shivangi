@@ -6,6 +6,11 @@ import styles from "./Experiences.module.css";
 import { motion } from "framer-motion";
 import Image from "next/image";
 
+interface ExperienceImage {
+  url: string;
+  alt?: string;
+}
+
 interface Experience {
   id: number;
   title: string;
@@ -14,8 +19,9 @@ interface Experience {
   duration: string;
   people: string;
   price: number;
-  image: string;
+  image: ExperienceImage[]; // ✅ JSON array
 }
+
 
 export default function ExperiencesPage() {
   const [experiences, setExperiences] = useState<Experience[]>([]);
@@ -85,11 +91,16 @@ export default function ExperiencesPage() {
       </section>
 
       {/* LOADING */}
-      {loading && (
-        <p className="text-center py-20 text-gray-500">
-          Loading experiences...
-        </p>
-      )}
+      {/* LOADING */}
+{loading && (
+  <div className="flex flex-col items-center justify-center py-24">
+    <div className="w-10 h-10 border-4 border-[#D4C5B0] border-t-[#8B6F47] rounded-full animate-spin mb-4" />
+    <p className="text-sm tracking-wide text-[#777]">
+      Loading experiences…
+    </p>
+  </div>
+)}
+
 
       {/* EMPTY STATE */}
       {!loading && experiences.length === 0 && (

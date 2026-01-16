@@ -160,8 +160,8 @@ class WorkshopRegistrationSerializer(serializers.ModelSerializer):
 
 class ExperienceSerializer(serializers.ModelSerializer):
     slots = ExperienceSlotSerializer(many=True, read_only=True)
-
     participants = serializers.SerializerMethodField()
+    image = serializers.JSONField()
 
     class Meta:
         model = Experience

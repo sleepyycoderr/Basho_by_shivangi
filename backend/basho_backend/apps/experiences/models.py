@@ -12,7 +12,7 @@ class Experience(models.Model):
     max_participants = models.PositiveIntegerField(null=True, blank=True)
 
     price = models.IntegerField()
-    image = models.ImageField(upload_to="experiences/")
+    image = models.JSONField(default=list, blank=True)
     is_active = models.BooleanField(default=True)
 
 
