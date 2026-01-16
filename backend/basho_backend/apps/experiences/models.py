@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.exceptions import ValidationError
+
 class Experience(models.Model):
     title = models.CharField(max_length=200)
     tagline = models.CharField(max_length=200)
@@ -18,8 +19,6 @@ class Experience(models.Model):
     def __str__(self):
         return self.title
 
-from django.core.exceptions import ValidationError
-
 class ExperienceSlot(models.Model):
     experience = models.ForeignKey(
         Experience,
@@ -36,15 +35,19 @@ class ExperienceSlot(models.Model):
     is_active = models.BooleanField(default=True)
 
     def clean(self):
-        if self.min_participants > self.max_participants:
-            raise ValidationError(
-                "Minimum participants cannot be greater than maximum participants."
-            )
-
         if self.start_time >= self.end_time:
-            raise ValidationError(
-                "Start time must be before end time."
-            )
+            raise ValidationError("Start time must be before end time.")
+
+        if self.booked_slots > self.total_slots:
+            raise ValidationError("Booked slots cannot exceed total slots.")
+
+        exp = self.experience
+        if exp.min_participants and exp.max_participants:
+            if exp.min_participants > exp.max_participants:
+                raise ValidationError(
+                    "Experience min participants cannot exceed max participants."
+                )
+
     def save(self, *args, **kwargs):
         self.full_clean()
         super().save(*args, **kwargs)    
@@ -54,7 +57,6 @@ class ExperienceSlot(models.Model):
     
     class Meta:
         ordering = ["date", "start_time"]
- 
 
 class Booking(models.Model):
     STATUS_CHOICES = (
@@ -107,8 +109,7 @@ class Booking(models.Model):
 
     def __str__(self):
         return f"{self.full_name} - {self.experience.title}"
-
-    
+   
 class StudioBooking(models.Model):
     full_name = models.CharField(max_length=100)
     phone = models.CharField(max_length=15)
@@ -119,7 +120,6 @@ class StudioBooking(models.Model):
 
     def __str__(self):
         return f"{self.full_name} - {self.visit_date} ({self.time_slot})"
-
 
 class UpcomingEvent(models.Model):
     title = models.CharField(max_length=200)

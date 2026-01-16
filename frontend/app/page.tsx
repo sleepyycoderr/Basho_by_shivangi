@@ -595,7 +595,7 @@ useEffect(() => {
             CUSTOMER STORIES
           </p>
 
-          <div className="relative mb-16">
+         <div className="relative mb-16">
   {/* Centered heading */}
   <h2 className="text-4xl text-[var(--basho-dark)] text-center">
     Voices of Our Community
@@ -605,15 +605,23 @@ useEffect(() => {
   {isLoggedIn && (
     <button
       onClick={() => setShowAddReview(true)}
-      className="absolute right-0 top-1/2 -translate-y-1/2
-                 flex items-center gap-2 text-[var(--basho-terracotta)]
-                 hover:underline"
+      className="
+        absolute right-0 top-1/2 -translate-y-1/2
+        flex items-center gap-2 text-[var(--basho-terracotta)]
+        hover:underline
+
+        max-sm:static
+        max-sm:mt-4
+        max-sm:translate-y-0
+        max-sm:mx-auto
+      "
     >
       <span className="text-xl font-bold">+</span>
       Add Review
     </button>
   )}
 </div>
+
 
 
 <div className="grid md:grid-cols-2 gap-8">

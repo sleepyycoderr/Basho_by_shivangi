@@ -77,11 +77,11 @@ const handleLogin = async () => {
     }
 
     // ✅ SUCCESS
-     localStorage.setItem("accessToken", data.access);
-      localStorage.setItem("refreshToken", data.refresh);
-      localStorage.setItem("email", data.email);
-      localStorage.setItem("username", data.username);
-
+    localStorage.setItem("accessToken", data.access);
+    localStorage.setItem("refreshToken", data.refresh);
+    localStorage.setItem("email", data.email);
+    localStorage.setItem("username", data.username);
+    window.dispatchEvent(new Event("auth-changed"));
 
       // ✅ REDIRECT AFTER SAVING
       router.replace("/");
@@ -116,6 +116,7 @@ const handleLogin = async () => {
     localStorage.setItem("refreshToken", data.refresh);
     localStorage.setItem("email" , data.email);
     localStorage.setItem("username", data.username);
+    window.dispatchEvent(new Event("auth-changed"));
 
     router.replace("/"); // ✅ auto login
   } catch (err) {

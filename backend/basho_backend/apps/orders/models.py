@@ -15,7 +15,7 @@ class Cart(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def total_weight(self):
-        return sum(item.product.weight_kg * item.quantity for item in self.items.all())
+        return sum(item.product.weight * item.quantity for item in self.items.all())
 
     def total_price(self):
         return sum(item.product.price * item.quantity for item in self.items.all())
@@ -113,6 +113,7 @@ class Order(models.Model):
 class OrderItem(models.Model):
 
     order = models.ForeignKey(Order, related_name="items", on_delete=models.CASCADE)
+    product = models.ForeignKey("products.Product", on_delete=models.SET_NULL, null=True)
 
     product_name = models.CharField(max_length=200)
     price = models.FloatField()

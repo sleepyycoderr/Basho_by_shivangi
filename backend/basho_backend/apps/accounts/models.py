@@ -8,11 +8,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=150, unique=True)
     email = models.EmailField(unique=True)
 
-    profile_image = models.ImageField(
-    upload_to="profile_pics/",
-    default="profile_pics/default/default.png",
-    blank=True
+    avatar = models.CharField(
+    max_length=50,
+    default="p1.png"
 )
+
 
 
     is_email_verified = models.BooleanField(default=False)

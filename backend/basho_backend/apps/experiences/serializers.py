@@ -1,7 +1,13 @@
 from rest_framework import serializers
-from .models import Booking, Experience, StudioBooking, UpcomingEvent
-from .models import Workshop, WorkshopSlot, WorkshopRegistration
-from .models import ExperienceSlot
+from .models import (
+    Booking, 
+    Experience, 
+    StudioBooking, 
+    UpcomingEvent,
+    Workshop, 
+    WorkshopSlot, 
+    WorkshopRegistration,
+    ExperienceSlot)
 
 class BookingSerializer(serializers.ModelSerializer):
     class Meta:
@@ -36,15 +42,18 @@ class BookingSerializer(serializers.ModelSerializer):
         experience = slot.experience
 
         # ✅ Booking-level rules (from Experience)
-        if people < experience.min_participants:
-            raise serializers.ValidationError({
-                "number_of_people": f"Minimum {experience.min_participants} participants required."
-            })
+        if experience.min_participants is not None:
+            if people < experience.min_participants:
+                raise serializers.ValidationError({
+                    "number_of_people": f"Minimum {experience.min_participants} participants required."
+                })
 
-        if people > experience.max_participants:
-            raise serializers.ValidationError({
-                "number_of_people": f"Maximum {experience.max_participants} participants allowed per booking."
-            })
+        if experience.max_participants is not None:
+            if people > experience.max_participants:
+                raise serializers.ValidationError({
+                    "number_of_people": f"Maximum {experience.max_participants} participants allowed per booking."
+                })
+
 
         # ✅ Slot capacity rule
         available = slot.total_slots - slot.booked_slots
@@ -54,8 +63,6 @@ class BookingSerializer(serializers.ModelSerializer):
             })
 
         return data
-
-
 
 class ExperienceSlotSerializer(serializers.ModelSerializer):
     startTime = serializers.TimeField(source="start_time")
@@ -73,9 +80,7 @@ class ExperienceSlotSerializer(serializers.ModelSerializer):
         ]
 
     def get_availableSlots(self, obj):
-        return obj.total_slots - obj.booked_slots
-
-
+        return max(0, obj.total_slots - obj.booked_slots)
 
 class StudioBookingSerializer(serializers.ModelSerializer):
     class Meta:
@@ -179,4 +184,3 @@ class ExperienceSerializer(serializers.ModelSerializer):
             "min": obj.min_participants,
             "max": obj.max_participants,
         }
-

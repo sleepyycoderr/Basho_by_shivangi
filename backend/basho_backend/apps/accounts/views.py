@@ -16,6 +16,13 @@ from .otp import generate_otp
 from .services import send_otp_email, send_welcome_email
 
 
+import os
+from django.core.files import File
+from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt
+
+
+
 # ---------------- HELPERS ----------------
 
 def is_strong_password(password):
@@ -116,7 +123,8 @@ def login_user(request):
         "refresh": str(refresh),
         "username": user.username,
         "email": user.email,
-        "profile_image": user.profile_image.url if user.profile_image else None,
+        "avatar": user.avatar,
+
     })
 
 
@@ -135,7 +143,8 @@ def google_login(request):
         "refresh": str(refresh),
         "username": user.username,
         "email": user.email,
-        "profile_image": user.profile_image.url if user.profile_image else None,
+        "avatar": user.avatar,
+
     })
 
 
@@ -189,33 +198,44 @@ def change_username(request):
 @api_view(["POST"])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
-def upload_profile_picture(request):
+def set_avatar(request):
     user = request.user
-    image = request.FILES.get("image")
+    avatar = request.data.get("avatar")
 
-    if not image:
-        return Response({"error": "No image provided"}, status=400)
+    if not avatar:
+        return Response({"error": "Avatar is required"}, status=400)
 
-    user.profile_image = image
-    user.save()
+    # optional safety check
+    allowed_avatars = [
+        "p1.png", "p2.png", "p3.png", "p4.png", "p5.png",
+        "p6.png", "p7.png", "p8.png", "p9.png", "p10.png",
+        "p11.png", "p12.png", "p13.png", "p14.png",
+        "p15.png", "p16.png", "p17.png",
+    ]
 
-    return Response({"profile_image": user.profile_image.url})
+    if avatar not in allowed_avatars:
+        return Response({"error": "Invalid avatar"}, status=400)
+
+    user.avatar = avatar
+    user.save(update_fields=["avatar"])
+
+    return Response({
+        "avatar": user.avatar
+    })
 
 
-@api_view(["POST"])
+@api_view(["GET"])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
-def set_profile_picture_from_url(request):
+def me(request):
     user = request.user
-    image_url = request.data.get("image_url")
+    return Response({
+        "username": user.username,
+        "email": user.email,
+        "avatar": user.avatar,
 
-    if not image_url:
-        return Response({"error": "Image URL required"}, status=400)
+    })
 
-    user.profile_image = image_url.replace("http://127.0.0.1:8000/media/", "")
-    user.save(update_fields=["profile_image"])
-
-    return Response({"profile_image": user.profile_image.url})
 
 
 # ---------------- FORGOT PASSWORD ----------------
