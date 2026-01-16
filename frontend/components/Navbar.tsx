@@ -8,6 +8,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { CartIcon } from "@/components/shared/CartIcon";
 import { logout, isLoggedIn, getUsername } from "@/lib/auth";
 import { refreshAccessToken } from "@/lib/auth";
+import MusicSettingsModal from "@/components/MusicSettingsModal";
+
 
 const DEFAULT_AVATAR = "/image_aish/avatars/p1.png";
 
@@ -22,6 +24,8 @@ export default function Navbar() {
   const [isMobile, setIsMobile] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileImage, setProfileImage] = useState<string>(DEFAULT_AVATAR);
+  const [showMusicSettings, setShowMusicSettings] = useState(false);
+
 
 
 
@@ -222,6 +226,9 @@ const saveAvatar = async (url: string) => {
   }
 };
 
+
+
+
 return (
     <header className="sticky top-0 z-50 bg-white border-b border-[var(--basho-divider)]">
       <div className="max-w-7xl mx-auto px-8 h-20 flex items-center justify-between">
@@ -312,6 +319,17 @@ return (
 >
   View Profile
 </button>
+
+<button
+  className="w-full text-left px-3 py-2 hover:bg-gray-100 rounded"
+  onClick={() => {
+    setShowProfileMenu(false);
+    setShowMusicSettings(true);
+  }}
+>
+  BGM Setting
+</button>
+
 
 
 
@@ -571,6 +589,13 @@ return (
     </motion.div>
   )}
 </AnimatePresence>
+
+{/* ================= MUSIC SETTINGS MODAL ================= */}
+<MusicSettingsModal
+  open={showMusicSettings}
+  onClose={() => setShowMusicSettings(false)}
+/>
+
 
 
     </header>
