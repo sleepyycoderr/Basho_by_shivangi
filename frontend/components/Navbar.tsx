@@ -7,11 +7,13 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CartIcon } from "@/components/shared/CartIcon";
 import { logout, isLoggedIn, getUsername } from "@/lib/auth";
+import { refreshAccessToken } from "@/lib/auth";
 
 const DEFAULT_AVATAR = "/image_aish/avatars/p1.png";
 
 
 export default function Navbar() {
+  const [authReady, setAuthReady] = useState(false);
   const router = useRouter();
   const [loggedIn, setLoggedIn] = useState(false);
   const [username, setUsername] = useState<string | null>(null);
@@ -37,30 +39,40 @@ const refreshAuth = async () => {
   }
 
   try {
-    const res = await fetch("http://127.0.0.1:8000/api/accounts/me/", {
+  let token = localStorage.getItem("accessToken");
+
+  let res = await fetch("http://127.0.0.1:8000/api/accounts/me/", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (res.status === 401) {
+    token = await refreshAccessToken();
+    if (!token) throw new Error("Auth failed");
+
+    res = await fetch("http://127.0.0.1:8000/api/accounts/me/", {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        Authorization: `Bearer ${token}`,
       },
     });
-
-    if (!res.ok) throw new Error("Unauthorized");
-
-    const data = await res.json();
-
-    if (data.avatar) {
-      setProfileImage(`/image_aish/avatars/${data.avatar}`);
-    } else {
-      setProfileImage(DEFAULT_AVATAR);
-    }
-  } catch {
-    setProfileImage(DEFAULT_AVATAR);
   }
+
+  if (!res.ok) throw new Error("Unauthorized");
+
+  const data = await res.json();
+
+  setProfileImage(
+    data.avatar
+      ? `/image_aish/avatars/${data.avatar}`
+      : DEFAULT_AVATAR
+  );
+} catch {
+  setProfileImage(DEFAULT_AVATAR);
+}
 };
 
-useEffect(() => {
-  refreshAuth();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-}, []);
+
 
 
   const handleLogout = () => {
@@ -70,6 +82,16 @@ useEffect(() => {
   router.replace("/");
 };
 
+useEffect(() => {
+  if (!authReady) return;
+
+  const token = localStorage.getItem("accessToken");
+  if (!token) return;
+
+  refreshAuth();
+}, [authReady]);
+
+
 
 useEffect(() => {
   const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -78,24 +100,40 @@ useEffect(() => {
   return () => window.removeEventListener("resize", handleResize);
 }, []);
 
+
+
 useEffect(() => {
+  if (typeof window === "undefined") return;
+
+  // wait until browser & localStorage are fully ready
+  const id = requestAnimationFrame(() => {
+    setAuthReady(true);
+  });
+
+  return () => cancelAnimationFrame(id);
+}, []);
+
+
+
+useEffect(() => {
+  if (!authReady) return;
+
   const syncAuth = () => {
     refreshAuth();
   };
 
-  // When tab gains focus (after login redirect)
   window.addEventListener("focus", syncAuth);
-
-  // When localStorage changes (login/register)
   window.addEventListener("storage", syncAuth);
+
+  // ✅ custom event for same-tab auth updates
+  window.addEventListener("auth-changed", syncAuth);
 
   return () => {
     window.removeEventListener("focus", syncAuth);
     window.removeEventListener("storage", syncAuth);
+    window.removeEventListener("auth-changed", syncAuth);
   };
-}, []);
-
-
+}, [authReady]);
 
 
   /* ================= PROFILE MENU ================= */
@@ -265,8 +303,15 @@ return (
                       </button>
 
 
-
-
+                      <button
+  className="w-full text-left px-3 py-2 hover:bg-gray-100 rounded"
+  onClick={() => {
+    setShowProfileMenu(false);
+    router.push("/profiles");
+  }}
+>
+  View Profile
+</button>
 
 
 
@@ -280,6 +325,10 @@ return (
 >
    Change Profile Picture
 </button>
+
+
+
+
 
 
                       <hr className="my-2" />

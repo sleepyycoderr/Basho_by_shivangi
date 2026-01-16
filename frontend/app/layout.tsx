@@ -9,6 +9,10 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import { CartProvider } from "@/context/CartContext";
 import ClientShell from "@/components/Clientshell";
 
+/* Audio BGM Settings */
+
+import { MusicProvider } from "@/context/MusicContext"; 
+import MusicConsentModal from "@/components/MusicConsentModal"; 
 
 
 /* ---------- Fonts ---------- */
@@ -52,17 +56,26 @@ export default function RootLayout({
       <body
         className={`${cinzel.variable} ${sourceSerif.variable} antialiased min-h-screen flex flex-col`}
       >
-        <GoogleOAuthProvider
-          clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}
-        >
-          <CartProvider>
-            <ClientShell>
-              <Navbar />
-              <main className="grow">{children}</main>
-              <Footer />
-            </ClientShell>
-          </CartProvider>
-        </GoogleOAuthProvider>
+       {/* ============================== */}
+        {/* 🔊 WRAP EVERYTHING HERE */}
+        {/* ============================== */}
+        <MusicProvider>
+          {/* 🎵 MUSIC POPUP — shows once per app open */}
+          <MusicConsentModal />
+
+          <GoogleOAuthProvider
+            clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}
+          >
+            <CartProvider>
+              <ClientShell>
+                <Navbar />
+                <main className="grow">{children}</main>
+                <Footer />
+              </ClientShell>
+            </CartProvider>
+          </GoogleOAuthProvider>
+        </MusicProvider>
+
 
         <Script
           src="https://checkout.razorpay.com/v1/checkout.js"
