@@ -135,6 +135,7 @@ useEffect(() => {
         localStorage.setItem("accessToken", data.access);
         localStorage.setItem("refreshToken", data.refresh);
         localStorage.setItem("username", data.username);
+        window.dispatchEvent(new Event("auth-changed"));
         router.replace("/");
       } else {
         setShowUsernameModal(true);
@@ -303,6 +304,7 @@ useEffect(() => {
   localStorage.setItem("accessToken", data.access);
   localStorage.setItem("refreshToken", data.refresh);
   localStorage.setItem("username", data.username);
+  window.dispatchEvent(new Event("auth-changed"));
 
   router.replace("/");
 };
