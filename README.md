@@ -1,68 +1,125 @@
-# Bashō
+Bashō
 
-Bashō is a pottery and tableware brand inspired by Japanese culture and the philosophy of the Japanese poet **Matsuo Bashō**.  
-The brand focuses on handcrafted, raw, earthy ceramic pieces, blending tradition with modern design.
+Bashō is a pottery and tableware brand inspired by Japanese culture and the philosophy of the renowned Japanese poet Matsuo Bashō.
+The brand celebrates handcrafted, raw, and earthy ceramic pieces, blending traditional craftsmanship with contemporary design aesthetics.
 
-This repository currently contains the **frontend implementation** of the Bashō website.
+This repository contains the complete frontend implementation of the Bashō website, developed as part of Google Winter of Code.
 
----
+Project Overview
 
-## Project Description
+Bashō is a full-scale web platform designed to deliver a calm, minimal, and immersive digital experience that reflects the brand’s philosophy and craftsmanship.
 
-Bashō offers:
-- Handcrafted ceramic tableware
-- Ready-made and custom pottery orders
-- Studio experiences and workshops
-- Curated cultural events inspired by Japanese aesthetics
+The project integrates modern frontend development practices along with Google services to ensure secure authentication, verified user interactions, and real-world usability.
 
-The goal of this project is to build a calm, minimal, and immersive web experience that reflects the brand’s philosophy and craftsmanship.
+Project Status
 
----
+✅ Project Completed
 
-## Current Project Status 
+All planned pages, features, and integrations have been successfully implemented.
 
-**This project is under active development.**
+Pages Implemented
 
-### Completed (So Far)
-- Frontend UI for:
-  - Shop pages
-  - Experiences pages
-  - Custom orders pages
-- Core layout and navigation
-- Basic animations and interactions
-- Responsive design foundation
+Home
 
-### In Progress
-- Workshops
-- Home page
-- Gallery
-- collaborations
-- Studio
-- corporate
+Shop
 
----
+Workshops
 
-## Tech Stack (Current)
+Custom Orders
 
-### Frontend
-- **Next.js**
-- **React**
-- **react-dom**
-- **Tailwind CSS**
-- **Framer Motion**
-- **Lucide React** (icons)
-  
-> Backend, authentication, database, and payment integrations are **not implemented yet**.
+Experiences
 
----
+Studio
 
-## Pages Implemented
+Corporate
 
-- Shop
-- Experiences
-- Custom Orders
+About Us
 
-(Static / frontend-only at this stage)
+Profile
 
----
+Tech Stack
+Frontend
 
+Next.js
+
+React
+
+react-dom
+
+Tailwind CSS
+
+Framer Motion
+
+Lucide React (icons)
+
+Backend
+
+Django
+
+Django REST Framework
+
+Authentication & Security
+
+JWT (JSON Web Tokens)
+
+Google Services Used
+
+To enhance security, trust, and real-world usability, the following Google technologies were integrated:
+
+Google Login & Signup Authentication
+
+Gmail-based Email Verification for:
+
+Login
+
+Signup
+
+Shop forms
+
+Workshop forms
+
+Book an Experience forms
+
+Google Maps Integration for location-based features related to:
+
+Studio
+
+Workshops
+
+Experiences
+
+Key Highlights (For Google Winter of Code)
+
+End-to-end implementation of a real-world brand website
+
+Secure authentication using JWT + Google Authentication
+
+Mandatory Gmail verification across all critical user forms
+
+Clean, minimal UI inspired by Japanese aesthetics
+
+Smooth animations and transitions for an immersive user experience
+
+Fully responsive design across devices
+
+Practical use of Google Maps for location relevance
+
+Academic Context
+
+Program: Google Winter of Code
+
+Project Type: College Project
+
+Focus Areas:
+
+Full-stack web development
+
+Secure authentication systems
+
+Google service integration
+
+User-centric design and usability
+
+Developer
+
+Shivangi
