@@ -9,15 +9,25 @@ export default function MusicConsentModal() {
   const [show, setShow] = useState(false);
 
   useEffect(() => {
-    /**
-     * Appears ONCE per app open
-     * (not on route change)
-     */
-    const asked = sessionStorage.getItem("music-consent");
-    if (!asked) {
-      setShow(true);
-    }
-  }, []);
+  // ❌ already decided → never show again
+  if (sessionStorage.getItem("music-consent")) return;
+
+  const showAfterLoader = () => {
+    // ✅ ensure popup shows ONLY ONCE
+    if (sessionStorage.getItem("music-popup-shown")) return;
+
+    sessionStorage.setItem("music-popup-shown", "true");
+    setShow(true);
+  };
+
+  window.addEventListener("loader-finished", showAfterLoader);
+
+  return () => {
+    window.removeEventListener("loader-finished", showAfterLoader);
+  };
+}, []);
+
+
 
   const chooseOn = () => {
     sessionStorage.setItem("music-consent", "on");
