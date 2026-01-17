@@ -55,9 +55,10 @@ const gst = Math.round((subtotal + shipping) * 0.18 * 100) / 100;
 const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
   if (isPlacingOrder) return;
+  setFormError('');
 
   if (cartItems.length === 0) {
-    alert("Your cart is empty");
+    setFormError("Your cart is empty");
     return;
   }
 
@@ -92,7 +93,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     });
 
     if (!syncRes.ok) {
-      alert("Failed to sync cart. Please try again.");
+      setFormError("Failed to sync cart. Please try again.");
       setIsPlacingOrder(false);
       return;
     }
@@ -124,19 +125,19 @@ const handleSubmit = async (e: React.FormEvent) => {
 
     // 🔁 TOKEN EXPIRED / INVALID
     if (response.status === 401) {
-      alert("Session expired. Please login again.");
+      setFormError("Session expired. Please login again.");
       router.push("/login?next=/checkout");
       return;
     }
 
     if (!response.ok) {
-      alert(data.error || "Order creation failed");
+      setFormError(data.error || "Order creation failed");
       return;
     }
 
     // 🔌 RAZORPAY SDK CHECK
     if (!(window as any).Razorpay) {
-      alert("Razorpay SDK not loaded");
+      setFormError("Razorpay SDK not loaded");
       return;
     }
 
@@ -163,7 +164,7 @@ const handleSubmit = async (e: React.FormEvent) => {
 const verifyData = await verifyRes.json();
 
 if (!verifyRes.ok || verifyData.status !== "success") {
-  alert(verifyData.error || "Payment verification failed");
+  setFormError(verifyData.error || "Payment verification failed");
   return;
 }
 
@@ -175,17 +176,17 @@ router.push("/order-success");
 
         } catch (err) {
           console.error(err);
-          alert("Payment verification failed");
+          setFormError("Payment verification failed");
         }
       },
     };
-
+    setFormError('');
     const rzp = new (window as any).Razorpay(options);
     rzp.open();
 
   } catch (err) {
     console.error(err);
-    alert("Checkout failed");
+    setFormError("Checkout failed");
   } finally {
     setIsPlacingOrder(false);
   }
@@ -240,12 +241,6 @@ router.push("/order-success");
       </div>
 
       <form onSubmit={handleSubmit} className="max-w-7xl mx-auto px-4 md:px-8">
-        {formError && (
-          <div className="mb-6 bg-[#FFF1F1] border border-[#E5B4B4] text-[#7A1F1F] px-4 py-3 rounded-sm text-sm">
-            {formError}
-          </div>
-        )}
-
         <div className="grid lg:grid-cols-5 gap-8 lg:gap-12">
           {/* Left section */}
           <div className="lg:col-span-3 space-y-8">
@@ -589,9 +584,15 @@ router.push("/order-success");
                   </span>
                 </div>
               </div>
-
+              
               {/* Payment / Place order */}
               <div className="mt-6 bg-[#FFFDF9] border border-[#A8A29E]/20 rounded-sm p-6">
+              {formError && (
+  <div className="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-2 rounded-md text-sm">
+    {formError}
+  </div>
+)}
+
                 <h3 className="text-lg font-serif text-[#563a13] mb-4">
                   Payment
                 </h3>
