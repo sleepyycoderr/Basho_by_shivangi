@@ -270,39 +270,7 @@ export default function CorporateClient() {
       createdAt: new Date().toISOString(),
     });
 
-      // setFormData({
-      //   companyName: "",
-      //   companyWebsite: "",
-      //   contactName: "",
-      //   email: "",
-      //   phone: "",
-      //   serviceType: "",
-
-      //   /* --- Corporate Gifting --- */
-      //   giftingOccasion: "",
-      //   giftingQuantity: "",
-      //   giftingBudgetPerItem: "",
-      //   deliveryDate: "",
-      //   customization: [] as string[],
-
-      //   /* --- Workshops --- */
-      //   teamSize: "",
-      //   workshopType: "",
-      //   workshopLocationType: "",
-      //   workshopDate: "",
-      //   durationPreference: "",
-
-      //   /* --- Brand Collaboration --- */
-      //   brandType: "",
-      //   collaborationIdea: "",
-      //   collaborationTimeline: "",
-      //   collaborationScope: "",
-
-      //   message: "",
-      //   budget: "",
-      //   timeline: "",
-      //   consent: false,
-      // });
+      
 
       // ✅ SCROLL AFTER SUCCESS
        window.scrollTo({

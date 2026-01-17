@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState ,useRef,useEffect } from "react";
 import Image from "next/image";
 import { Send, ImageIcon } from "lucide-react";
 import { MessageSquare, Palette, Package, CheckCircle2 } from "lucide-react";
 import { motion } from "framer-motion";
-
+ 
 const processSteps = [
   {
     icon: MessageSquare,
@@ -64,6 +64,7 @@ type FormField =
   | "reference_images";
 
 export default function CustomOrdersPage() {
+  
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -81,12 +82,23 @@ export default function CustomOrdersPage() {
     reference_images: [] as File[],
   });
 
+  const successRef = useRef<HTMLDivElement | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [submittedOrder, setSubmittedOrder] = useState<null | {
   name: string;
   product_type: string;
   created_at: string;
 }>(null);
+
+useEffect(() => {
+  if (submittedOrder && successRef.current) {
+    successRef.current.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+  }
+}, [submittedOrder]);
 
 
   const handleChange = (field: FormField, value: string | number | File[]) => {
@@ -96,6 +108,7 @@ export default function CustomOrdersPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setError(null);
 
     const form = new FormData();
 
@@ -127,11 +140,19 @@ export default function CustomOrdersPage() {
       console.error(err);
 
       const message =
-        err.reference_images?.[0] || err.detail || "Submission failed";
+      err.reference_images?.[0] || err.detail || "Submission failed. Please try again.";
 
-      alert(message);
+      setError(message);
       setIsSubmitting(false);
-      return;
+
+      // optional smooth scroll to error
+      window.scrollTo({
+        top: document.body.scrollHeight,
+        behavior: "smooth",
+      });
+
+return;
+
     }
 
     const data = await res.json();
@@ -141,6 +162,8 @@ export default function CustomOrdersPage() {
       product_type: data.product_type,
       created_at: data.created_at,
     });
+    setError(null);
+
 
     setFormData({
       name: "",
@@ -382,11 +405,16 @@ export default function CustomOrdersPage() {
             transition={{ delay: 0.2 }}
           >
             {submittedOrder ? (
-  <div className="bg-white border border-green-300 rounded-xl p-8 text-center shadow-sm">
+  <div ref={successRef} className="bg-white border border-green-300 rounded-xl p-8 text-center shadow-sm">
     <h3 className="text-2xl font-semibold text-green-700 mb-4">
       🎉 Custom Order Submitted Successfully
     </h3>
 
+     <p className="text-sm text-gray-700 mb-6">
+      Thank you for reaching out. Your custom request has been received.
+    </p>
+  
+   <div className="text-left max-w-md mx-auto mb-6">
     <p className="text-gray-700 mb-2">
       <strong>Name:</strong> {submittedOrder.name}
     </p>
@@ -400,10 +428,44 @@ export default function CustomOrdersPage() {
       <strong>Submitted on:</strong>{" "}
       {formatToIST(submittedOrder.created_at)}
     </p>
+    </div>
+      {/* EMAIL VERIFICATION NOTICE */}
+  <div
+  className="border rounded-xl px-5 py-4 mb-6"
+  style={{
+    backgroundColor: "#faf6f0",   // warm sand
+    borderColor: "#B08968",       // muted clay brown
+  }}
+>
+  <p
+    className="text-sm font-medium flex items-center justify-center gap-2"
+    style={{ color: "#6D4410" }}   // deep Basho brown
+  >
+     <strong> 📧 Email verification required </strong>{" "}
+  </p>
+
+  <p
+    className="text-sm mt-2 text-center"
+    style={{ color: "#3B2A1A" }}   // dark earthy text
+  >
+    We’ve sent a verification link to your email address.
+    Please confirm it to proceed with your custom order.
+  </p>
+
+  <p
+    className="text-xs mt-2 text-center"
+    style={{ color: "#7A6A58" }}   // muted secondary text
+  >
+    Didn’t receive it? Please check your spam or promotions folder.
+  </p>
+</div>
+
 
     <button
       onClick={() => {
         setSubmittedOrder(null);
+        setError(null);
+
         setFormData({
           name: "",
           email: "",
@@ -473,10 +535,11 @@ export default function CustomOrdersPage() {
                 {/* Product Type */}
                 <div className="flex flex-col gap-1">
                   <label className="text-sm text-[var(--basho-dark)]">
-                    Product Type
+                    Product Type *
                   </label>
                   <select
                     value={formData.product_type}
+                    required
                     onChange={(e) =>
                       handleChange("product_type", e.target.value)
                     }
@@ -683,6 +746,12 @@ export default function CustomOrdersPage() {
                   </div>
                 )}
               </div>
+              {/* ❗ ERROR MESSAGE */}
+              {error && (
+                <p className="text-red-600 text-sm bg-red-50 border border-red-200 rounded-md px-4 py-2">
+                  {error}
+                </p>
+              )}
 
               <button
                 type="submit"

@@ -110,7 +110,8 @@ export default function Footer() {
           onClick={() => toggle("studio")}
         >
           <p className="flex gap-3 items-start text-white/70">
-            <MapPinIcon size={30} className="mt-1 text-[var(--basho-sand)]/80" />
+            <MapPinIcon size={isMobile ? 20 : 30}
+           className="mt-0 text-[var(--basho-sand)]/80" />
             Basho Studio, City Light Road, Surat, Gujarat 395007
           </p>
           

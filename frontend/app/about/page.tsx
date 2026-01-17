@@ -3,6 +3,7 @@
 import { motion, type Variants } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
+import JourneyAtmosphere from "@/components/JourneyAtmosphere";
 
 const journey = [
   {
@@ -112,10 +113,7 @@ export default function AboutPage() {
 
       <main>
         {/* Our Story / Founder Section */}
-        <section
-          id="our-story"
-          className="w-full bg-[#efe9dd] py-24"
-        >
+        <section id="our-story" className="w-full bg-[#efe9dd] py-24">
           <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             {/* LEFT : IMAGE */}
             <motion.div
@@ -156,10 +154,8 @@ export default function AboutPage() {
                 <h3 className="font-[var(--font-display)] text-3xl tracking-wide text-[var(--basho-terracotta)] mb-3">
                   MEET THE FOUNDER
                 </h3>
-
-                 
               </motion.div>
-            
+
               {/* Heading */}
               <motion.h2
                 variants={textItem}
@@ -226,6 +222,9 @@ export default function AboutPage() {
 
         {/* Journey Timeline */}
         <section className="section-padding bg-[#FBF7F2] relative pt-32 pb-32">
+          {/* 🌿 Atmosphere Layer */}
+          <JourneyAtmosphere />
+
           <div className="container-basho">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -414,8 +413,7 @@ export default function AboutPage() {
 
         {/* CTA */}
         <section className="section-padding bg-[var(--basho-sand)]/40 flex justify-center">
-
-            <div
+          <div
             className="
                 w-full
                 mx-auto
@@ -426,8 +424,7 @@ export default function AboutPage() {
                 text-center
                  
             "
-            >
-
+          >
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -437,16 +434,16 @@ export default function AboutPage() {
               <h2 className="font-display text-3xl md:text-4xl text-[var(--basho-teal)] leading-snug">
                 EXPERIENCE THE ART OF CLAY
               </h2>
-              
-                 <p className="font-serif text-muted-foreground text-black leading-relaxed">
-                Whether you're looking for a unique piece for your table, a meaningful gift, 
-                or wish to try your hand at pottery—we'd love to welcome you.
-               
+
+              <p className="font-serif text-muted-foreground text-black leading-relaxed">
+                Whether you're looking for a unique piece for your table, a
+                meaningful gift, or wish to try your hand at pottery—we'd love
+                to welcome you.
               </p>
               <div className="flex flex-col sm:flex-row justify-center gap-5 mt-8">
                 <Link
-                href="/shop"
-                className="
+                  href="/shop"
+                  className="
                   inline-flex items-center justify-center
                   px-10 py-4
                   rounded-2xl
@@ -466,10 +463,9 @@ export default function AboutPage() {
                   hover:text-white
                   hover:bg-[var(--basho-terracotta)]
                 "
-              >
-  SHOP COLLECTION
-</Link>
-
+                >
+                  SHOP COLLECTION
+                </Link>
 
                 <Link
                   href="/workshops"

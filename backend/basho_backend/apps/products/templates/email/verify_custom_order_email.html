@@ -1,53 +1,145 @@
 <!DOCTYPE html>
 <html>
-<body style="font-family: Arial, sans-serif; background:#f7f2ec; padding:20px;">
+  <body style="
+    margin:0;
+    padding:0;
+    background:#f6f1ea;
+    font-family: Arial, sans-serif;
+    color:#3b2a1a;
+  ">
 
-  <h2>Welcome to Handmade 🌿</h2>
+    <table width="100%" cellpadding="0" cellspacing="0">
+      <tr>
+        <td align="center" style="padding:40px 16px;">
 
-  <p>Hi <b>{{ name }}</b>,</p>
+          <!-- Card -->
+          <table width="100%" cellpadding="0" cellspacing="0" style="
+            max-width:520px;
+            background:#ffffff;
+            border-radius:14px;
+            padding:36px 32px;
+            box-shadow:0 10px 30px #e6dccf;
+          ">
 
-  <p>
-    Thank you for placing a custom order with <strong>Basho by Shivangi</strong>.
-  </p>
+            <!-- Header -->
+            <tr>
+              <td align="center" style="padding-bottom:20px;">
+                <div style="
+                  width:56px;
+                  height:56px;
+                  border-radius:50%;
+                  background:#efe3d3;
+                  display:flex;
+                  align-items:center;
+                  justify-content:center;
+                  font-size:26px;
+                ">
+                  🌿
+                </div>
 
-  <p>
-    To continue, please verify your email address by clicking the button below:
-  </p>
+                <h2 style="
+                  margin:18px 0 6px;
+                  font-size:22px;
+                  color:#5a3a1e;
+                  font-weight:700;
+                ">
+                  Verify Your Email
+                </h2>
 
-  <p style="margin: 30px 0;">
-    <a href="{{ verification_link }}"
-       style="
-         background:#8b5e3c;
-         color:#ffffff;
-         padding:12px 22px;
-         text-decoration:none;
-         border-radius:6px;
-         font-weight:bold;
-         display:inline-block;
-       ">
-      Verify My Email
-    </a>
-  </p>
+                <p style="
+                  margin:0;
+                  font-size:14px;
+                  color:#8a6a4f;
+                ">
+                  Basho by Shivangi
+                </p>
+              </td>
+            </tr>
 
-  <p>
-    Email verification helps us ensure your order details are safe and allows us
-    to keep you updated about crafting and delivery.
-  </p>
+            <!-- Body -->
+            <tr>
+              <td style="padding-top:20px; font-size:15px; line-height:1.7;">
+                <p style="margin:0 0 12px;">
+                  Hi <strong>{{ name }}</strong>,
+                </p>
 
-  <p>
-    If you did not place this order, you can safely ignore this email.
-  </p>
+                <p style="margin:0 0 14px;">
+                  Thank you for placing a custom order with <strong>Basho by Shivangi</strong>.
+                  Each piece we create is thoughtfully handcrafted, just for you.
+                </p>
 
-  <br>
+                <p style="margin:0 0 22px;">
+                  To proceed with your order, please confirm your email address by
+                  clicking the button below.
+                </p>
 
-  <p>
-    We're grateful to have you as part of our ceramic art journey. Every piece is
-    handcrafted with care, intention, and love — made especially for you.
-  </p>
+                <!-- Button -->
+                <div style="text-align:center; margin:26px 0;">
+                  <a href="{{ verification_link }}" style="
+                    background:#7a3e1d;
+                    color:#ffffff;
+                    text-decoration:none;
+                    padding:14px 30px;
+                    border-radius:8px;
+                    font-size:15px;
+                    font-weight:600;
+                    display:inline-block;
+                  ">
+                    Verify My Email
+                  </a>
+                </div>
 
-  <br>
+                <p style="
+                  margin:0;
+                  font-size:13px;
+                  color:#8a6a4f;
+                ">
+                  Email verification helps us keep your order secure and ensures
+                  we can update you as your piece is crafted.
+                </p>
 
-  <p>– Basho by Shivangi</p>
+                <!-- Divider -->
+                <hr style="
+                  border:none;
+                  height:1px;
+                  background:#efe3d3;
+                  margin:28px 0;
+                ">
 
-</body>
+                <p style="
+                  margin:0;
+                  font-size:13px;
+                  color:#9a7b60;
+                ">
+                  If you did not request this order, you may safely ignore this email.
+                </p>
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td style="padding-top:30px; font-size:14px; color:#5a3a1e;">
+                <p style="margin:0;">
+                  With warmth,<br>
+                  <strong>Basho by Shivangi</strong>
+                </p>
+
+                <p style="
+                  margin:10px 0 0;
+                  font-size:12px;
+                  color:#a58b74;
+                ">
+                  Handmade ceramics • Crafted with intention
+                </p>
+              </td>
+            </tr>
+
+          </table>
+          <!-- End Card -->
+
+        </td>
+      </tr>
+    </table>
+
+  </body>
 </html>
