@@ -496,10 +496,10 @@ useEffect(() => {
 {/* TODO: Replace # with collection page link */}
         <a
        
-          href="#"
+          href="/gallery"
           className="px-6 py-3 rounded-md border border-white/40"
         >
-          View Schedule
+          View Gallery
         </a>
       </div>
     </div>

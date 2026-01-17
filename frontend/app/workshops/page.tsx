@@ -10,6 +10,7 @@ import { WorkshopGrid } from "@/components/workshops/WorkshopGrid";
 import { WorkshopFilter } from "@/components/workshops/WorkshopFilter";
 import { Section } from "@/components/shared/Section";
 import type { Workshop } from "@/types/workshop";
+import Link from "next/link";
 
 export default function WorkshopsPage() {
   const [activeFilter, setActiveFilter] = useState("all");
@@ -201,9 +202,11 @@ useEffect(() => {
               </span>
             </div>
           </div>
+          <Link href="/experiences">
           <button className="bg-[#C9B896] text-[#2C2C2C] px-8 py-3 rounded-sm font-medium hover:bg-[#B8A785] transition-colors">
             Book Private Session
           </button>
+          </Link>
         </div>
       </Section>
 

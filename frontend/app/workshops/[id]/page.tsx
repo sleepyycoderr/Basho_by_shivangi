@@ -12,12 +12,14 @@ import { workshops as staticWorkshops} from '@/data/workshops';
 import { fetchWorkshopsClient } from '@/lib/api';
 import type { Workshop } from '@/types/workshop';
 import { registerWorkshop } from '@/lib/api';
+import router from 'next/dist/shared/lib/router/router';
 
 
  export default function WorkshopDetailPage() {
   // 1️⃣ params
   const params = useParams();
   const workshopId = params.id as string;
+  const router1 = useRouter();
 
   // 2️⃣ state (THIS CREATES setWorkshop)
   const [workshop, setWorkshop] = useState<Workshop | null>(null);
@@ -281,7 +283,8 @@ const handleConfirmBooking = async () => {
 
         // ✅ SUCCESS
         setBookingSuccess(true);
-        alert("Payment successful! Booking confirmed 🎉");
+        router1.push("/workshopsuccess");
+
       },
 
       prefill: {
@@ -1048,13 +1051,3 @@ const handleConfirmBooking = async () => {
     </main>
   );
 }
-
-
-
-
-
-
-
-
-
-

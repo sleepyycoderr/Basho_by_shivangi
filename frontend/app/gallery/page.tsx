@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { useMemo } from "react";
@@ -129,9 +129,12 @@ const playVideo = (id: "video1" | "video2") => {
 
 
 
-  const shuffledImages = useMemo(() => {
-  return shuffleArray(galleryImages);
+  const [shuffledImages, setShuffledImages] = useState<GalleryImage[]>(galleryImages);
+
+useEffect(() => {
+  setShuffledImages(shuffleArray(galleryImages));
 }, []);
+
 
 const filteredImages =
   activeCategory === "all"
