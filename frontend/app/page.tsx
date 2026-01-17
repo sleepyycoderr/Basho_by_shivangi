@@ -508,8 +508,8 @@ useEffect(() => {
 </section>
 {/* ================= VIDEO TESTIMONIAL ================= */}
 {/* ================= VIDEO TESTIMONIAL ================= */}
-<section className="relative overflow-hidden bg-gradient-to-br from-[#f7f3ee] via-[#f1ebe2] to-[#ede5d6] py-32 px-6">
-
+<section className="relative overflow-hidden bg-gradient-to-br from-[#f7f3ee] via-[#f1ebe2] to-[#f7f3ee] py-32 px-6">
+  <section className="bg-gradient-to-r from-[#f7f3ee] via-[#f1ebe2] to-[#f7f3ee] py-24 px-6"></section>
   {/* Decorative clay glow circles */}
   <div className="absolute -top-40 -left-40 w-[32rem] h-[32rem] bg-[#c97c5d]/25 rounded-full blur-[120px]" />
   <div className="absolute bottom-0 -right-40 w-[30rem] h-[30rem] bg-[#8c5a3c]/25 rounded-full blur-[120px]" />
