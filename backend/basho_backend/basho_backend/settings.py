@@ -84,13 +84,13 @@ INSTALLED_APPS = [
 JAZZMIN_SETTINGS = {
     # Admin titles
     "site_title": "Basho Admin",
-    "site_header": "",
-    "site_brand": "",
+    "site_header": "basho",
+    "site_brand": "basho",
     "welcome_sign": "Welcome to Basho Admin Panel",
 
     # Logo (THIS is the key)
-    "site_logo": "admin/img/basho-logo.png",
-    "site_logo_classes": "brand-image",
+     "site_logo": None,
+    "site_logo_classes": None,
 
 
     # Sidebar
@@ -117,8 +117,12 @@ JAZZMIN_SETTINGS = {
         "experiences.workshop": "fas fa-paint-brush",
         "experiences.workshopslot": "fas fa-hourglass",
         "experiences.workshopregistration": "fas fa-users",
+        "experiences.StudioBooking": "fas fa-building",
+        "experiences.UpcomingEvent": "fas fa-calendar-alt",
 
+         
         # Orders & Payments
+        "orders.Cart": "fas fa-shopping-cart",
         "orders.order": "fas fa-shopping-cart",
         "orders.payment": "fas fa-credit-card",
         "orders.transaction": "fas fa-receipt",
@@ -132,6 +136,12 @@ JAZZMIN_SETTINGS = {
 
         # Corporate
         "corporate.corporateinquiry": "fas fa-building",
+
+        # Reviews
+         "reviews.Review": "fas fa-star",
+
+         # Auth Token icon
+         "authtoken.TokenProxy": "fas fa-key",
     },
 
     # Fallback icons

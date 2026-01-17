@@ -6,10 +6,8 @@ body, .content-wrapper, .main-footer {
     font-family: "Poppins", "Segoe UI", sans-serif;
 }
 
-/* ===============================
-   REMOVE DJANGO TEXT BRAND
-================================ */
-.brand-text, .brand-link span {
+ 
+.brand-text {
     display: none !important;
 }
 
@@ -173,4 +171,306 @@ input:focus, select:focus, textarea:focus {
 .breadcrumb a {
     color: #8E3A16 !important;
     font-weight: 600;
+}
+
+/* ===============================
+   ADMIN PROFILE DROPDOWN FIX
+================================ */
+
+/* Dropdown background */
+/* =========================================
+   FORCE FIX – ADMIN PROFILE DROPDOWN TEXT
+========================================= */
+
+/* Dropdown container */
+.navbar-nav .dropdown-menu {
+    background-color: #fffaf3 !important;
+    border-radius: 14px !important;
+}
+
+/* ALL dropdown links */
+.navbar-nav .dropdown-menu a {
+    color: #3B2415 !important;
+    font-weight: 500 !important;
+    opacity: 1 !important;
+}
+
+/* Disabled-looking links (Change password / See profile) */
+.navbar-nav .dropdown-menu a.text-muted,
+.navbar-nav .dropdown-menu .disabled,
+.navbar-nav .dropdown-menu a[aria-disabled="true"] {
+    color: #6A3E24 !important;
+    opacity: 1 !important;   /* THIS is the key */
+    pointer-events: auto !important;
+}
+
+/* Hover */
+.navbar-nav .dropdown-menu a:hover {
+    background-color: #EAD3B2 !important;
+    color: #3B2415 !important;
+}
+
+/* Logout emphasis */
+.navbar-nav .dropdown-menu a[href*="logout"] {
+    color: #8E3A16 !important;
+    font-weight: 600 !important;
+}
+
+/* FORCE REMOVE LOGO IMAGE */
+.brand-link img {
+    display: none !important;
+}
+
+/* TEXT LOGO */
+.brand-link {
+    position: relative;
+}
+
+/* Insert text logo */
+.brand-link::after {
+    content: "basho";
+    font-family: "Cinzel", "Playfair Display", serif;
+    font-size: 34px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    color: #F3EBDD;
+
+    display: block;
+    text-align: center;
+}
+
+/* ===============================
+   LOGIN & LOGOUT PAGES (JAZZMIN)
+================================ */
+
+/* Page background */
+.login-page,
+.logout-page {
+    background: linear-gradient(135deg, #F3EBDD, #EAD3B2) !important;
+    min-height: 100vh;
+}
+
+/* Center card */
+.login-box,
+.logout-box {
+    width: 420px !important;
+}
+
+/* Card styling */
+.login-box .card,
+.logout-box .card {
+    border-radius: 18px !important;
+    border: none !important;
+    box-shadow: 0 12px 35px rgba(0,0,0,0.12) !important;
+    background: #fffaf3 !important;
+}
+
+/* Title */
+.login-logo h1,
+.logout-logo h1,
+.card-header h3 {
+    font-family: "Cinzel", "Playfair Display", serif;
+    font-size: 26px !important;
+    color: #64351c !important;
+    letter-spacing: 1.5px;
+}
+
+/* Input fields */
+.login-box input {
+    border-radius: 12px !important;
+    border: 1px solid #C9A27C !important;
+    padding: 10px 14px !important;
+}
+
+.login-box input:focus {
+    border-color: #8E3A16 !important;
+    box-shadow: 0 0 0 0.2rem rgba(142,58,22,0.25) !important;
+}
+
+/* Login button */
+.login-box .btn-primary,
+.logout-box .btn-primary {
+    background: linear-gradient(90deg, #8E3A16, #C85428) !important;
+    border: none !important;
+    border-radius: 30px !important;
+    padding: 10px !important;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.login-box .btn-primary:hover,
+.logout-box .btn-primary:hover {
+    background: linear-gradient(90deg, #C85428, #8E3A16) !important;
+}
+
+/* Logout page text */
+.logout-box p {
+    color: #3B2415 !important;
+    font-size: 15px;
+}
+
+/* Icons inside inputs */
+.input-group-text {
+    background: #EAD3B2 !important;
+    border: 1px solid #C9A27C !important;
+    border-radius: 12px;
+    color: #64351c !important;
+}
+
+.brand-title {
+  font-size: 52px;
+  font-weight: 800;
+  letter-spacing: 3px;
+  background: linear-gradient(90deg, #8b5e3c, #d2a679, #8b5e3c);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0px 6px 18px rgba(0,0,0,0.15);
+  position: relative;
+  display: inline-block;
+}
+
+.brand-title::after {
+  content: "";
+  position: absolute;
+  left: 10%;
+  bottom: -10px;
+  width: 80%;
+  height: 4px;
+  background: linear-gradient(90deg, #8b5e3c, #d2a679);
+  border-radius: 10px;
+  box-shadow: 0px 4px 12px rgba(139,94,60,0.4);
+}
+/* REMOVE DEFAULT JAZZMIN ICON */
+.login-logo img,
+.logout-logo img,
+.login-logo .img-circle,
+.logout-logo .img-circle {
+    display: none !important;
+}
+
+/* ===============================
+   BRAND TITLE
+================================ */
+
+.login-logo::before,
+.logout-logo::before {
+    content: "BASHO BY SHIVANGI";
+    display: inline-block;
+    text-align: center;
+     margin-bottom: 16px;
+     
+    font-family: "Cinzel", "Playfair Display", serif;
+    font-weight: 800;
+    letter-spacing: clamp(1.5px, 0.4vw, 4px);
+
+    font-size: clamp(42px, 4vw, 72px);
+    white-space: nowrap;
+
+    background: linear-gradient(90deg, #8b5e3c, #d2a679, #8b5e3c);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+
+    text-shadow: 0px 3px 10px rgba(0,0,0,0.12);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Underline */
+.login-logo::after,
+.logout-logo::after {
+    content: "";
+   display: none !important;
+    margin: 14px auto 0;
+    width: 65%;
+    height: 5px;
+    border-radius: 10px;
+
+    background: linear-gradient(90deg, #8b5e3c, #d2a679);
+    box-shadow: 0px 4px 12px rgba(139,94,60,0.4);
+}
+
+/* ===============================
+   PAGE LAYOUT
+================================ */
+
+.login-page,
+.logout-page {
+    display: flex !important;
+    align-items: flex-start !important;
+    padding-top: 80px !important;
+}
+
+/* Center logo container */
+.login-logo,
+.logout-logo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 25px !important;
+}
+
+/* ===============================
+   LOGIN / LOGOUT BOX
+================================ */
+.login-box,
+.logout-box {
+     margin-top: 10px !important;
+    width: min(600px, 92vw) !important;
+    margin-inline: auto;
+}
+
+
+/* Card */
+.login-box .card,
+.logout-box .card {
+   padding: clamp(22px, 4vw, 44px) !important;
+    border-radius: 18px;
+}
+
+/* Inputs */
+.login-box input {
+     font-size: clamp(15px, 2.5vw, 18px);
+    padding: clamp(14px, 3vw, 18px) clamp(16px, 3.5vw, 20px) !important;
+    border-radius: 12px;
+}
+
+/* Button */
+.login-box .btn-primary,
+.logout-box .btn-primary {
+ font-size: clamp(16px, 2.5vw, 18px);
+    padding: clamp(14px, 3vw, 16px) !important;
+    border-radius: 12px;
+}
+
+@media (max-width: 480px) {
+
+    .login-page,
+    .logout-page {
+        padding-top: 40px !important;
+    }
+
+    .login-logo::after,
+    .logout-logo::after {
+        width: 80%;
+        height: 4px;
+    }
+
+    .login-box,
+    .logout-box {
+        width: 100% !important;
+    }
+}
+
+@media (max-width: 768px) {
+
+    .login-logo::before,
+    .logout-logo::before {
+        margin-bottom: 20px;
+    }
+
+    .login-box,
+    .logout-box {
+        width: min(520px, 94vw) !important;
+    }
 }

@@ -1,125 +1,87 @@
-Bashō
+# Bashō
 
-Bashō is a pottery and tableware brand inspired by Japanese culture and the philosophy of the renowned Japanese poet Matsuo Bashō.
+Bashō is a pottery and tableware brand inspired by Japanese culture and the philosophy of the renowned Japanese poet Matsuo Bashō.  
 The brand celebrates handcrafted, raw, and earthy ceramic pieces, blending traditional craftsmanship with contemporary design aesthetics.
 
-This repository contains the complete frontend implementation of the Bashō website, developed as part of Google Winter of Code.
+This repository contains the complete frontend implementation of the Bashō website, developed as part of **Google Winter of Code**.
 
-Project Overview
+---
+
+## Project Overview
 
 Bashō is a full-scale web platform designed to deliver a calm, minimal, and immersive digital experience that reflects the brand’s philosophy and craftsmanship.
 
 The project integrates modern frontend development practices along with Google services to ensure secure authentication, verified user interactions, and real-world usability.
 
-Project Status
+---
 
-✅ Project Completed
+## Project Status
 
-All planned pages, features, and integrations have been successfully implemented.
+**All planned pages, features, and integrations have been successfully implemented.**
 
-Pages Implemented
+### Pages Implemented
+- Home  
+- Shop  
+- Workshop  
+- Experiences  
+- Custom Orders  
+- Studio  
+- Corporate  
+- About Us  
+- Profile  
 
-Home
+---
 
-Shop
+## Tech Stack
 
-Workshops
+### Frontend
+- **Next.js**
+- **React**
+- **react-dom**
+- **Tailwind CSS**
+- **Framer Motion**
+- **Lucide React** (icons)
 
-Custom Orders
+### Backend
+- **Django**
+- **Django REST Framework**
 
-Experiences
+### Authentication & Security
+- **JWT (JSON Web Tokens)**
 
-Studio
+---
 
-Corporate
-
-About Us
-
-Profile
-
-Tech Stack
-Frontend
-
-Next.js
-
-React
-
-react-dom
-
-Tailwind CSS
-
-Framer Motion
-
-Lucide React (icons)
-
-Backend
-
-Django
-
-Django REST Framework
-
-Authentication & Security
-
-JWT (JSON Web Tokens)
-
-Google Services Used
+## Google Services Used
 
 To enhance security, trust, and real-world usability, the following Google technologies were integrated:
 
-Google Login & Signup Authentication
+- **Google Login & Signup Authentication**
+- **Gmail-based Email Verification** for:
+  - Login  
+  - Signup  
+  - Shop forms  
+  - Workshop forms  
+  - Book an Experience forms
+  - Custom Order forms
+- **Google Maps Integration** for location-based features
 
-Gmail-based Email Verification for:
+---
 
-Login
+## Key Highlights
 
-Signup
+- End-to-end implementation of a real-world brand website  
+- Secure authentication using **JWT + Google Authentication**  
+- Mandatory Gmail verification across all critical user forms  
+- Clean, minimal UI inspired by Japanese aesthetics  
+- Smooth animations and transitions for an immersive user experience  
+- Fully responsive design across devices  
+- Practical use of Google Maps for location relevance  
 
-Shop forms
+---
 
-Workshop forms
+## Team Members
 
-Book an Experience forms
-
-Google Maps Integration for location-based features related to:
-
-Studio
-
-Workshops
-
-Experiences
-
-Key Highlights (For Google Winter of Code)
-
-End-to-end implementation of a real-world brand website
-
-Secure authentication using JWT + Google Authentication
-
-Mandatory Gmail verification across all critical user forms
-
-Clean, minimal UI inspired by Japanese aesthetics
-
-Smooth animations and transitions for an immersive user experience
-
-Fully responsive design across devices
-
-Practical use of Google Maps for location relevance
-
-Academic Context
-
-Program: Google Winter of Code
-
-Project Type: College Project
-
-Focus Areas:
-
-Full-stack web development
-
-Secure authentication systems
-
-Google service integration
-
-User-centric design and usability
-
-Developer
-
-Shivangi
+- **Suprajakshaya**
+- **Aishwarya**
+- **Vrunda**
+- **Neeharika**
