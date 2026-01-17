@@ -40,17 +40,16 @@ DEBUG = os.environ.get("DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = os.environ.get(
     "ALLOWED_HOSTS",
-    "localhost,127.0.0.1",
-    'bashobyshivangi-production.up.railway.app',
+    "localhost,127.0.0.1,bashobyshivangi-production.up.railway.app" # ✅ All in one string
 ).split(",")
 
 #Versal Related:
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
-CSRF_TRUSTED_ORIGINS = [
+CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "https://bashobyshivangi-production.up.railway.app", # Add your production URL
+    "https://bashobyshivangi-production.up.railway.app", # ✅ Add this
 ]
 
 
