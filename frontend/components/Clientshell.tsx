@@ -11,19 +11,39 @@ export default function ClientShell({ children }: { children: React.ReactNode })
 
   // Initial load
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 5000);
-    return () => clearTimeout(timer);
-  }, []);
+  const timer = setTimeout(() => {
+    setLoading(false);
+
+    // ✅ ADD THIS LINE
+    sessionStorage.setItem("loader-ready", "true");
+
+    // ✅ notify app that loader is done
+    window.dispatchEvent(new Event("loader-finished"));
+  }, 5000);
+
+  return () => clearTimeout(timer);
+}, []);
+
+
 
   // Show loader on route change
   useEffect(() => {
-    // Show loader immediately on path change
-    setLoading(true);
+  setLoading(true);
 
-    // Hide loader after small delay
-    const timer = setTimeout(() => setLoading(false), 1500); // adjust delay for animation
-    return () => clearTimeout(timer);
-  }, [pathname]);
+  const timer = setTimeout(() => {
+    setLoading(false);
+
+    // ✅ ADD THIS LINE
+    sessionStorage.setItem("loader-ready", "true");
+
+    // ✅ notify app that loader is done
+    window.dispatchEvent(new Event("loader-finished"));
+  }, 1500);
+
+  return () => clearTimeout(timer);
+}, [pathname]);
+
+
 
   return (
     <>

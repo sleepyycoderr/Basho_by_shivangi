@@ -192,7 +192,17 @@ const filterOptions: {
        
       </Section>
       
-     <Section className="pt-0 pb-20">
+     <Section
+  className="
+    pt-0 
+    pb-20 
+    flex 
+    items-center 
+    min-h-[70vh] 
+    lg:min-h-0
+  "
+>
+
   <div className="bg-linear-to-r from-[#4A5F55] to-[#5A7C6A] text-white rounded-2xl p-10 md:p-14 text-center max-w-6xl mx-auto shadow-xl">
     <h2 className="text-2xl md:text-3xl font-serif mb-4">
       Looking for Something Unique?
