@@ -9,6 +9,7 @@ import { CartIcon } from "@/components/shared/CartIcon";
 import { logout, isLoggedIn, getUsername } from "@/lib/auth";
 import { refreshAccessToken } from "@/lib/auth";
 import MusicSettingsModal from "@/components/MusicSettingsModal";
+import { VAPI_BASE } from "@/lib/api";
 
 
 const DEFAULT_AVATAR = "/image_aish/avatars/p1.png";
@@ -45,7 +46,7 @@ const refreshAuth = async () => {
   try {
   let token = localStorage.getItem("accessToken");
 
-  let res = await fetch("http://127.0.0.1:8000/api/accounts/me/", {
+  let res = await fetch("${VAPI_BASE}/api/accounts/me/", {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -55,7 +56,7 @@ const refreshAuth = async () => {
     token = await refreshAccessToken();
     if (!token) throw new Error("Auth failed");
 
-    res = await fetch("http://127.0.0.1:8000/api/accounts/me/", {
+    res = await fetch("${VAPI_BASE}/api/accounts/me/", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -161,7 +162,7 @@ useEffect(() => {
   }
 
   const res = await fetch(
-    "http://127.0.0.1:8000/api/accounts/change-username/",
+    "${VAPI_BASE}/api/accounts/change-username/",
     {
       method: "POST",
       headers: {
@@ -199,7 +200,7 @@ const saveAvatar = async (url: string) => {
 
   try {
     const res = await fetch(
-      "http://127.0.0.1:8000/api/accounts/set-avatar/",
+      "${VAPI_BASE}/api/accounts/set-avatar/",
       {
         method: "POST",
         headers: {
@@ -236,7 +237,7 @@ return (
         {/* LOGO */}
         <Link href="/" className="flex items-center h-10 overflow-hidden -ml-4">
           <Image
-            src="/image_aish/basho_logo.jpg"
+            src="/Images/branding/logo.jpg"
             alt="Basho by Shivangi"
             width={140}
             height={60}

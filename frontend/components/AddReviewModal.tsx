@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { X } from "lucide-react";
+import { VAPI_BASE } from "@/lib/api";
 
 interface Props {
   onClose: () => void;
@@ -41,7 +42,7 @@ const headers: any = {
 };
 
 
-const res = await fetch("http://127.0.0.1:8000/api/reviews/create/", {
+const res = await fetch("${VAPI_BASE}/api/reviews/create/", {
   method: "POST",
   cache: "no-store",
   headers: {

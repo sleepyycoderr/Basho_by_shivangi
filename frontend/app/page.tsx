@@ -111,7 +111,7 @@ export default function HomePage() {
 useEffect(() => {
   async function fetchReviews() {
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/reviews/", {
+      const res = await fetch("${VAPI_BASE}/api/reviews/", {
   cache: "no-store",
 });
 
@@ -562,7 +562,7 @@ useEffect(() => {
 
       <video
         ref={videoRef}
-        src="/videos/basho Pottery Bliss.mp4"
+        src="/Videos/basho Pottery Bliss.mp4"
         muted
         controls
         playsInline

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import styles from "./ExperienceSection.module.css";
+import { VAPI_BASE } from "@/lib/api";
 
 /* =====================
    TYPES
@@ -65,7 +66,8 @@ export default function ExperienceSection({
   const [participants, setParticipants] = useState(2);
   const [submitting, setSubmitting] = useState(false);
   const [availableDates, setAvailableDates] = useState<string[]>([]);
-
+ 
+ 
   // const [step, setStep] = useState<"form" | "confirmed">("form");
 
   /* =====================
@@ -75,7 +77,7 @@ export default function ExperienceSection({
   if (!open) return;
 
   fetch(
-    `http://127.0.0.1:8000/api/experiences/${experienceId}/available-dates/`
+    `${VAPI_BASE}/api/experiences/${experienceId}/available-dates/`
   )
     .then((res) => res.json())
     .then(setAvailableDates)
@@ -89,7 +91,7 @@ export default function ExperienceSection({
   }
 
   fetch(
-    `http://127.0.0.1:8000/api/experiences/${experienceId}/slots-by-date/?date=${date}`
+    `${VAPI_BASE}/api/experiences/${experienceId}/slots-by-date/?date=${date}`
   )
     .then((res) => res.json())
     .then(setSlots)
@@ -107,7 +109,7 @@ export default function ExperienceSection({
     setSubmitting(true);
 
     try {
-      const res = await fetch("http://localhost:8000/api/experiences/book/", {
+      const res = await fetch("${VAPI_BASE}/api/experiences/book/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -150,7 +152,7 @@ export default function ExperienceSection({
 
         handler: async function (response: any) {
           const verifyRes = await fetch(
-            "http://127.0.0.1:8000/api/experiences/verify-payment/",
+            `${VAPI_BASE}/api/experiences/verify-payment/`,
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -163,7 +165,7 @@ export default function ExperienceSection({
           );
 
 if (!verifyRes.ok) {
-  await fetch("http://127.0.0.1:8000/api/experiences/release-slot/", {
+  await fetch("${VAPI_BASE}/api/experiences/release-slot/", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -183,7 +185,7 @@ if (!verifyRes.ok) {
         // ✅ REFRESH SLOTS AFTER BOOKING
         if (date) {
           fetch(
-            `http://127.0.0.1:8000/api/experiences/${experienceId}/slots-by-date/?date=${date}`
+            `${VAPI_BASE}/api/experiences/${experienceId}/slots-by-date/?date=${date}`
           )
             .then(res => res.json())
             .then(setSlots);
@@ -205,7 +207,7 @@ if (!verifyRes.ok) {
         // 👇 USER CLOSES RAZORPAY WITHOUT PAYING
       modal: {
         ondismiss: async () => {
-          await fetch("http://127.0.0.1:8000/api/experiences/release-slot/", {
+          await fetch("${VAPI_BASE}/api/experiences/release-slot/", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -215,7 +217,7 @@ if (!verifyRes.ok) {
 
       if (date) {
         fetch(
-          `http://127.0.0.1:8000/api/experiences/${experienceId}/slots-by-date/?date=${date}`
+          `${VAPI_BASE}/api/experiences/${experienceId}/slots-by-date/?date=${date}`
         )
           .then(res => res.json())
           .then(setSlots);

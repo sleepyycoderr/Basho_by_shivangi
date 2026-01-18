@@ -6,6 +6,8 @@ import styles from "./Experiences.module.css";
 import { motion } from "framer-motion";
 import Image from "next/image";
 
+import { VAPI_BASE } from "@/lib/api";
+
 interface ExperienceImage {
   url: string;
   alt?: string;
@@ -31,7 +33,7 @@ export default function ExperiencesPage() {
 
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/experiences/")
+    fetch("${VAPI_BASE}/api/experiences/")
       .then((res) => res.json())
       .then((data) => {
         setExperiences(data);
@@ -58,7 +60,7 @@ export default function ExperiencesPage() {
           className="absolute inset-0"
         >
           <Image
-            src="/images/workshop-pieces/12.png"
+            src="/Images/workshop-pieces/12.png"
             alt="Experiences"
             fill
             priority

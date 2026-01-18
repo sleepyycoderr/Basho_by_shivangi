@@ -10,6 +10,7 @@ import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import { useRouter } from "next/navigation";
 
+import { VAPI_BASE } from "@/lib/api";
 
 
 export default function RegisterPage() {
@@ -61,7 +62,7 @@ const [otpExpiry, setOtpExpiry] = useState(300); // 5 minutes
     return;
   }
 
-  const res = await fetch("http://127.0.0.1:8000/api/accounts/send-otp/", {
+  const res = await fetch(`${VAPI_BASE}/api/accounts/send-otp/`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, username }),
@@ -125,7 +126,7 @@ useEffect(() => {
 
     setGoogleEmail(email);
 
-    fetch("http://127.0.0.1:8000/api/accounts/google-login/", {
+    fetch(`${VAPI_BASE}/api/accounts/google-login/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),
@@ -166,7 +167,7 @@ useEffect(() => {
         className="w-full bg-[var(--basho-terracotta)] text-white py-2 rounded-lg"
         onClick={async () => {
           const res = await fetch(
-            "http://127.0.0.1:8000/api/accounts/google-register/",
+            `${VAPI_BASE}/api/accounts/google-register/`,
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -280,7 +281,7 @@ useEffect(() => {
   }
 
   const res = await fetch(
-    "http://127.0.0.1:8000/api/accounts/register/",
+    `${VAPI_BASE}/api/accounts/register/`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },

@@ -4,6 +4,7 @@ import styles from "./Studio.module.css";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import { VAPI_BASE } from "@/lib/api";
 
 interface Event {
   id: number;
@@ -22,7 +23,7 @@ export default function StudioPage() {
   useEffect(() => {
     // Fetch upcoming events
     //fetch("http://localhost:8000/api/experiences/studio-book/")
-    fetch("http://127.0.0.1:8000/api/experiences/events/")
+    fetch(`${VAPI_BASE}/api/experiences/events/`)
       .then(res => res.json())
       //.then(data => setEvents(data))
       .then(data => {
@@ -64,7 +65,7 @@ export default function StudioPage() {
     };
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/experiences/studio-book/", {
+      const res = await fetch("${VAPI_BASE}/api/experiences/studio-book/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -101,7 +102,7 @@ export default function StudioPage() {
           className="absolute inset-0"
         >
           <Image
-            src="/images/workshop-pieces/18.png"
+            src="/Images/workshop-pieces/18.png"
             alt="Corporate pottery"
             fill
             priority

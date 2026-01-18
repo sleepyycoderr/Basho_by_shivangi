@@ -34,19 +34,19 @@ const pastOrders = [
     title: "Restaurant Dinnerware Set",
     client: "Farm to Table Café",
     desc: "Custom 200-piece dinnerware set with café branding",
-    image: "/images/workshop-pieces/5.png",
+    image: "/Images/workshop-pieces/5.png",
   },
   {
     title: "Wedding Favor Cups",
     client: "Private Client",
     desc: "100 personalized tea cups for wedding guests",
-    image: "/images/workshop-pieces/3.png",
+    image: "/Images/workshop-pieces/3.png",
   },
   {
     title: "Decorative Vase Collection",
     client: "Interior Designer",
     desc: "Series of 12 unique statement vases",
-    image: "/images/products/28.png",
+    image: "/Images/products/28.png",
   },
 ];
 
@@ -238,7 +238,7 @@ return;
           className="absolute inset-0"
         >
           <Image
-            src="/images/workshop-pieces/10.png"
+            src="/Images/workshop-pieces/10.png"
             alt="Custom handmade pottery"
             fill
             className="object-cover"
