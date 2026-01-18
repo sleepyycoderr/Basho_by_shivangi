@@ -10,6 +10,8 @@ import { logout, isLoggedIn, getUsername } from "@/lib/auth";
 import { refreshAccessToken } from "@/lib/auth";
 import MusicSettingsModal from "@/components/MusicSettingsModal";
 import { VAPI_BASE } from "@/lib/api";
+import { CartDrawer } from "@/components/cart/CartDrawer";
+
 
 
 const DEFAULT_AVATAR = "/image_aish/avatars/p1.png";
@@ -26,8 +28,6 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileImage, setProfileImage] = useState<string>(DEFAULT_AVATAR);
   const [showMusicSettings, setShowMusicSettings] = useState(false);
-
-
 
 
 /* ================= AUTH REFRESH ================= */
@@ -143,6 +143,11 @@ useEffect(() => {
 
   /* ================= PROFILE MENU ================= */
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  // ================= MOBILE MORE OPTIONS =================
+const [showMobileMore, setShowMobileMore] = useState(false);
+const [mobileCartOpen, setMobileCartOpen] = useState(false);
+
+
 
 
 
@@ -231,6 +236,7 @@ const saveAvatar = async (url: string) => {
 
 
 return (
+  <>
     <header className="sticky top-0 z-50 bg-white border-b border-[var(--basho-divider)]">
       <div className="max-w-7xl mx-auto px-8 h-20 flex items-center justify-between">
 
@@ -555,38 +561,140 @@ return (
       transition={{ duration: 0.3 }}
       className="md:hidden bg-white border-t border-[var(--basho-divider)]"
     >
-      <nav className="flex flex-col px-8 py-6 gap-4 text-sm tracking-widest uppercase text-[#652810]">
-        <Link href="/shop" onClick={() => setMobileMenuOpen(false)}>SHOP</Link>
-        <Link href="/workshops" onClick={() => setMobileMenuOpen(false)}>WORKSHOPS</Link>
-        <Link href="/experiences" onClick={() => setMobileMenuOpen(false)}>EXPERIENCES</Link>
-        <Link href="/studio" onClick={() => setMobileMenuOpen(false)}>STUDIO</Link>
-        <Link href="/gallery" onClick={() => setMobileMenuOpen(false)}>GALLERY</Link>
-        <Link href="/about" onClick={() => setMobileMenuOpen(false)}>ABOUT US</Link>
-        <Link href="/corporate" onClick={() => setMobileMenuOpen(false)}>CORPORATE</Link>
+      <nav className="flex flex-col px-8 py-6 gap-5 text-sm text-[#652810]">
 
-        <hr className="my-4" />
+  {/* ================= MOBILE PROFILE HEADER ================= */}
+  {loggedIn ? (
+    <div className="flex items-center gap-3 pb-4 border-b">
+      <img
+        src={profileImage}
+        alt="Profile"
+        className="w-10 h-10 rounded-full border"
+      />
+      <span className="font-medium">Hi, {username}</span>
+    </div>
+  ) : (
+    <div className="pb-4 border-b font-medium">
+      Hi, Guest
+    </div>
+  )}
 
-        {!loggedIn ? (
-          <>
-            <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
-              Login
-            </Link>
-            <Link href="/register" onClick={() => setMobileMenuOpen(false)}>
-              Register
-            </Link>
-          </>
-        ) : (
-          <button
-            onClick={() => {
-              setMobileMenuOpen(false);
-              setShowLogoutPopup(true);
-            }}
-            className="text-left text-red-600"
-          >
-            Logout
-          </button>
-        )}
-      </nav>
+  {/* ================= MAIN NAV LINKS ================= */}
+  <div className="flex flex-col gap-4 tracking-widest uppercase">
+    <Link href="/shop" onClick={() => setMobileMenuOpen(false)}>SHOP</Link>
+    <Link href="/workshops" onClick={() => setMobileMenuOpen(false)}>WORKSHOPS</Link>
+    <Link href="/experiences" onClick={() => setMobileMenuOpen(false)}>EXPERIENCES</Link>
+    <Link href="/studio" onClick={() => setMobileMenuOpen(false)}>STUDIO</Link>
+    <Link href="/gallery" onClick={() => setMobileMenuOpen(false)}>GALLERY</Link>
+    <Link href="/about" onClick={() => setMobileMenuOpen(false)}>ABOUT US</Link>
+    <Link href="/corporate" onClick={() => setMobileMenuOpen(false)}>CORPORATE</Link>
+  </div>
+
+  <hr className="my-4" />
+
+  {/* ================= MORE OPTIONS (COLLAPSIBLE) ================= */}
+  {loggedIn && (
+    <div>
+      <button
+        onClick={() => setShowMobileMore(!showMobileMore)}
+        className="w-full text-left font-medium tracking-widest uppercase"
+      >
+        More Options {showMobileMore ? "▲" : "▼"}
+      </button>
+{showMobileMore && (
+  <div className="mt-3 flex flex-col gap-3 pl-3 text-sm tracking-normal uppercase">
+
+    {/* CHANGE USERNAME */}
+    <button
+      onClick={() => {
+        setShowChangeUsername(true);
+        setMobileMenuOpen(false);
+        setShowMobileMore(false);
+      }}
+    >
+      Change Username
+    </button>
+
+    {/* VIEW PROFILE */}
+    <button
+      onClick={() => {
+        router.push("/profile");
+        setMobileMenuOpen(false);
+        setShowMobileMore(false);
+      }}
+    >
+      View Profile
+    </button>
+
+    {/* BGM SETTINGS */}
+    <button
+      onClick={() => {
+        setShowMusicSettings(true);
+        setMobileMenuOpen(false);
+        setShowMobileMore(false);
+      }}
+    >
+      BGM Settings
+    </button>
+
+    {/* CHANGE PROFILE PICTURE */}
+    <button
+      onClick={() => {
+        setShowAvatarModal(true);
+        setMobileMenuOpen(false);
+        setShowMobileMore(false);
+      }}
+    >
+      Change Profile Picture
+    </button>
+
+    {/* CART */}
+    <button
+  onClick={() => {
+    setShowMobileMore(false);
+    setMobileMenuOpen(false);
+
+    requestAnimationFrame(() => {
+      setMobileCartOpen(true);
+    });
+  }}
+>
+  Cart
+</button>
+
+
+  </div>
+)}
+
+    </div>
+  )}
+
+  <hr className="my-4" />
+
+  {/* ================= AUTH ACTIONS ================= */}
+  {!loggedIn ? (
+    <>
+      <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
+        Login
+      </Link>
+      <Link href="/register" onClick={() => setMobileMenuOpen(false)}>
+        Register
+      </Link>
+    </>
+  ) : (
+    <button
+  className="text-left text-red-600"
+  onClick={() => {
+    setMobileMenuOpen(false);
+    setShowLogoutPopup(true);
+  }}
+>
+  Logout
+</button>
+
+  )}
+</nav>
+
     </motion.div>
   )}
 </AnimatePresence>
@@ -600,6 +708,14 @@ return (
 
 
     </header>
+
+    {/* MOBILE CART DRAWER — MUST BE OUTSIDE HEADER */}
+    <CartDrawer
+      isOpen={mobileCartOpen}
+      onClose={() => setMobileCartOpen(false)}
+    />
+    </>
+    
   );
 
 }
