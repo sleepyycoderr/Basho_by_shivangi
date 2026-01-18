@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import { useEffect } from "react";
+import { VAPI_BASE } from "@/lib/api";
 
 export default function LoginPage() {
 
@@ -55,7 +56,7 @@ const handleLogin = async () => {
 
   try {
     const response = await fetch(
-      "http://127.0.0.1:8000/api/accounts/login/",
+      `${VAPI_BASE}/api/accounts/login/`,
       {
         method: "POST",
         headers: {
@@ -96,7 +97,7 @@ const handleLogin = async () => {
     const email = decoded.email;
 
     const res = await fetch(
-      "http://127.0.0.1:8000/api/accounts/google-login/",
+      `${VAPI_BASE}/api/accounts/google-login/`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -346,7 +347,7 @@ const checkPasswordStrength = (password: string) => {
               setFpError("");
 
               const res = await fetch(
-                "http://127.0.0.1:8000/api/accounts/forgot-password/send-otp/",
+                `${VAPI_BASE}/api/accounts/forgot-password/send-otp/`,
                 {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
@@ -403,7 +404,7 @@ const checkPasswordStrength = (password: string) => {
               if (!canResend) return;
 
               const res = await fetch(
-                "http://127.0.0.1:8000/api/accounts/forgot-password/send-otp/",
+                `${VAPI_BASE}/api/accounts/forgot-password/send-otp/`,
                 {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
@@ -433,7 +434,7 @@ const checkPasswordStrength = (password: string) => {
                 return;
               }
               const res = await fetch(
-                "http://127.0.0.1:8000/api/accounts/forgot-password/verify-otp/",
+                `${VAPI_BASE}/api/accounts/forgot-password/verify-otp/`,
                 {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
@@ -533,7 +534,7 @@ const checkPasswordStrength = (password: string) => {
               }
 
               const res = await fetch(
-                "http://127.0.0.1:8000/api/accounts/forgot-password/reset-password/",
+                `${VAPI_BASE}/api/accounts/forgot-password/reset-password/`,
                 {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },

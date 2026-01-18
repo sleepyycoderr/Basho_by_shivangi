@@ -13,7 +13,7 @@ import { fetchWorkshopsClient } from '@/lib/api';
 import type { Workshop } from '@/types/workshop';
 import { registerWorkshop } from '@/lib/api';
 import router from 'next/dist/shared/lib/router/router';
-
+import { VAPI_BASE } from "@/lib/api";
 
  export default function WorkshopDetailPage() {
   // 1️⃣ params
@@ -264,7 +264,7 @@ const handleConfirmBooking = async () => {
       handler: async function (response: any) {
         // 3️⃣ Verify payment with backend
         const verifyRes = await fetch(
-          "http://127.0.0.1:8000/api/orders/payment/verify/",
+          " /api/orders/payment/verify/",
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },

@@ -1,5 +1,6 @@
 "use client";
 
+import { VAPI_BASE } from "@/lib/api";
 import { useEffect, useState } from "react";
 
 export default function AllReviewsPage() {
@@ -9,7 +10,7 @@ export default function AllReviewsPage() {
   useEffect(() => {
     async function fetchReviews() {
       try {
-        const res = await fetch("http://127.0.0.1:8000/api/reviews/", {
+        const res = await fetch("${VAPI_BASE}/api/reviews/", {
           cache: "no-store",
         });
 
