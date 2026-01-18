@@ -237,7 +237,7 @@ return (
         {/* LOGO */}
         <Link href="/" className="flex items-center h-10 overflow-hidden -ml-4">
           <Image
-            src="/image_aish/basho_logo.jpg"
+            src="/Images/branding/logo.jpg"
             alt="Basho by Shivangi"
             width={140}
             height={60}

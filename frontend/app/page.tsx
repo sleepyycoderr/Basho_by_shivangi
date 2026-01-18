@@ -562,7 +562,7 @@ useEffect(() => {
 
       <video
         ref={videoRef}
-        src="/videos/basho Pottery Bliss.mp4"
+        src="/Videos/basho Pottery Bliss.mp4"
         muted
         controls
         playsInline

@@ -92,7 +92,7 @@ useEffect(() => {
           className="absolute inset-0"
         >
           <Image
-            src="/images/workshop-pieces/7.png"
+            src="/Images/workshop-pieces/7.png"
             alt="Corporate pottery"
             fill
             priority

@@ -102,7 +102,7 @@ export default function StudioPage() {
           className="absolute inset-0"
         >
           <Image
-            src="/images/workshop-pieces/18.png"
+            src="/Images/workshop-pieces/18.png"
             alt="Corporate pottery"
             fill
             priority

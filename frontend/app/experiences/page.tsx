@@ -60,7 +60,7 @@ export default function ExperiencesPage() {
           className="absolute inset-0"
         >
           <Image
-            src="/images/workshop-pieces/12.png"
+            src="/Images/workshop-pieces/12.png"
             alt="Experiences"
             fill
             priority
