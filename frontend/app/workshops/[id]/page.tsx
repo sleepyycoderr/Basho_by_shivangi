@@ -8,7 +8,7 @@ import Image from 'next/image';
 import Link from 'next/link';
  import { formatPrice, formatDate } from '@/lib/utils';
 import { workshops as staticWorkshops} from '@/data/workshops';
-import { fetchWorkshopsClient } from '@/lib/api';
+import { fetchWorkshopsClient ,VAPI_BASE } from '@/lib/api';
 import type { Workshop } from '@/types/workshop';
 import { registerWorkshop } from '@/lib/api';
 
@@ -277,7 +277,7 @@ const handleConfirmBooking = async () => {
       handler: async function (response: any) {
         // 3️⃣ Verify payment with backend
         const verifyRes = await fetch(
-          "/api/orders/payment/verify/",
+          `${VAPI_BASE}/api/orders/payment/verify/`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
