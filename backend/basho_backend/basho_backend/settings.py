@@ -288,7 +288,7 @@ TIME_ZONE = 'Asia/Kolkata'
 USE_TZ = True
 
  
-FRONTEND_URL = "https://basho-by-shivangi-tau.vercel.app/"
+FRONTEND_URL = "https://basho-by-shivangi-tau.vercel.app"
 
 RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID")
 RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET")

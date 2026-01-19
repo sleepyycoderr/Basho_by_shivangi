@@ -6,14 +6,12 @@ import  { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-// import { WorkshopCard } from '@/components/workshops/WorkshopCard';
-import { formatPrice, formatDate } from '@/lib/utils';
+ import { formatPrice, formatDate } from '@/lib/utils';
 import { workshops as staticWorkshops} from '@/data/workshops';
 import { fetchWorkshopsClient } from '@/lib/api';
 import type { Workshop } from '@/types/workshop';
 import { registerWorkshop } from '@/lib/api';
-import router from 'next/dist/shared/lib/router/router';
-import { VAPI_BASE } from "@/lib/api";
+
 
  export default function WorkshopDetailPage() {
   // 1️⃣ params
@@ -23,8 +21,20 @@ import { VAPI_BASE } from "@/lib/api";
 
   // 2️⃣ state (THIS CREATES setWorkshop)
   const [workshop, setWorkshop] = useState<Workshop | null>(null);
+  const [loading, setLoading] = useState(true);
+   // Booking flow state
+  const [bookingStep, setBookingStep] = useState<'details' | 'calendar' | 'form'|'experience' | 'review'>('details');
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  // Submission & Success state
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [bookingSuccess, setBookingSuccess] = useState(false);
+ 
+  // Validation state
+ const [isAgreed, setIsAgreed] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // 3️⃣ effect
 useEffect(() => {
   let isMounted = true;
 
@@ -59,14 +69,7 @@ useEffect(() => {
 }, [workshopId]);
 
   
-  // Booking flow state
-  const [bookingStep, setBookingStep] = useState<'details' | 'calendar' | 'form'|'experience' | 'review'>('details');
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [selectedTime, setSelectedTime] = useState<string | null>(null);
-  const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [bookingSuccess, setBookingSuccess] = useState(false);
- const [loading, setLoading] = useState(true);
+ 
  
   
   // Form state
@@ -78,6 +81,8 @@ useEffect(() => {
     experienceLevel: 'beginner' as 'beginner' | 'intermediate' | 'advanced',
     specialRequests: '',
   });
+  
+
 
 if (loading) {
   return (
@@ -234,6 +239,14 @@ const handleBack = () => {
 
 
 const handleConfirmBooking = async () => {
+
+  setError(null);
+
+  if (!isAgreed) {
+    setError("Please agree to the Terms & Conditions and Cancellation Policy to proceed.");
+    return;
+  }
+
   if (!selectedSchedule || isSubmitting) return;
 
   setIsSubmitting(true);
@@ -264,7 +277,7 @@ const handleConfirmBooking = async () => {
       handler: async function (response: any) {
         // 3️⃣ Verify payment with backend
         const verifyRes = await fetch(
-          " /api/orders/payment/verify/",
+          "/api/orders/payment/verify/",
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -276,8 +289,9 @@ const handleConfirmBooking = async () => {
           }
         );
 
-        if (!verifyRes.ok) {
-          alert("Payment verification failed");
+        if (!verifyRes.ok) { 
+          setError("Payment verification failed. Please contact support.");
+          setIsSubmitting(false); // Stop loading
           return;
         }
 
@@ -303,7 +317,8 @@ const handleConfirmBooking = async () => {
 
   } catch (err: any) {
     console.error(err);
-    alert("Booking or payment failed");
+    setError("Booking initialization failed. Please try again.");
+    setIsSubmitting(false);
   } finally {
     setIsSubmitting(false);
   }
@@ -1017,7 +1032,12 @@ const handleConfirmBooking = async () => {
             {/* Terms & Conditions */}
             <div className="bg-white p-6 rounded-sm shadow-sm mb-6">
               <label className="flex items-start gap-3 cursor-pointer">
-                <input type="checkbox" className="mt-1 w-5 h-5 text-[#8B6F47] border-[#D4C5B0] rounded" required />
+                <input type="checkbox" className="mt-1 w-5 h-5 text-[#8B6F47] border-[#D4C5B0] rounded"   
+                checked={isAgreed}
+                onChange={(e) => {
+                setIsAgreed(e.target.checked);
+                if(e.target.checked) setError(null); // Clear error when they click it
+              }}/>
                 <span className="text-sm text-[#666]">
                   I agree to the <Link href="#" className="text-[#8B6F47] underline">Terms & Conditions</Link> and{' '}
                   <Link href="#" className="text-[#8B6F47] underline">Cancellation Policy</Link>. I understand that a confirmation
@@ -1025,6 +1045,16 @@ const handleConfirmBooking = async () => {
                 </span>
               </label>
             </div>
+
+              {/* 👇 ERROR MESSAGE DISPLAY (Paste this right above the buttons) */}
+              {error && (
+                <div className="mb-4">
+                  <p className="text-red-600 text-sm bg-red-50 border border-red-200 rounded-md px-4 py-3 flex items-center gap-2">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    {error}
+                  </p>
+                </div>
+              )}
 
             {/* Navigation */}
             <div className="flex gap-4">
